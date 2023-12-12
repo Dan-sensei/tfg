@@ -1,6 +1,10 @@
+'use client'
+
 import Image from "next/image"
 import Logo  from '../../public/logo.png'
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { IconSearch } from "@tabler/icons-react"
 
 interface LinkProps {
     name: string,
@@ -12,26 +16,33 @@ const links: LinkProps[] = [
     { name: 'Trending',  href: '/trending' },
     { name: 'Categorias',  href: '/categorias' },
     { name: 'Grados y masters',  href: '/grados-masters' },
-    { name: 'Favoritos',  href: '/favorites' }
+    { name: 'Próximas defensas',  href: '/defensas' },
+    { name: 'Favoritos',  href: '/favoritos' }
 ]
 
 export default function Navbar() {
+    const pathName = usePathname()
     return (
-        <header className="flex items-center">
+        <header className="flex items-center px-3 pt-2 absolute z-20 top-0 h-[100px] w-full">
             <Link href={"/"} className='flex items-center'>
                 <Image src={Logo} alt='Logo' height={100}  />
             </Link>
             <nav>
-            <ul className='lg:flex gap-x-5 ml-10 hidden'>
-                {links.map((link, index) => (
-                    <li key={index}>
-                        <Link href={link.href} className='text-xl font-sans transition-colors ease-in-out text-violet-50 hover:text-violet-500'>
-                            {link.name}
-                        </Link>
-                    </li>
-                ))}
-            </ul>
+                <ul className='lg:flex gap-x-5 ml-10 hidden'>
+                    {links.map((link, index) => (
+                        <li key={index} className={"p-1 px-2 " + (pathName === link.href ? "border-b-4 border-b-violet-700" : "")}>
+                            <Link href={link.href} className='text-xl font-sans transition-colors ease-in-out text-violet-50 hover:text-violet-500'>
+                                {link.name}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
             </nav>
+            <div className="flex-1 flex items-center justify-end">
+                <Link href={"/search"} className="p-3 pr-16">
+                    <IconSearch className="w-8 h-8 text-gray-300" />
+                </Link>
+            </div>
         </header>
     )
 }

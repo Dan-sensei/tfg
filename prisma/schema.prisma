@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TFG {
+  id Int @id @default(autoincrement())
+  thumbnail String
+  banner String
+  title String
+  description String @default("")
+  
+  author String
+  tutor String
+  content String
+  pages Int
+  documentLink String
+  tags String[]
+
+  views Int @default(0)
+  score Float @default(0)
+
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  grademaster GradeMaster @relation(fields: [gradeId], references: [id])
+  gradeId Int
+
+  createdAt DateTime @default(now())
+}
+
+model GradeMaster{
+  id Int @id @default(autoincrement())
+  name String
+  
+  tfgs TFG[]
+
+  college College @relation(fields: [collegeId], references: [id])
+  collegeId Int
+}
+
+model College{
+  id Int @id @default(autoincrement())
+  name String
+  createdAt DateTime @default(now())
+  gradeMaster GradeMaster[]
+}
+
+model Category{
+  id Int @id @default(autoincrement())
+  name String
+
+  tfgs TFG[]
+}
