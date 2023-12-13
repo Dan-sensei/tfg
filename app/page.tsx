@@ -1,16 +1,15 @@
 import Image from 'next/image'
-import RecentlyAdded from './components/RecentlyAdded'
+import RecentlyAdded from './components/Recents'
 import HomeCarousel from './components/HomeCarousel'
-
 
 export default function Home() {
   return (
-    <div>
+    <>
       <HomeCarousel />
-        <div className='p-4'>
-          <h1 className='text-2xl'>Recientes</h1>
+      <div className='p-7 px-9'>
+        <h1 className='text-2xl font-bold'>Recientes</h1>
           <RecentlyAdded />
-        </div>
-    </div>
+      </div>
+    </>
   )
 }

@@ -23,7 +23,8 @@ const links: LinkProps[] = [
 export default function Navbar() {
     const pathName = usePathname()
     return (
-        <header className="flex items-center px-3 pt-2 absolute z-20 top-0 h-[100px] w-full">
+        <header className="flex items-center px-3 pt-2 fixed z-20 top-0 h-[100px] w-full">
+            <div className="h-[120px] w-full absolute top-0 left-0 -z-10 bg-gradient-to-b from-dark"></div>
             <Link href={"/"} className='flex items-center'>
                 <Image src={Logo} alt='Logo' height={100}  />
             </Link>

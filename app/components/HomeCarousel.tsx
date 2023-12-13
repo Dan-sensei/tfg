@@ -18,11 +18,9 @@ async function getTopWorks(){
 export default async function HomeCarousel() {
     const topWorks = await getTopWorks()
     return (
-        <div className="h-[40vh] lg:h-[50vh] w-full flex justify-start items-end relative mt-[-100px]">
-
-            <div className="h-[120px] w-full absolute top-0 left-0 z-10 bg-gradient-to-b from-zinc-950"></div>
+        <div className="min-h-[500px] h-[40vh] lg:h-[50vh] w-full flex justify-start items-end relative mt-[-100px]">
             <img src={topWorks?.banner} alt="" className="w-full h-full object-cover pointer-events-none select-none brightness-75" />
-            <div className="h-[100px] w-full absolute left-0 z-10 bottom-0 bg-gradient-to-t from-black"></div>
+            <div className="h-[100px] w-full absolute left-0 z-10 bottom-0 bg-gradient-to-t from-dark"></div>
             <div className="absolute w-[90%] lg:w-[40%] mx-auto p-10 mb-14 drop-shadow-lg">
                 <h1 className="text-white text-2xl md:text-3xl lg:text-4xl font-bold">
                     {topWorks?.title}
