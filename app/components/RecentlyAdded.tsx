@@ -28,11 +28,12 @@ async function getRecents() {
 
 export default async function RecentlyAdded() {
     const tfgs = await getRecents();
+    console.log("RECENTLY ADDED")
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 mt-5 gap-5">
             {
             tfgs.map((tfg) => (
-                <div key={tfg.id} className="first:origin-left last:origin-right relative 
+                <div key={tfg.id} className="last:origin-right first:origin-left relative 
                 transition-all duration-300 delay-0 hover:delay-100
                 z-0 hover:z-30 hover:scale-[1.3] hover:-translate-y-10 hover:shadow-xl-d
                 group flex items-center justify-center">

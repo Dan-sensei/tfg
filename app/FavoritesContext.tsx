@@ -1,42 +1,36 @@
 'use client';
-import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 
 interface FavoritesContextProps {
-    favorites: Set<number>;
-    add_remove: (id: number) => void;
+    isFavorite: (id: number) => Boolean;
+    toggleFav: (id: number, flag: Boolean) => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextProps | undefined>(undefined);
 
+const getInitialLikes = () => {
+    return new Set<number>(Array.from(JSON.parse(localStorage.getItem('favorites') || '{}')));
+};
+
 export function FavoritesProvider({children}: { children: React.ReactNode }) {
     const [favorites, setFavorites] = useState<Set<number>>(new Set());
+    const favValues = useRef(favorites);
     useEffect(() => {
-        const favoritesStorage = localStorage.getItem('favorites');
-        if(favoritesStorage) {
-            setFavorites(new Set(Array.from(JSON.parse(favoritesStorage))));
-        }
+        const newFavorites = getInitialLikes();
+        setFavorites(newFavorites);
+        favValues.current = newFavorites;
     }, []);
-    const saveFavoritesToLocalStorage = (newFavorites: Set<number>) => {
-        localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
-    };
-    const favoritesReturn: FavoritesContextProps = {
-        favorites: favorites,
-        add_remove: (id: number) => {
-            let newFavorites = null;
-            if(favorites.has(id)) {
-                favorites.delete(id)
-                newFavorites = new Set(favorites);
-            }
-            else{
-                newFavorites = new Set(favorites.add(id));
-            }
-            setFavorites(newFavorites);
-            saveFavoritesToLocalStorage(newFavorites)
-        }
+    
+    const toggleFav = (id: number, flag: Boolean) => {
+        flag ? favValues.current.add(id) : favValues.current.delete(id);
+        localStorage.setItem('favorites', JSON.stringify(Array.from(favValues.current)));
     };
 
+    const isFavorite = (id: number): Boolean => {
+        return favValues.current.has(id);
+    };
     return (
-        <FavoritesContext.Provider value={favoritesReturn}>
+        <FavoritesContext.Provider value={{ isFavorite, toggleFav }}>
             {children}
         </FavoritesContext.Provider>
     );

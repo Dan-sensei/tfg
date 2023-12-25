@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import RecentlyAdded from './components/Recents'
+import RecentlyAdded from './components/RecentlyAdded'
 import HomeCarousel from './components/HomeCarousel'
 
 export default function Home() {
