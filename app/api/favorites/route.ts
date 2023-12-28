@@ -6,7 +6,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     const {ids} = await request.json();
-    console.log(ids)
     const favorites = await prisma.tFG.findMany({
         where: {
             id: {

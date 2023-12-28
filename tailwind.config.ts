@@ -9,7 +9,6 @@ const config: Config = {
     "./node_modules/@nextui-org/theme/dist/components/(button|chip).js",
   ],
   theme: {
-    
     extend: {
       dropShadow:{
         'fav': '0 0 3px rgba(255, 0, 0, 0.9)'
@@ -21,6 +20,17 @@ const config: Config = {
         'dark': '#05060b',
         'popup': '#0c0e1d'
       },
+      flex: {
+        '1c': '0 0 100%',
+        '2c': '0 0 50%',
+        '3c': '0 0 33.333333%',
+        '4c': '0 0 25%',
+        '5c': '0 0 20%',
+        '6c': '0 0 16.666667%',
+      },
+      aspectRatio: {
+        'wide': '3 / 1',
+      }
     },
   },
   darkMode: "class",

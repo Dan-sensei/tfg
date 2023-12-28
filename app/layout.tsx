@@ -22,10 +22,10 @@ export default function RootLayout({
         <body className={inter.className}>
           <Navbar />
           <section className='mt-[100px]'>
-          <Providers>{children}</Providers>
+            <Providers>{children}</Providers>
           </section>
-          <footer>
-
+          <footer className='bg-dark text-white text-center py-3'>
+          <p>© 2021 Nova</p>
           </footer>
           </body>
       </html>
