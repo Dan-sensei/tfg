@@ -89,7 +89,7 @@ async function findMostPopular(): Promise<MostPoular[]> {
 	});
     return popularGroups;
 }
-	
+/*
 type FetchDataResult = Record<string, iTFG[]>;
 
 export const getData = async () => {
@@ -107,7 +107,7 @@ export const getData = async () => {
 
     return { fetchedData  };
 };
-
+*/
 const getRowData = async () => {
 	const popularGroups = await findMostPopular();
 
@@ -158,8 +158,8 @@ export default async function Home() {
 			<HomeCarousel topTfgs={ topWorks } />
 			<div className='pb-[180px]'>
 				{
-					RowData.map((rowData) => (
-						<div className='pb-10'>
+					RowData.map((rowData, index) => (
+						<div key={index} className='pb-10'>
 							<div className='px-14'>
 								<h1 className='text-2xl font-bold px-2 pt-5'>{rowData.name}</h1>
 							</div>
