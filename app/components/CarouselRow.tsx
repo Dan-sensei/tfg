@@ -24,18 +24,24 @@ const getActiveSlidesToScroll = () => {
     const activeBreakpoint = breakpoints.find(breakpoint => width >= breakpoint.width);
     return activeBreakpoint ? activeBreakpoint.slidesToScroll : 2;
 };
+
 const getCardClassName = (index: number, currentIndex: number, slidesToScroll: number, totalSlides: number) => {
-    if((currentIndex + 1) * slidesToScroll > totalSlides && index === currentIndex * slidesToScroll - (totalSlides - currentIndex * slidesToScroll - 1)) {
-        return 'origin-left';
-    }
-    else if ((currentIndex + 1) * slidesToScroll < totalSlides && index === currentIndex * slidesToScroll) {
-        return 'origin-left';
-    } 
-    else if (index === currentIndex * slidesToScroll + slidesToScroll - 1 || index === totalSlides - 1) {
-        return 'origin-right';
-    }
+    if(index === 0) return 'origin-left';
+
+    const isBeyondTotalSlides = (currentIndex + 1) * slidesToScroll > totalSlides;
+    const isFirstOfLastSet = index === totalSlides - slidesToScroll;
+    const isFirstOfCurrentSet = index === currentIndex * slidesToScroll;
+    const isLastOfCurrentSet = index === currentIndex * slidesToScroll + slidesToScroll - 1;
+    const isLastSlide = index === totalSlides - 1;
+    const isLessThanTotal = index < slidesToScroll - 1;
+
+    if (isBeyondTotalSlides && isFirstOfLastSet) return 'origin-left';
+    if (!isBeyondTotalSlides && isFirstOfCurrentSet) return 'origin-left';
+    if (!isLessThanTotal && (isLastOfCurrentSet || isLastSlide)) return 'origin-right';
+
     return '';
 };
+
 export default function CarouselRow({tfgArray}: CarouselRowProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({ 
         loop: false, 
@@ -85,19 +91,18 @@ export default function CarouselRow({tfgArray}: CarouselRowProps) {
 
     const showPrev = currentIndex > 0;
     const showNext = currentIndex >= 0 && currentIndex*slidesToScroll + slidesToScroll < totalSlides.current - 1;
-
     return (
-        <div className="embla  mt-5">
+        <div className="embla hover:z-10 mt-5">
             <div className="embla__viewport" ref={emblaRef}>
                 <div className="embla__container mx-14">
                 {
                     tfgArray.map((tfg, index) => (
                         <div key={index} className="embla__slide flex-2c sm:flex-3c md:flex-4c xl:flex-5c 2xl:flex-6c px-2">
-                            
                             <Card
                                 className={getCardClassName(index, currentIndex, slidesToScroll, totalSlides.current)}
                                 key={tfg.id} 
                                 id={tfg.id} 
+                                createdAt={tfg.createdAt}
                                 thumbnail={tfg.thumbnail} 
                                 title={tfg.title} 
                                 description={tfg.description} 

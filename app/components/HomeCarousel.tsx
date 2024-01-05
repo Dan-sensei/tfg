@@ -12,7 +12,7 @@ interface CarouselProps {
 }
 
 export default function HomeCarousel({topTfgs}: CarouselProps) {
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true}, [Autoplay({delay: 4000})]);
+    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true}, [Autoplay({delay: 8000})]);
 
     const scrollPrev = useCallback(() => {
         emblaApi?.scrollPrev()
@@ -23,15 +23,15 @@ export default function HomeCarousel({topTfgs}: CarouselProps) {
     }, [emblaApi])
     
     return (
-        <div className="embla  mt-5">
+        <div className="embla">
             <div className="embla__viewport" ref={emblaRef}>
                 <div className="embla__container">
                 {
                     topTfgs.map((item: any) => (
                         <div key={item.id} className="min-h-[300px] aspect-video xl:aspect-wide flex-1c w-full flex justify-start items-end relative mt-[-100px]">
                             <img src={item?.banner} alt="" className="w-full h-full object-cover pointer-events-none select-none brightness-75" />
-                            <div className="h-[70px] w-full absolute left-0 z-10 bottom-0 bg-gradient-to-t from-dark"></div>
-                            <div className="absolute w-[90%] lg:w-[70%] mx-auto px-16 py-10 sm:py-16 md:mb-5 drop-shadow-lg">
+                            <div className="h-[70px] w-full absolute left-0 z-10 bottom-0 bg-gradient-to-t from-dark pointer-events-none"></div>
+                            <div className="absolute w-full lg:w-[70%] mx-auto px-16 py-10 sm:py-16 md:mb-5 drop-shadow-lg">
                                 <h1 className="text-white text-xl md:text-2xl lg:text-3xl font-bold line-clamp-3">
                                     {item?.title}
                                 </h1>

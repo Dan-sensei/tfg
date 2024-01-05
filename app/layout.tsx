@@ -21,7 +21,7 @@ export default function RootLayout({
       <html lang="en" className='bg-dark'>
         <body className={inter.className}>
           <Navbar />
-          <section className='mt-[100px]'>
+          <section className='pt-[100px]'>
             <Providers>{children}</Providers>
           </section>
           <footer className='bg-dark text-white text-center py-3'>
