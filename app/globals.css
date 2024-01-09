@@ -3,35 +3,45 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+    }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+    color: rgb(var(--foreground-rgb));
 }
 
 .embla {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
-.embla__viewport{
-  width: 100%;
+.embla__viewport {
+    width: 100%;
 }
 .embla__container {
-  display: flex;
+    display: flex;
 }
 .embla__slide {
-  min-width: 0;
+    min-width: 0;
+}
+
+.arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+
+    border-bottom: 10px solid rgb(12 14 29);
+	;
 }

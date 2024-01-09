@@ -8,7 +8,7 @@ interface ExtendedTFG extends iTFG {
     className?: string;
 }
 
-export default function Card({id, thumbnail, title, pages, description, createdAt, updateCallback, className}: ExtendedTFG) {
+export default function Card({id, thumbnail, title, views, score, pages, description, createdAt, updateCallback, className}: ExtendedTFG) {
     return (
         <div key={id} className={`${className} relative 
                 transition-all duration-300 delay-0 hover:delay-100

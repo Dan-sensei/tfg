@@ -19,23 +19,28 @@ export interface iHomeTFG {
     createdAt?: Date,
 }
 
-export const DBProperty = {
-    GradeMaster: 0,
-    Category: 1
+export enum DBProperty {
+    GradeMaster = 0,
+    Category = 1
 }
 
-export type MostPoular = {
+export type MostPopular = {
     type: number,
     id: number,
     views: number,
 };
-
+export interface PopularFields{
+	grade: number[],
+	category: number[]
+    order: MostPopular[]
+}
 export interface TFGQueryParamsWhere {
     gradeId?: number;
     categoryId?: number;
 }
 
 export interface TFGRowData {
+    id: number,
     name: string,
     tfgs: iTFG[]
 }

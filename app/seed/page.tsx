@@ -56,7 +56,6 @@ async function initializeMainData(Category: any[], GradeMaster: any[]) {
 	});
 	await prisma.category.createMany({ data: Category });
 	await prisma.gradeMaster.createMany({ data: GradeMaster });
-		
 }
 
 export default function SeedDb() {
@@ -73,7 +72,13 @@ export default function SeedDb() {
 			{ id: 6, name: 'Inteligencia Artificial' },
 			{ id: 7, name: 'Medio Ambiente' },
 			{ id: 8, name: 'Salud y Bienestar' },
-			{ id: 9, name: 'Negocios y Finanzas' }
+			{ id: 9, name: 'Negocios y Finanzas' },
+			{ id: 10, name: 'Robótica' },
+			{ id: 11, name: 'Diseño industrial' },
+			{ id: 12, name: 'Biomedicina' },
+			{ id: 13, name: 'Energías renovables' },
+			{ id: 14, name: 'Arquitectura' },
+			{ id: 15, name: 'Dispositivos' },
 		];
         
         const GradeMaster = [
@@ -87,10 +92,11 @@ export default function SeedDb() {
 			{ id: 7, name: 'Ingeniería Ambiental', 		collegeId : 1 },
 			{ id: 8, name: 'Ingeniería de Materiales', 	collegeId : 1 },
 			{ id: 9, name: 'Ingeniería Industrial', 	collegeId : 1 },
-			{ id: 10, name: 'Ingeniería Multimedia', 	collegeId : 1 }
+			{ id: 10, name: 'Ingeniería Multimedia', 	collegeId : 1 },
+			{ id: 11, name: 'Arquitectura', 			collegeId : 1 }
 		];
 		
-		//initializeMainData(Category, GradeMaster);
+		await initializeMainData(Category, GradeMaster);
 
         const tfgsData = [
 			{
