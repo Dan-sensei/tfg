@@ -4,7 +4,7 @@ import { IconStarFilled, IconStarHalfFilled } from "@tabler/icons-react";
 import { Chip } from "@nextui-org/chip";
 import { iTFG } from "@/app/types/interfaces";
 import Link from "next/link";
-import { encodeForUrl, formatViews } from "../utils/util";
+import { sanitizeString, formatViews } from "../utils/util";
 import { tulpen_one } from "./fonts";
 
 interface ExtendedTFG extends iTFG {
@@ -45,14 +45,14 @@ export default function Card({
         >
             <div className="w-full rounded-lg">
                 <Link
-                    href={`/page/${id}/${encodeForUrl(title)}}`}
+                    href={`/page/${id}/${sanitizeString(title)}`}
                     className="aspect-video block relative w-full z-20 cursor-pointer rounded-lg overflow-hidden"
                 >
                     <div className="absolute z-20 bg-black/50 w-full h-full rotate-[20deg] -translate-x-[30%] translate-y-[70%]
                     pointer-events-none opacity-0 invisible transition-all group-hover:visible group-hover:opacity-100 "></div>
                     <div className="absolute z-20 bg-black/30 w-full h-full rotate-[20deg] -translate-x-[25%] translate-y-[69%]
                     pointer-events-none opacity-0 invisible transition-all group-hover:visible group-hover:opacity-100 "></div>
-                    <div className={`${tulpen_one.className} text-6xl pointer-events-none opacity-0 invisible transition-all group-hover:visible group-hover:opacity-100 absolute z-30 bottom-0 left-2`}>
+                    <div className={`${tulpen_one.className} text-4xl lg:text-6xl pointer-events-none opacity-0 invisible transition-all group-hover:visible group-hover:opacity-100 absolute z-30 bottom-0 left-2`}>
                         {score}
                         <div className="inline-flex pl-2">
                             {stars}
@@ -71,7 +71,7 @@ export default function Card({
                 >
                     <div className="w-full p-3">
                         <div className="flex">
-                            <h3 className="text-sm font-bold mb-2 flex-1">
+                            <h3 className="text-xs lg:text-sm font-bold mb-2 flex-1">
                                 {title}
                             </h3>
                             <div className="flex-none">
@@ -85,7 +85,7 @@ export default function Card({
                             <span className="text-xs text-slate-400 font-semibold self-center">
                                 {createdAt?.getFullYear()}
                             </span>
-                            <span className="inline-block scale-85 text-lg self-center">
+                            <span className="hidden lg:inline-block scale-85 text-lg self-center">
                                 <Chip color="secondary" variant="solid">
                                     {pages} páginas
                                 </Chip>
@@ -97,7 +97,7 @@ export default function Card({
                                 visitas
                             </div>
                         </div>
-                        <p className="text-sm line-clamp-2 pt-2">
+                        <p className="text-xs lg:text-sm line-clamp-2 lg:pt-2">
                             {description}
                         </p>
                     </div>

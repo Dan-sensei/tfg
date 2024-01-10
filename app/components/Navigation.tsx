@@ -42,7 +42,7 @@ const TooltipLink = ({ href, name, categoriesElements }: LinkProps & { categorie
     return (
         <div className="h-full group ">
             <DefaultLink href={href} name={name} isCategories={true} />
-            <div className="px-10 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[650px] bg-popup rounded-xl group-hover:visible invisible">
+            <div className="px-7 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[650px] bg-popup rounded-xl group-hover:visible invisible">
                 <div className="arrow-up absolute left-[127px] top-[-10px]"></div>
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-9">
