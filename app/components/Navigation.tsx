@@ -28,7 +28,7 @@ const DefaultLink = ({ href, name, isCategories }: LinkProps & {isCategories?: B
     return (
         <Link
             color="foreground"
-            className="text-xl h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-violet-500"
+            className="text-xl font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-violet-500"
             href={href}
         >
             {name}
@@ -130,7 +130,7 @@ export default function Navigation({categoriesList} : { categoriesList : string[
             onMenuOpenChange={setIsMenuOpen}
             className={` ${
                 hasScrolled ? "bg-dark" : "lg:bg-transparent"
-            } transition-colors fixed font-sans`}
+            } transition-colors fixed`}
         >
             <div className="h-[120px] w-full hidden lg:block absolute top-0 left-0 -z-10 bg-gradient-to-b from-dark"></div>
             <NavbarContent className="lg:hidden" justify="start">
@@ -157,7 +157,7 @@ export default function Navigation({categoriesList} : { categoriesList : string[
                     <NavbarItem
                         key={`${index}`}
                         className={`h-full relative ${pathName === link.href
-                            ? "border-b-4 border-b-violet-700"
+                            ? "after:border-b-4 after:border-b-violet-700 after:absolute after:w-full after:h-full after:top-0 after:left-0"
                             : ""}`
                         }
                         data-active={

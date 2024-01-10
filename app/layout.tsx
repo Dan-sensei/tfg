@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 import { Providers } from "./providers";
 import prisma from "./utils/db";
 import { cache } from 'react'
 import { getPopularCategories } from "./utils/popular";
-
-const inter = Inter({ subsets: ["latin"] });
+import { montserrat } from "./components/fonts";
 
 export const metadata: Metadata = {
     title: "Nova",
@@ -26,7 +24,7 @@ export default async function RootLayout({
 	const topCategories = await getPopularCategories();
     return (
         <html lang="en" className="dark bg-dark">
-            <body className={inter.className}>
+            <body className={`${montserrat.className} antialiased`}>
                 <Navigation categoriesList={topCategories} />
                 <section className="pt-[100px]">
                     <Providers>{children}</Providers>
