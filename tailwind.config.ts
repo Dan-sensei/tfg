@@ -30,6 +30,7 @@ const config: Config = {
       },
       aspectRatio: {
         'wide': '3 / 1',
+        'file': '9 / 12'
       }
     },
   },

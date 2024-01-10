@@ -8,7 +8,22 @@ export interface iTFG {
     pages: number,
     createdAt?: Date,
 }
-
+export interface iFullTFG {
+    id: number,
+    thumbnail: string,
+    banner: string,
+    title: string,
+    description: string,
+    author: string,
+    tutor: string,
+    content: string,
+    pages: number,
+    documentLink: string,
+    tags: string[],
+    views: number,
+    score: number,
+    createdAt: Date
+}
 export interface iHomeTFG {
     id: number,
     banner: string,

@@ -2,6 +2,7 @@ import Image from "next/image"
 import FavButton from "./FavButton";
 import { Chip } from "@nextui-org/chip";
 import { iTFG } from "@/app/types/interfaces";
+import Link from "next/link";
 
 interface ExtendedTFG extends iTFG {
     updateCallback?: () => void;
@@ -15,13 +16,13 @@ export default function Card({id, thumbnail, title, views, score, pages, descrip
                 z-0 hover:z-30 hover:scale-[1.2] hover:-translate-y-10 hover:shadow-xl-d
                 group flex items-center justify-center`}>
             <div className="w-full rounded-lg">
-                <div className="aspect-video relative w-full z-20 cursor-pointer">
+                <Link href={`/page/${id}/${encodeURI(title.replaceAll(' ', '-'))}`} className="aspect-video block relative w-full z-20 cursor-pointer">
                     <Image 
                     src={thumbnail} 
                     alt={title} 
                     fill
                     className="rounded-lg absolute border- w-full h-full object-cover" />
-                </div>
+                </Link>
                 <div className="z-10 rounded-lg absolute invisible w-full transition-all group-hover:shadow-xl-d duration-300 opacity-0 delay-0 
                 group-hover:delay-75 group-hover:opacity-100 group-hover:visible bg-popup -mt-5 pt-5">
                     <div className="w-full p-3">
