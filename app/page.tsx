@@ -185,7 +185,7 @@ export default async function Home() {
             <div className="pb-[180px]">
                 {RowData.map((rowData, index) => (
                     <div key={index} className="pb-10">
-                        <div className="px-14">
+                        <div className="px-4 md:px-14">
                             <h1 className="text-xl font-bold px-2 pt-5">
                                 {rowData.name}
                             </h1>
