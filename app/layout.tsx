@@ -30,7 +30,7 @@ export default async function RootLayout({
                     <Providers>{children}</Providers>
                 </section>
                 <footer className="bg-dark text-white text-center py-3">
-                    <p>© 2021 Nova</p>
+                    <p>© 2023</p>
                 </footer>
             </body>
         </html>
