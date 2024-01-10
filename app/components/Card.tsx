@@ -3,6 +3,7 @@ import FavButton from "./FavButton";
 import { Chip } from "@nextui-org/chip";
 import { iTFG } from "@/app/types/interfaces";
 import Link from "next/link";
+import { encodeForUrl } from "../utils/util";
 
 interface ExtendedTFG extends iTFG {
     updateCallback?: () => void;
@@ -16,7 +17,7 @@ export default function Card({id, thumbnail, title, views, score, pages, descrip
                 z-0 hover:z-30 hover:scale-[1.2] hover:-translate-y-10 hover:shadow-xl-d
                 group flex items-center justify-center`}>
             <div className="w-full rounded-lg">
-                <Link href={`/page/${id}/${encodeURI(title.replaceAll(' ', '-'))}`} className="aspect-video block relative w-full z-20 cursor-pointer">
+                <Link href={`/page/${id}/${encodeForUrl(title)}}`} className="aspect-video block relative w-full z-20 cursor-pointer">
                     <Image 
                     src={thumbnail} 
                     alt={title} 

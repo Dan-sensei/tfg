@@ -6,6 +6,8 @@ import { IconChevronRight } from "@tabler/icons-react";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { useCallback, useEffect } from 'react';
 import Autoplay from 'embla-carousel-autoplay'
+import { encodeForUrl } from '../utils/util';
+import Link from 'next/link';
 
 interface CarouselProps {
     topTfgs: iHomeTFG[];
@@ -39,7 +41,7 @@ export default function HomeCarousel({topTfgs}: CarouselProps) {
                                     {item?.description}
                                 </span>
                                 <div className="flex mt-3">
-                                    <Button color="secondary">Ver</Button>
+                                    <Button draggable="false" href={`/page/${item.id}/${encodeForUrl(item.title)}`} as={Link} color="secondary">Ver</Button>
                                 </div>
                             </div>
                         </div>
