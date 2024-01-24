@@ -26,6 +26,7 @@ model TFG {
 
   views Int @default(0)
   score Float @default(0)
+  scoredTimes Int @default(0)
 
   category Category @relation(fields: [categoryId], references: [id])
   categoryId Int
@@ -34,6 +35,14 @@ model TFG {
   gradeId Int
 
   createdAt DateTime @default(now())
+}
+
+model defenseDate {
+  id Int @id @default(autoincrement())
+  title String
+  author String
+  date DateTime
+  ubication String
 }
 
 model GradeMaster{

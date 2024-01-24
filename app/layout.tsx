@@ -26,7 +26,7 @@ export default async function RootLayout({
         <html lang="en" className="dark bg-dark">
             <body className={`${montserrat.className} antialiased`}>
                 <Navigation categoriesList={topCategories} />
-                <section className="pt-[100px]">
+                <section className="pt-[64px]">
                     <Providers>{children}</Providers>
                 </section>
                 <footer className="bg-dark text-white text-center py-3">
