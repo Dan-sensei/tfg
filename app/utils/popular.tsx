@@ -1,8 +1,7 @@
 import { CategoryLink } from "../types/interfaces";
 import prisma from "./db";
-import { cache } from "react";
 
-export const getPopularCategories = cache(async () => {
+export const getPopularCategories = async () => {
     const topCategories = (await prisma.$queryRaw`
 		SELECT id, name FROM (
 			SELECT c.id, c.name, SUM(t.views) as totalViews
@@ -20,4 +19,4 @@ export const getPopularCategories = cache(async () => {
     });
 
     return categoryNames;
-});
+}
