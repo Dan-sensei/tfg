@@ -34,6 +34,11 @@ export interface iHomeTFG {
     createdAt?: Date,
 }
 
+export type CategoryLink = {
+    id: string,
+    name: string
+}
+
 export enum DBProperty {
     GradeMaster = 0,
     Category = 1
@@ -58,4 +63,17 @@ export interface TFGRowData {
     id: number,
     name: string,
     tfgs: iTFG[]
+}
+
+export type TFGPagination = {
+    tfgs: iTFG[],
+    page: number,
+    pageSize: number,
+    totalElements: number,
+    totalPages: number,
+    category: string
+}
+export type Category = {
+    id: number,
+    name: string,
 }

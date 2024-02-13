@@ -3,9 +3,13 @@
 import {NextUIProvider} from '@nextui-org/system'
 import { FavoritesProvider } from './FavoritesContext'
 
-export function Providers({children}: { children: React.ReactNode }) {
+type Props = {
+    children: React.ReactNode,
+    className?: string
+}
+export function Providers({children, className}: Props) {
     return (
-        <NextUIProvider>
+        <NextUIProvider className={className}>
             <FavoritesProvider>
                 {children}
             </FavoritesProvider>

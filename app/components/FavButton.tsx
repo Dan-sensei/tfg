@@ -10,14 +10,14 @@ interface FavButtonProps {
 }
 
 function FavButton({id, updateCallback}: FavButtonProps) {
-    const { isFavorite, toggleFav } = useFavorites();
+    const { isFavorite, toggleFav, isInitialized } = useFavorites();
     const [favorite, setFavorite] = useState<Boolean>(false);
 
     useEffect(() => {
-        if(isFavorite(id)) {
+        if(isInitialized && isFavorite(id)) {
             setFavorite(true);
         }
-    }, []);
+    }, [isInitialized]);
 
     const toggleFavorite = () => {
         const fav = !favorite;

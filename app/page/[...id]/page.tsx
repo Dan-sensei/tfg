@@ -46,7 +46,7 @@ export default async function Page({params }: { params: { id: string } }) {
     updateViews(parseFloat(params.id), TFG.views);
     
     return (
-        <div className=" mt-[-100px]">
+        <div className="-mt-[134px] -mx-4 md:-mx-14 ">
             <div className="aspect-wide relative z-0">
                 <Image
                     src={TFG.banner}

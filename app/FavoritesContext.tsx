@@ -2,8 +2,10 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 
 interface FavoritesContextProps {
-    isFavorite: (id: number) => Boolean;
-    toggleFav: (id: number, flag: Boolean) => void;
+    isFavorite: (id: number) => boolean;
+    toggleFav: (id: number, flag: boolean) => void;
+    getAllLikes: () => number[];
+    isInitialized: boolean
 }
 
 const FavoritesContext = createContext<FavoritesContextProps | undefined>(undefined);
@@ -13,12 +15,11 @@ const getInitialLikes = () => {
 };
 
 export function FavoritesProvider({children}: { children: React.ReactNode }) {
-    const [favorites, setFavorites] = useState<Set<number>>(new Set());
-    const favValues = useRef(favorites);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const favValues = useRef<Set<number>>(new Set());
     useEffect(() => {
-        const newFavorites = getInitialLikes();
-        setFavorites(newFavorites);
-        favValues.current = newFavorites;
+        favValues.current = getInitialLikes();
+        setIsInitialized(true);
     }, []);
     
     const toggleFav = (id: number, flag: Boolean) => {
@@ -26,11 +27,15 @@ export function FavoritesProvider({children}: { children: React.ReactNode }) {
         localStorage.setItem('favorites', JSON.stringify(Array.from(favValues.current)));
     };
 
-    const isFavorite = (id: number): Boolean => {
+    const getAllLikes = () => {
+        return Array.from(favValues.current);
+    }
+
+    const isFavorite = (id: number) => {
         return favValues.current.has(id);
     };
     return (
-        <FavoritesContext.Provider value={{ isFavorite, toggleFav }}>
+        <FavoritesContext.Provider value={{ isFavorite, toggleFav, getAllLikes, isInitialized }}>
             {children}
         </FavoritesContext.Provider>
     );

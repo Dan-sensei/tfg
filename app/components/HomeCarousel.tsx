@@ -25,7 +25,7 @@ export default function HomeCarousel({topTfgs}: CarouselProps) {
     }, [emblaApi])
     
     return (
-        <div className="embla">
+        <div className="embla -mx-4 md:-mx-14 -mt-[64px]">
             <div className="embla__viewport" ref={emblaRef}>
                 <div className="embla__container">
                 {

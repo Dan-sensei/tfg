@@ -6,6 +6,7 @@ import { iTFG } from "@/app/types/interfaces";
 import Link from "next/link";
 import { sanitizeString, formatViews } from "../utils/util";
 import { tulpen_one } from "./fonts";
+import { create } from "domain";
 
 interface ExtendedTFG extends iTFG {
     updateCallback?: () => void;
@@ -40,7 +41,7 @@ export default function Card({
             key={id}
             className={`${className} relative 
                 transition-all duration-300 delay-0 hover:delay-100
-                z-0 hover:z-30 hover:scale-[1.2] hover:-translate-y-10 hover:shadow-xl-d
+                z-0 hover:z-30 hover:scale-[1.15]  hover:shadow-xl-d
                 group flex items-center justify-center`}
         >
             <div className="w-full rounded-lg">
@@ -83,7 +84,7 @@ export default function Card({
                         </div>
                         <div className="flex w-full">
                             <span className="text-xs text-slate-400 font-semibold self-center">
-                                {createdAt?.getFullYear()}
+                                {createdAt ? (new Date(createdAt)).getFullYear() : ""}
                             </span>
                             <span className="hidden lg:inline-block scale-85 text-lg self-center">
                                 <Chip color="secondary" variant="solid">
