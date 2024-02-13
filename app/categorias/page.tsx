@@ -9,6 +9,9 @@ export default async function Categorias() {
         next: { tags: ["categories"] },
         cache: "no-store",
     });
+    if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+    }
     const categories: Category[] = await response.json();
     return (
         <div>
