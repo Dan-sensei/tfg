@@ -6,8 +6,7 @@ export default async function Categorias() {
     const baseUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/categories`;
 
     const response = await fetch(baseUrl, {
-        next: { tags: ["categories"] },
-        cache: "no-store",
+        next: { tags: ["categories"] }
     });
     
     const categories: Category[] = await response.json();

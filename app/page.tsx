@@ -180,9 +180,9 @@ export default async function Home() {
     const RowData = await getData();
 
     return (
-        <div className="mt-[-100px] pt-[100px]  ">
+        <div className="mt-[-100px] -mx-4 md:-mx-14 pt-[100px] overflow-hidden">
             <HomeCarousel topTfgs={topWorks} />
-            <div className="pb-[180px]">
+            <div className="pb-[180px] px-4 md:px-14">
                 {RowData.map((rowData, index) => (
                     <div key={index} className="pb-10">
                         <h1 className="text-xl font-bold px-2 pt-5">
