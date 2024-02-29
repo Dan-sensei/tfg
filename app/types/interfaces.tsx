@@ -77,3 +77,7 @@ export type Category = {
     id: number,
     name: string,
 }
+export type RedisCategoryData = {
+    name: string,
+    totalElements: number
+}
