@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
     const { type, tfgId } = await req.json();
 
-    const ip = req.headers.get("x-forwarded-for")?.split(',')[0];
+    const ip = req.headers.get("x-forwarded-for");
     console.log(ip)
     if(type === "visit"){
 
