@@ -2,6 +2,7 @@ import { iFullTFG, iTFG } from "@/app/types/interfaces";
 import Image from "next/image";
 import prisma from "@/app/utils/db";
 import TFGDetails from "@/app/components/TFGDetails";
+import {headers} from 'next/headers';
 
 async function getPage(id: number) {
     const tfg = (await prisma.tFG.findUnique({
@@ -43,6 +44,8 @@ function updateViews(id: number, views: number) {
 
 export default async function Page({params }: { params: { id: string } }) {
     const TFG = await getPage(parseFloat(params.id));
+    const forward = headers().get("x-forwarded-for");
+    const realip = headers().get("x-real-ip");
 
     const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}api/tfg`,
@@ -106,6 +109,12 @@ export default async function Page({params }: { params: { id: string } }) {
                     </div>
                     <div className="text-2xl font-bold text-gray-600 mt-2">
                         {json.ip4}
+                    </div>
+                    <div className="text-2xl font-bold text-gray-600 mt-2 f">
+                        {forward}
+                    </div>
+                    <div className="text-2xl font-bold text-gray-600 mt-2 r">
+                        {realip}
                     </div>
                 </div>
             </div>
