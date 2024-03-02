@@ -105,7 +105,7 @@ export default async function Page({params }: { params: { id: string } }) {
                         {json.ip2}
                     </div>
                     <div className="text-2xl font-bold text-gray-600 mt-2">
-                        {json.ip3}
+                        {json.ip4}
                     </div>
                 </div>
             </div>
