@@ -3,6 +3,7 @@ import Image from "next/image";
 import prisma from "@/app/utils/db";
 import TFGDetails from "@/app/components/TFGDetails";
 import {headers} from 'next/headers';
+import { increaseTFGViews } from "@/app/lib/actions";
 
 async function getPage(id: number) {
     const tfg = (await prisma.tFG.findUnique({
@@ -46,7 +47,9 @@ export default async function Page({params }: { params: { id: string } }) {
     const TFG = await getPage(parseFloat(params.id));
     const forward = headers().get("x-forwarded-for");
     const realip = headers().get("x-real-ip");
-
+    console.log(forward, realip);
+    const [t1, t2] = await increaseTFGViews(parseFloat(params.id));
+    console.log(t1, t2);
     const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}api/tfg`,
         {
@@ -101,20 +104,17 @@ export default async function Page({params }: { params: { id: string } }) {
                     <div className="text-2xl font-bold text-gray-600 mt-2">
                         Tutor: {TFG.tutor}
                     </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2">
-                        {json.ip}
-                    </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2">
-                        {json.ip2}
-                    </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2">
-                        {json.ip4}
-                    </div>
                     <div className="text-2xl font-bold text-gray-600 mt-2 f">
                         {forward}
                     </div>
                     <div className="text-2xl font-bold text-gray-600 mt-2 r">
                         {realip}
+                    </div>
+                    <div className="text-2xl font-bold text-gray-600 mt-2 t1">
+                        {t1}
+                    </div>
+                    <div className="text-2xl font-bold text-gray-600 mt-2 t2">
+                        {t2}
                     </div>
                 </div>
             </div>
