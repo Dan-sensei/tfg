@@ -1,0 +1,41 @@
+-- CreateTable
+CREATE TABLE "DailyTFGView" (
+    "id" SERIAL NOT NULL,
+    "tfgId" INTEGER NOT NULL,
+    "views" INTEGER NOT NULL DEFAULT 0,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "DailyTFGView_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "VoteLog" (
+    "id" SERIAL NOT NULL,
+    "tfgId" INTEGER NOT NULL,
+    "ip" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "VoteLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ViewLog" (
+    "id" SERIAL NOT NULL,
+    "tfgId" INTEGER NOT NULL,
+    "ip" TEXT NOT NULL,
+    "viewDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ViewLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DailyTFGView_tfgId_date_key" ON "DailyTFGView"("tfgId", "date");
+
+-- AddForeignKey
+ALTER TABLE "DailyTFGView" ADD CONSTRAINT "DailyTFGView_tfgId_fkey" FOREIGN KEY ("tfgId") REFERENCES "TFG"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "VoteLog" ADD CONSTRAINT "VoteLog_tfgId_fkey" FOREIGN KEY ("tfgId") REFERENCES "TFG"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ViewLog" ADD CONSTRAINT "ViewLog_tfgId_fkey" FOREIGN KEY ("tfgId") REFERENCES "TFG"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

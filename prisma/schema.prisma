@@ -36,6 +36,10 @@ model TFG {
   gradeId Int
 
   createdAt DateTime @default(now())
+
+  dailViews DailyTFGView[]
+  voteLogs VoteLog[]
+  viewLogs ViewLog[]
 }
 
 model defenseDate {
@@ -68,4 +72,33 @@ model Category{
   name String
 
   tfgs TFG[]
+}
+
+model DailyTFGView {
+  id          Int      @id @default(autoincrement())
+  tfgId       Int
+  views       Int      @default(0)
+  date        DateTime @default(now())
+
+  tfg         TFG      @relation(fields: [tfgId], references: [id])
+
+  @@unique([tfgId, date])
+}
+
+model VoteLog {
+  id Int @id @default(autoincrement())
+  tfgId Int
+  ip String
+  createdAt DateTime @default(now())
+
+  tfg TFG @relation(fields: [tfgId], references: [id])
+}
+
+model ViewLog {
+  id Int @id @default(autoincrement())
+  tfgId Int
+  ip String
+  viewDate DateTime @default(now())
+
+  tfg TFG @relation(fields: [tfgId], references: [id])
 }

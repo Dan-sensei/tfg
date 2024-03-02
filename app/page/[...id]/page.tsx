@@ -43,13 +43,30 @@ function updateViews(id: number, views: number) {
 
 export default async function Page({params }: { params: { id: string } }) {
     const TFG = await getPage(parseFloat(params.id));
-    updateViews(parseFloat(params.id), TFG.views);
+
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/tfg`,
+        {
+            cache: "no-store",
+            method: "POST",
+            body: JSON.stringify({
+                type: "visit",
+                tfgId: parseFloat(params.id)
+            })
+        }
+    );
+
+    const json = await response.json();
+    console.log(json)
+
+    //updateViews(parseFloat(params.id), TFG.views);
     
     return (
         <div className="-mt-[134px] -mx-4 md:-mx-14 ">
             <div className="aspect-wide relative z-0">
                 <Image
                     src={TFG.banner}
+                    priority
                     draggable="false"
                     alt={TFG.title}
                     fill
@@ -80,6 +97,9 @@ export default async function Page({params }: { params: { id: string } }) {
                     </div>
                     <div className="text-2xl font-bold text-gray-600 mt-2">
                         Tutor: {TFG.tutor}
+                    </div>
+                    <div className="text-2xl font-bold text-gray-600 mt-2">
+                        {json.ip}
                     </div>
                 </div>
             </div>
