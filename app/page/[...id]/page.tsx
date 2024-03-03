@@ -1,9 +1,10 @@
 import { iFullTFG, iTFG } from "@/app/types/interfaces";
 import Image from "next/image";
-import prisma from "@/app/utils/db";
+import prisma from "@/app/lib/db";
 import TFGDetails from "@/app/components/TFGDetails";
 import {headers} from 'next/headers';
 import { increaseTFGViews } from "@/app/lib/actions";
+import { redirect } from "next/navigation";
 
 async function getPage(id: number) {
     const tfg = (await prisma.tFG.findUnique({
@@ -30,41 +31,31 @@ async function getPage(id: number) {
 
     return tfg;
 }
-function updateViews(id: number, views: number) {
-    prisma.tFG.update({
+async function updateViews(id: number, views: number) {
+    console.log(id)
+    const result = await prisma.tFG.update({
         where: {
             id: id,
         },
         data: {
-            views: views + 1,
+            views: {
+                increment: 1
+            },
         },
     });
+    console.log(result)
 }
 
 
 
 export default async function Page({params }: { params: { id: string } }) {
-    const TFG = await getPage(parseFloat(params.id));
-    const forward = headers().get("x-forwarded-for");
-    const realip = headers().get("x-real-ip");
-    console.log(forward, realip);
-    const [t1, t2] = await increaseTFGViews(parseFloat(params.id));
-    console.log(t1, t2);
-    const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/tfg`,
-        {
-            cache: "no-store",
-            method: "POST",
-            body: JSON.stringify({
-                type: "visit",
-                tfgId: parseFloat(params.id)
-            })
-        }
-    );
-
-    const json = await response.json();
-    console.log(json)
-
+    const id = Number(params.id[0])
+    if(isNaN(id)) {
+        redirect("/");
+    }
+    const TFG = await getPage(id);
+    increaseTFGViews(parseFloat(params.id));
+    //updateViews(id, TFG.views);
     //updateViews(parseFloat(params.id), TFG.views);
     
     return (
@@ -104,17 +95,8 @@ export default async function Page({params }: { params: { id: string } }) {
                     <div className="text-2xl font-bold text-gray-600 mt-2">
                         Tutor: {TFG.tutor}
                     </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2 f">
-                        {forward}
-                    </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2 r">
-                        {realip}
-                    </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2 t1">
-                        {t1}
-                    </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2 t2">
-                        {t2}
+                    <div className="text-2xl font-bold text-gray-600 mt-2">
+                        View: {TFG.views}
                     </div>
                 </div>
             </div>

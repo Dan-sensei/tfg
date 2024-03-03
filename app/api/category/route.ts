@@ -1,7 +1,6 @@
-import prisma from "@/app/utils/db";
+import prisma from "@/app/lib/db";
 import { tfgFields } from "@/app/types/prismaFieldDefs";
-import { client } from "@/app/lib/db";
-import { RedisCategoryData } from "@/app/types/interfaces";
+import { redis } from "@/app/lib/redis";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -18,7 +17,7 @@ export async function GET(request: Request) {
         });
     }
 
-    let result = await client.hGetAll(`category:${targetId}`);
+    let result = await redis.hGetAll(`category:${targetId}`);
     let categoryData = result && Object.keys(result).length
         ? {
               name: result.name,
@@ -45,7 +44,7 @@ export async function GET(request: Request) {
             name: category.name,
             totalElements: totalElements,
         };
-        await client.hSet(`category:${targetId}`, categoryData);
+        await redis.hSet(`category:${targetId}`, categoryData);
     }
 
     const totalPages = Math.ceil(categoryData.totalElements / pageSize);

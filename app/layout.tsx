@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 import { Providers } from "./providers";
-import prisma from "./utils/db";
+import prisma from "./lib/db";
 import { cache } from "react";
 import { getPopularCategories } from "./utils/popular";
 import { montserrat } from "./components/fonts";

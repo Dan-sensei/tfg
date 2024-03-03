@@ -1,4 +1,4 @@
-import prisma from "@/app/utils/db";
+import prisma from "@/app/lib/db";
 
 export async function GET(request: Request) {
     return new Response("GET FACHERO");

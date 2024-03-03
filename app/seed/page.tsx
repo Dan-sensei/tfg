@@ -1,6 +1,6 @@
 // seed.ts
 import { PrismaClient } from "@prisma/client";
-import prisma from "../utils/db";
+import prisma from "../lib/db";
 interface BaseDocument {
     thumbnail: string;
     banner: string;

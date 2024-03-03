@@ -1,5 +1,5 @@
 import { CategoryLink } from "../types/interfaces";
-import prisma from "./db";
+import prisma from "../lib/db";
 
 export const getPopularCategories = async () => {
     const topCategories = (await prisma.$queryRaw`
