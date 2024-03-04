@@ -95,9 +95,6 @@ export default async function Page({params }: { params: { id: string } }) {
                     <div className="text-2xl font-bold text-gray-600 mt-2">
                         Tutor: {TFG.tutor}
                     </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2">
-                        View: {TFG.views}
-                    </div>
                 </div>
             </div>
             <TFGDetails />

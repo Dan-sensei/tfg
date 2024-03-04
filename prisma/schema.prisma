@@ -39,7 +39,6 @@ model TFG {
 
   dailViews DailyTFGView[]
   voteLogs VoteLog[]
-  viewLogs ViewLog[]
 }
 
 model defenseDate {
@@ -90,15 +89,6 @@ model VoteLog {
   tfgId Int
   ip String
   createdAt DateTime @default(now())
-
-  tfg TFG @relation(fields: [tfgId], references: [id])
-}
-
-model ViewLog {
-  id Int @id @default(autoincrement())
-  tfgId Int
-  ip String
-  viewDate DateTime @default(now())
 
   tfg TFG @relation(fields: [tfgId], references: [id])
 }

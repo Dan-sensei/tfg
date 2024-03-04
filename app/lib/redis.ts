@@ -24,8 +24,9 @@ declare global {
 
 const redis = globalThis.redis ?? createRedisClientSingleton();
 
+export default redis;
+
 if (process.env.NODE_ENV !== "production") {
     globalThis.redis = redis;
 }
 
-export { redis };

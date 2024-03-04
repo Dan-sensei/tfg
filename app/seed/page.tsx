@@ -60,7 +60,7 @@ async function initializeMainData(Category: any[], GradeMaster: any[]) {
 }
 
 async function postSeed() {
-	"use server";
+    "use server";
     const Category = [
         { id: 0, name: "Investigación" },
         { id: 1, name: "Entretenimiento digital" },
@@ -1550,10 +1550,10 @@ async function postSeed() {
     await prisma.tFG.createMany({ data: tfgsData });
 }
 async function updateScoredTimes() {
-	"use server";
+    "use server";
     const tfgRecords = await prisma.tFG.findMany();
     for (let record of tfgRecords) {
-        const randomScoredTimes = Math.floor(Math.random() * 1001); // Generates a random integer from 0 to 100
+        const randomScoredTimes = Math.floor(Math.random() * 1001);
         await prisma.tFG.update({
             where: { id: record.id },
             data: { scoredTimes: randomScoredTimes },
@@ -1563,6 +1563,7 @@ async function updateScoredTimes() {
 }
 
 export default function SeedDb() {
+    
     return (
         <div className="m-5">
             <form action={postSeed}>

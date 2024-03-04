@@ -7,6 +7,7 @@ import { cache } from "react";
 import { getPopularCategories } from "./utils/popular";
 import { montserrat } from "./components/fonts";
 import Footer from "./components/Footer";
+import { CategoryLink } from "./types/interfaces";
 
 export const metadata: Metadata = {
     title: "Nova",
@@ -21,7 +22,7 @@ export default async function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const topCategories = await getPopularCategories();
+    const topCategories: CategoryLink[] = [];
     return (
         <html lang="en" className="dark bg-dark h-full">
             <body

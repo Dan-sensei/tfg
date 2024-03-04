@@ -81,3 +81,8 @@ export type RedisCategoryData = {
     name: string,
     totalElements: number
 }
+
+export type RedisSet = {
+    value: string,
+    score: number
+}

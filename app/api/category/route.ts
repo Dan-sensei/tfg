@@ -1,6 +1,6 @@
 import prisma from "@/app/lib/db";
 import { tfgFields } from "@/app/types/prismaFieldDefs";
-import { redis } from "@/app/lib/redis";
+import redis from "@/app/lib/redis";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);

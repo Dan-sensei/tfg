@@ -1,1 +1,0 @@
-export const DELAY_VIEW_RECORD = 24 * 3600
