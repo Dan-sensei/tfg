@@ -31,20 +31,6 @@ async function getPage(id: number) {
 
     return tfg;
 }
-async function updateViews(id: number, views: number) {
-    console.log(id)
-    const result = await prisma.tFG.update({
-        where: {
-            id: id,
-        },
-        data: {
-            views: {
-                increment: 1
-            },
-        },
-    });
-    console.log(result)
-}
 
 
 
