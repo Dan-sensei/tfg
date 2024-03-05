@@ -34,7 +34,7 @@ export default async function RootLayout({
             >
                 <div className="pb-[150px] flex-1 flex flex-col">
                     <Navigation categoriesList={topCategories} />
-                    <section className="pt-[98px] px-4 md:px-14 flex-1 flex flex-col">
+                    <section className="pt-[64px] lg:pt-[98px] px-4 md:px-14 flex-1 flex flex-col">
                         <Providers className="flex-1 flex flex-col">
                             {children}
                         </Providers>

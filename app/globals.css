@@ -37,3 +37,11 @@ body {
     border-bottom: 10px solid rgb(12 14 29);
 	;
 }
+
+.grid-stack {
+    grid-template-areas: "stack";
+}
+
+.grid-stack > * {
+    grid-area: stack;
+}

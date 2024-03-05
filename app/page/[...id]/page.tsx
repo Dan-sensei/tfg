@@ -1,52 +1,31 @@
-import { iFullTFG, iTFG } from "@/app/types/interfaces";
 import Image from "next/image";
-import prisma from "@/app/lib/db";
 import TFGDetails from "@/app/components/TFGDetails";
-import {headers} from 'next/headers';
 import { increaseTFGViews } from "@/app/lib/actions";
 import { redirect } from "next/navigation";
+import { iFullTFG } from "@/app/types/interfaces";
+import { IconCloudDownload } from "@tabler/icons-react";
 
-async function getPage(id: number) {
-    const tfg = (await prisma.tFG.findUnique({
-        where: {
-            id: id,
-        },
-        select: {
-            id: true,
-            thumbnail: true,
-            banner: true,
-            title: true,
-            description: true,
-            author: true,
-            tutor: true,
-            content: true,
-            pages: true,
-            documentLink: true,
-            tags: true,
-            views: true,
-            score: true,
-            createdAt: true,
-        },
-    })) as iFullTFG;
-
-    return tfg;
-}
-
-
-
-export default async function Page({params }: { params: { id: string } }) {
-    const id = Number(params.id[0])
-    if(isNaN(id)) {
+export default async function Page({ params }: { params: { id: string } }) {
+    const id = Number(params.id[0]);
+    if (isNaN(id)) {
         redirect("/");
     }
-    const TFG = await getPage(id);
-    increaseTFGViews(parseFloat(params.id));
-    //updateViews(id, TFG.views);
-    //updateViews(parseFloat(params.id), TFG.views);
-    
+
+    const queryParams = new URLSearchParams({
+        id: id.toString(),
+    });
+    const response = await fetch(
+        `${
+            process.env.NEXT_PUBLIC_API_BASE_URL
+        }api/tfg?${queryParams.toString()}`
+    );
+    const TFG: iFullTFG = await response.json();
+
+    await increaseTFGViews(parseFloat(params.id));
+
     return (
-        <div className="-mt-[134px] -mx-4 md:-mx-14 ">
-            <div className="aspect-wide relative z-0">
+        <div className="lg:-mt-[134px] -mx-4 md:-mx-14 ">
+            <div className="aspect-video lg:aspect-wide relative z-0">
                 <Image
                     src={TFG.banner}
                     priority
@@ -59,28 +38,41 @@ export default async function Page({params }: { params: { id: string } }) {
             </div>
 
             <div className="text-center -mt-8 relative z-10">
-                <div className="absolute z-20 right-0 pr-10 -top-11 shadow-2xl">
-                    <div className="aspect-file w-32 rounded-xl relative overflow-hidden  border-white border-small">
-                        <Image
-                            src={TFG.thumbnail}
-                            draggable="false"
-                            fill
-                            className="object-cover"
-                            alt="Download"
-                        />
+                <div className="max-w-4xl mx-auto px-2 lg:px-0">
+                    <div className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+                        {TFG.title}
                     </div>
-                    <div className="text-gray-300 text-lg">
-                        Descargar <br /> memoria
-                    </div>
-                </div>
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-5xl font-bold">{TFG.title}</div>
-                    <div className="text-3xl font-bold text-gray-400 mt-2">
+                    <div className="text-xl lg:text-3xl font-bold text-gray-400 lg:mt-2">
                         {TFG.author}
                     </div>
-                    <div className="text-2xl font-bold text-gray-600 mt-2">
+                    <div className="text-lg lg:text-2xl font-bold text-gray-600 lg:mt-2">
                         Tutor: {TFG.tutor}
                     </div>
+                </div>
+                <div className="block xl:absolute z-20 right-0 xl:pr-10 -top-11 shadow-2xl mt-7 xl:mt-0">
+                    <button className="group">
+                        <div className="h-28 xl:h-auto w-96 max-w-full xl:aspect-file xl:w-32 rounded-xl relative overflow-hidden mx-auto border-white border-small">
+                            <div className="w-full h-full relative z-10 items-center transition-opacity opacity-0 group-hover:opacity-100 grid grid-stack">
+                                <IconCloudDownload
+                                    size={48}
+                                    className="mx-auto duration-500 -translate-y-2 group-hover:translate-y-0 z-10 drop-shadow-glow"
+                                />
+                                <div className="bg-black/50 w-full h-full scale-150 duration-500 blur-md translate-y-[150%] ease-out group-hover:translate-y-0 z-0"></div>
+                            </div>
+                            <Image
+                                src={TFG.thumbnail}
+                                draggable="false"
+                                fill
+                                className="object-cover relative z-0"
+                                alt="Download"
+                            />
+                        </div>
+                        <div className="text-gray-300 text-lg pt-2">
+                            <div className="inline-block relative after:absolute after:w-full after:origin-center after:duration-700 after:scale-0 group-hover:after:scale-100 after:bottom-0 after:left-0 after:opacity-80 after:h-[1px] after:bg-white">
+                                Descargar memoria
+                            </div>
+                        </div>
+                    </button>
                 </div>
             </div>
             <TFGDetails />

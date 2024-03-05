@@ -4,18 +4,15 @@ import prisma from "@/app/lib/db";
 
 const IMAGE_TEXT = ({ content }: { content: string[] }) => {
     const height = content[0];
-    const gap = content[1];
-    const innerWidth = content[2];
-    const imageDisplay = content[3];
-    const imagePosition = content[4];
-    const imageLink = content[5];
-    const text = content[6];
+    const imageDisplay = content[1];
+    const imagePosition = content[2];
+    const imageLink = content[3];
+    const text = content[4];
     return (
         <div
-            style={{ gap: `${gap}px`, height: `${height}px` }}
-            className={`flex min-h-[30px]`}
+            className={`min-h-[30px] gap-3 xl:gap-8 grid grid-cols-1 lg:grid-cols-2`}
         >
-            <div style={{ width: `${innerWidth}%` }} className={`relative`}>
+            <div style={{ height: `${height}px` }} className={`relative`}>
                 <Image
                     src={imageLink}
                     className={`object-${imageDisplay} object-${imagePosition}`}
@@ -23,32 +20,20 @@ const IMAGE_TEXT = ({ content }: { content: string[] }) => {
                     fill
                 />
             </div>
-            <div style={{ width: `${100 - parseFloat(innerWidth)}%` }}>
-                {text}
-            </div>
+            <div>{text}</div>
         </div>
     );
 };
 const TEXT_IMAGE = ({ content }: { content: string[] }) => {
     const height = content[0];
-    const gap = content[1];
-    const innerWidth = content[2];
-    const imageDisplay = content[3];
-    const imagePosition = content[4];
-    const imageLink = content[5];
-    const text = content[6];
+    const imageDisplay = content[1];
+    const imagePosition = content[2];
+    const imageLink = content[3];
+    const text = content[4];
     return (
-        <div
-            style={{ gap: `${gap}px`, height: `${height}` }}
-            className="flex min-h-[30px]"
-        >
-            <div style={{ width: `${innerWidth}%` }} className="">
-                {text}
-            </div>
-            <div
-                style={{ width: `${100 - parseFloat(innerWidth)}%` }}
-                className="relative"
-            >
+        <div className="min-h-[30px] gap-3 xl:gap-8 grid grid-cols-1 lg:grid-cols-2">
+            <div className="">{text}</div>
+            <div style={{ height: `${height}px` }} className="relative">
                 <Image
                     src={imageLink}
                     className={`object-${imageDisplay} object-${imagePosition}`}
@@ -81,20 +66,15 @@ const SINGLE_IMAGE = ({ content }: { content: string[] }) => {
 
 const DOUBLE_IMAGE = ({ content }: { content: string[] }) => {
     const height = content[0];
-    const gap = content[1];
-    const innerWidth = content[2];
-    const imageDisplay = content[3];
-    const imagePosition = content[4];
-    const imageLink = content[5];
-    const image2Display = content[6];
-    const image2Position = content[7];
-    const image2Link = content[8];
+    const imageDisplay = content[1];
+    const imagePosition = content[2];
+    const imageLink = content[3];
+    const image2Display = content[4];
+    const image2Position = content[5];
+    const image2Link = content[6];
     return (
-        <div
-            style={{ gap: `${gap}px`, height: `${height}px` }}
-            className="flex min-h-[30px]"
-        >
-            <div style={{ width: `${innerWidth}%` }} className="relative">
+        <div className="min-h-[30px] gap-3 xl:gap-8 grid grid-cols-1 lg:grid-cols-2">
+            <div style={{ height: `${height}px` }} className="relative">
                 <Image
                     src={imageLink}
                     className={`object-${imageDisplay} object-${imagePosition}`}
@@ -102,10 +82,7 @@ const DOUBLE_IMAGE = ({ content }: { content: string[] }) => {
                     fill
                 />
             </div>
-            <div
-                style={{ width: `${100 - parseFloat(innerWidth)}%` }}
-                className="relative"
-            >
+            <div style={{ height: `${height}px` }} className="relative">
                 <Image
                     src={image2Link}
                     className={`object-${image2Display} object-${image2Position}`}
@@ -119,24 +96,18 @@ const DOUBLE_IMAGE = ({ content }: { content: string[] }) => {
 
 const TRIPLE_IMAGE = ({ content }: { content: string[] }) => {
     const height = content[0];
-    const gap = content[1];
-    const innerWidth1 = content[2];
-    const imageDisplay = content[3];
-    const imagePosition = content[4];
-    const imageLink = content[5];
-    const innerWidth2 = content[6];
-    const image2Display = content[7];
-    const image2Position = content[8];
-    const image2Link = content[9];
-    const image3Display = content[10];
-    const image3Position = content[11];
-    const image3Link = content[12];
+    const imageDisplay = content[1];
+    const imagePosition = content[2];
+    const imageLink = content[3];
+    const image2Display = content[4];
+    const image2Position = content[5];
+    const image2Link = content[6];
+    const image3Display = content[7];
+    const image3Position = content[8];
+    const image3Link = content[9];
     return (
-        <div
-            style={{ gap: `${gap}px`, height: `${height}px` }}
-            className="flex min-h-[30px]"
-        >
-            <div style={{ width: `${innerWidth1}%` }} className="relative">
+        <div className="min-h-[30px] grid grid-cols-1 lg:grid-cols-3 gap-3 xl:gap-8">
+            <div style={{ height: `${height}px` }} className="relative">
                 <Image
                     src={imageLink}
                     className={`object-${imageDisplay} object-${imagePosition}`}
@@ -144,7 +115,7 @@ const TRIPLE_IMAGE = ({ content }: { content: string[] }) => {
                     fill
                 />
             </div>
-            <div style={{ width: `${innerWidth2}%` }} className="relative">
+            <div style={{ height: `${height}px` }} className="relative">
                 <Image
                     src={image2Link}
                     className={`object-${image2Display} object-${image2Position}`}
@@ -154,9 +125,7 @@ const TRIPLE_IMAGE = ({ content }: { content: string[] }) => {
             </div>
             <div
                 style={{
-                    width: `${
-                        100 - parseFloat(innerWidth1) - parseFloat(innerWidth2)
-                    }%`,
+                    height: `${height}px`,
                 }}
                 className="relative"
             >
@@ -170,39 +139,56 @@ const TRIPLE_IMAGE = ({ content }: { content: string[] }) => {
         </div>
     );
 };
-
-const TRIPLE_TEXT = ({ content }: { content: string[] }) => {
-    const height = content[0];
-    const gap = content[1];
-    const innerWidth1 = content[2];
-    const title1 = content[3];
-    const text1 = content[4];
-    const innerWidth2 = content[5];
-    const title2 = content[6];
-    const text2 = content[7];
-    const title3 = content[8];
-    const text3 = content[9];
+const SINGLE_TEXT = ({ content }: { content: string[] }) => {
+    const title1 = content[0];
+    const text1 = content[1];
     return (
-        <div
-            style={{ gap: `${gap}px`, height: `${height}px` }}
-            className="flex min-h-[30px]"
-        >
-            <div style={{ width: `${innerWidth1}%` }} className="">
+        <div className="flex gap-3 xl:gap-8 min-h-[30px] text-justify">
+            <div className="">
                 <div className="text-3xl">{title1}</div>
                 <div className="">{text1}</div>
             </div>
-            <div style={{ width: `${innerWidth2}%` }} className="">
+        </div>
+    );
+};
+
+const DOUBLE_TEXT = ({ content }: { content: string[] }) => {
+    const title1 = content[0];
+    const text1 = content[1];
+    const title2 = content[2];
+    const text2 = content[3];
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 xl:gap-8 min-h-[30px] text-justify">
+            <div className="">
+                <div className="text-3xl">{title1}</div>
+                <div className="">{text1}</div>
+            </div>
+            <div className="">
                 <div className="text-3xl">{title2}</div>
                 <div className="">{text2}</div>
             </div>
-            <div
-                style={{
-                    width: `${
-                        100 - parseFloat(innerWidth1) - parseFloat(innerWidth2)
-                    }%`,
-                }}
-                className=""
-            >
+        </div>
+    );
+};
+
+const TRIPLE_TEXT = ({ content }: { content: string[] }) => {
+    const title1 = content[0];
+    const text1 = content[1];
+    const title2 = content[2];
+    const text2 = content[3];
+    const title3 = content[4];
+    const text3 = content[5];
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 xl:gap-8 min-h-[30px] text-justify">
+            <div className="">
+                <div className="text-3xl">{title1}</div>
+                <div className="">{text1}</div>
+            </div>
+            <div className="">
+                <div className="text-3xl">{title2}</div>
+                <div className="">{text2}</div>
+            </div>
+            <div className="">
                 <div className="text-3xl">{title3}</div>
                 <div className="">{text3}</div>
             </div>
@@ -210,23 +196,38 @@ const TRIPLE_TEXT = ({ content }: { content: string[] }) => {
     );
 };
 
-const BLOCK_TYPES = [
-    { element: IMAGE_TEXT, expectedParameters: 7 },
-    { element: TEXT_IMAGE, expectedParameters: 7 },
-    { element: SINGLE_IMAGE, expectedParameters: 4 },
-    { element: DOUBLE_IMAGE, expectedParameters: 9 },
-    { element: TRIPLE_IMAGE, expectedParameters: 13 },
-    { element: TRIPLE_TEXT, expectedParameters: 10 },
-];
+type ComponentFunction = {
+    element: (props: { content: string[] }) => JSX.Element;
+    expectedParameters: number;
+};
+interface DetailsTypes {
+    [key: string]: ComponentFunction;
+}
 
 export default function TFGDetails() {
+    const DetailsTypes: DetailsTypes = {
+        "image-text": { element: IMAGE_TEXT, expectedParameters: 5 },
+        "text-image": { element: TEXT_IMAGE, expectedParameters: 5 },
+        "single-image": { element: SINGLE_IMAGE, expectedParameters: 4 },
+        "double-image": { element: DOUBLE_IMAGE, expectedParameters: 7 },
+        "triple-image": { element: TRIPLE_IMAGE, expectedParameters: 10 },
+        "triple-text": { element: TRIPLE_TEXT, expectedParameters: 6 },
+        "double-text": { element: DOUBLE_TEXT, expectedParameters: 4 },
+        "single-text": { element: SINGLE_TEXT, expectedParameters: 2 },
+    };
     const content = [
         {
-            type: 0,
+            type: "single-text",
+            content: [
+                ``,
+                `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
+                Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur`,
+            ],
+        },
+        {
+            type: "image-text",
             content: [
                 "320",
-                "10",
-                "20",
                 "cover",
                 "center",
                 "https://picsum.photos/seed/800/600/300",
@@ -236,11 +237,9 @@ export default function TFGDetails() {
             ],
         },
         {
-            type: 1,
+            type: "text-image",
             content: [
                 "500",
-                "10",
-                "50",
                 "cover",
                 "center",
                 "https://picsum.photos/seed/124/600/300",
@@ -250,7 +249,7 @@ export default function TFGDetails() {
             ],
         },
         {
-            type: 2,
+            type: "single-image",
             content: [
                 "500",
                 "cover",
@@ -259,11 +258,9 @@ export default function TFGDetails() {
             ],
         },
         {
-            type: 3,
+            type: "double-image",
             content: [
                 "100",
-                "50",
-                "50",
                 "cover",
                 "center",
                 "https://picsum.photos/seed/48/1500/800",
@@ -272,18 +269,14 @@ export default function TFGDetails() {
                 "https://picsum.photos/seed/248/1500/800",
             ],
         },
-        
+
         {
-            type: 5,
+            type: "triple-text",
             content: [
-                "400",
-                "10",
-                "33",
                 "Title1",
                 `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
                 Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
                 Odio voluptatibus saepe minus tempore neque veniam libero aspernatur suscipit? Ad placeat maiores laboriosam debitis, illo accusamus iure architecto quasi mollitia quam eligendi assumenda eaque commodi minima repudiandae quia. Aut!`,
-                "33",
                 "Title2",
                 `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
                 Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
@@ -295,15 +288,12 @@ export default function TFGDetails() {
             ],
         },
         {
-            type: 4,
+            type: "triple-image",
             content: [
                 "400",
-                "5",
-                "50",
                 "cover",
                 "center",
                 "https://picsum.photos/seed/2480/1500/800",
-                "33",
                 "cover",
                 "center",
                 "https://picsum.photos/seed/2458/1500/800",
@@ -316,12 +306,15 @@ export default function TFGDetails() {
     return (
         <div className="max-w-screen-2xl mx-auto">
             {content.map((c, i) => {
-                const BlockTypeComponent = BLOCK_TYPES[c.type].element;
-                if (BLOCK_TYPES[c.type].expectedParameters != c.content.length)
+                const BlockTypeComponent = DetailsTypes[c.type];
+                
+                if (!BlockTypeComponent || BlockTypeComponent.expectedParameters != c.content.length)
                     return <></>;
+
+                const Element = BlockTypeComponent.element;
                 return (
-                    <section key={i} className="p-6 pt-16">
-                        <BlockTypeComponent key={c.type} content={c.content} />
+                    <section key={i} className="p-6 pt-10">
+                        <Element key={c.type} content={c.content} />
                     </section>
                 );
             })}

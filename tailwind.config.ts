@@ -11,7 +11,13 @@ const config: Config = {
   theme: {
     extend: {
       dropShadow:{
-        'fav': '0 0 3px rgba(255, 0, 0, 0.9)'
+        'fav': '0 0 3px rgba(255, 0, 0, 0.9)',
+        'dark': '7px 5px 7px rgba(0, 0, 0, 0.9)',
+        'light-dark': '7px 5px 7px rgba(0, 0, 0, 0.6)',
+        'glow': '0px 0px 15px #ffffff90',
+        'glow-low': '0px 0px 15px #ffffff25',
+        'glow-medium': '0px 0px 15px #ffffff45',
+        
       },
       boxShadow: {
         'xl-d': '5px 3px 10px rgba(0, 0, 0, 0.7)',
