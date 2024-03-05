@@ -3,7 +3,10 @@ import { Category } from "../types/interfaces";
 import { IconBuildingBank } from "@tabler/icons-react";
 
 export default async function Categorias() {
-    const baseUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/categories`;
+    const queryParams = new URLSearchParams({
+        type: "all",
+    });
+    const baseUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/categories?${queryParams.toString()}`;
 
     const response = await fetch(baseUrl, {
         next: { tags: ["categories"] }
