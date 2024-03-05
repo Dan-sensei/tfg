@@ -304,7 +304,7 @@ export default function TFGDetails() {
         },
     ];
     return (
-        <div className="max-w-screen-2xl mx-auto">
+        <div className="max-w-screen-2xl mx-auto xl:pt-10">
             {content.map((c, i) => {
                 const BlockTypeComponent = DetailsTypes[c.type];
                 
