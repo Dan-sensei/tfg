@@ -6,3 +6,4 @@ export const TRENDING_WEIGHTS = {
     TOTAL: 0.05,
     TOTAL_VIEWS_CAP: 100000
 }
+export const PAGE_SIZE = 30

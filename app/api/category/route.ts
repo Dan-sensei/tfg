@@ -64,7 +64,7 @@ export async function GET(request: Request) {
             pageSize,
             totalElements: categoryData.totalElements,
             totalPages,
-            category: categoryData.name,
+            title: categoryData.name,
         }),
         {
             status: 200,

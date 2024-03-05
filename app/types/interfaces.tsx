@@ -71,7 +71,7 @@ export type TFGPagination = {
     pageSize: number,
     totalElements: number,
     totalPages: number,
-    category: string
+    title: string
 }
 export type Category = {
     id: number,
