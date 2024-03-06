@@ -39,6 +39,8 @@ model TFG {
 
   dailViews DailyTFGView[]
   voteLogs VoteLog[]
+
+  defense Defense?
 }
 
 model defenseDate {
@@ -91,4 +93,24 @@ model VoteLog {
   createdAt DateTime @default(now())
 
   tfg TFG @relation(fields: [tfgId], references: [id])
+}
+
+model Defense {
+  id Int @id @default(autoincrement())
+  date DateTime 
+  title String
+  startTime String
+  endTime String
+  location  Location @relation(fields: [locationId], references: [id])
+  locationId Int
+
+  tfg        TFG?   @relation(fields: [tfgId], references: [id])
+  tfgId      Int? @unique
+}
+
+model Location {
+  id      Int      @id @default(autoincrement())
+  name    String   // A friendly name for the location
+  mapLink String   // A link to the location on Google Maps
+  defenses Defense[]
 }
