@@ -66,7 +66,7 @@ export default function CalendarControls({ year, month }: Props) {
 			<div className="grid grid-cols-5 text-center">
 				{buttons.map((button, index) =>
 					button.active ? (
-						<div className="text-xl">{button.label}</div>
+						<div key={index} className="text-xl">{button.label}</div>
 					) : (
 						<button
 							key={index}
