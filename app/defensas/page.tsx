@@ -59,14 +59,14 @@ export default function Defensas({ searchParams }: Props) {
 		<div className="grid grid-cols-1 lg:grid-cols-3 pt-3">
 			<div className="col-span-2">
 				<CalendarControls year={year} month={month} />
-				<div className="grid grid-cols-7">
+				<div className="grid grid-cols-7  gap-2">
                     {WEEK.map((day, index) => (
                         <div key={index} className="p-4 text-center text-slate-300">{day}</div>
                     ))}
 					{days.map((day, index) => (
 						<div
 							key={index}
-							className={` p-4 text-center ${
+							className={` p-4 text-center rounded-lg bg-slate-400/10 ${
 								month !== day.getMonth()
 									? "text-slate-500"
 									: ""

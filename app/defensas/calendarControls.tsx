@@ -10,6 +10,7 @@ type Props = {
 };
 
 type CalendarButtonControl = {
+	classname?: string;
 	active?: boolean;
 	label: string;
 	updateMonths: number;
@@ -29,6 +30,7 @@ export default function CalendarControls({ year, month }: Props) {
 
 	const buttons: CalendarButtonControl[] = [
 		{
+			classname: "hidden lg:block",
 			label: format(subMonths(activeDate, 2), "MMMM", {
 				locale: es,
 			}).toUpperCase(),
@@ -51,19 +53,20 @@ export default function CalendarControls({ year, month }: Props) {
 			label: format(addMonths(activeDate, 1), "MMMM", {
 				locale: es,
 			}).toUpperCase(),
-			updateMonths: -1,
+			updateMonths: 1,
 		},
 		{
+			classname: "hidden lg:block",
 			label: format(addMonths(activeDate, 2), "MMMM", {
 				locale: es,
 			}).toUpperCase(),
-			updateMonths: -2,
+			updateMonths: 2,
 		},
 	];
 
 	return (
 		<>
-			<div className="grid grid-cols-5 text-center">
+			<div className="grid grid-cols-3 lg:grid-cols-5 text-center">
 				{buttons.map((button, index) =>
 					button.active ? (
 						<div key={index} className="text-xl">{button.label}</div>
@@ -71,7 +74,7 @@ export default function CalendarControls({ year, month }: Props) {
 						<button
 							key={index}
 							onClick={() => updateRouter(button.updateMonths)}
-							className={`${"text-slate-400 hover:text-slate-200 transition-colors"}`}
+							className={`${button.classname} ${"text-slate-400 hover:text-slate-200 transition-colors"}`}
 						>
 							{button.label}
 						</button>
