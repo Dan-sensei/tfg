@@ -1,7 +1,5 @@
 import Image from "next/image";
-import TFGDetails from "@/app/components/TFGDetails";
 //import { increaseTFGViews } from "@/app/lib/actions";
-import { redirect } from "next/navigation";
 import { iFullTFG } from "@/app/types/interfaces";
 import { IconCloudDownload } from "@tabler/icons-react";
 import prisma from "@/app/lib/db";
@@ -19,9 +17,6 @@ const getTFGData = async (id: number) => {
 
 export default async function Page({ params }: { params: { id: string } }) {
     const id = Number(params.id[0]);
-    if (isNaN(id)) {
-        redirect("/");
-    }
 
     const TFG: iFullTFG = await getTFGData(id);
 
@@ -79,7 +74,6 @@ export default async function Page({ params }: { params: { id: string } }) {
                     </button>
                 </div>
             </div>
-            <TFGDetails />
         </div>
     );
 }
