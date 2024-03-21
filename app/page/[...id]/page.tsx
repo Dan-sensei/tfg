@@ -1,6 +1,6 @@
 import Image from "next/image";
 import TFGDetails from "@/app/components/TFGDetails";
-import { increaseTFGViews } from "@/app/lib/actions";
+//import { increaseTFGViews } from "@/app/lib/actions";
 import { redirect } from "next/navigation";
 import { iFullTFG } from "@/app/types/interfaces";
 import { IconCloudDownload } from "@tabler/icons-react";
@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
     const TFG: iFullTFG = await getTFGData(id);
 
-    await increaseTFGViews(parseFloat(params.id));
+    //await increaseTFGViews(parseFloat(params.id));
 
     return (
         <div className="lg:-mt-[134px] -mx-4 md:-mx-14 ">
