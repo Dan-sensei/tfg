@@ -7,3 +7,4 @@ export const TRENDING_WEIGHTS = {
     TOTAL_VIEWS_CAP: 100000
 }
 export const PAGE_SIZE = 30
+export const MAX_REQUEST_SIZE = 50

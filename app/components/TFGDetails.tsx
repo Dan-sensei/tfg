@@ -1,6 +1,4 @@
-import { iFullTFG, iTFG } from "@/app/types/interfaces";
 import Image from "next/image";
-import prisma from "@/app/lib/db";
 
 const IMAGE_TEXT = ({ content }: { content: string[] }) => {
     const height = content[0];

@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { Category } from "../types/interfaces";
 import { IconBuildingBank } from "@tabler/icons-react";
+import prisma from "../lib/db";
+
+const getAllCategories = async () => {
+    const categories = await prisma.category.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+    });
+    return categories;
+}
 
 export default async function Categorias() {
-    const queryParams = new URLSearchParams({
-        type: "all",
-    });
-    const baseUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/categories?${queryParams.toString()}`;
-
-    const response = await fetch(baseUrl, {
-        next: { tags: ["categories"] }
-    });
-    
-    const categories: Category[] = await response.json();
+    const categories: Category[] = await getAllCategories();
     return (
         <div>
             <h1 className="text-2xl font-bold mb-3">Categorias</h1>

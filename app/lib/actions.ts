@@ -2,9 +2,13 @@
 import { headers } from "next/headers";
 import prisma from "@/app/lib/db";
 import redis  from "@/app/lib/redis";
+import { kv } from "@vercel/kv";
 import { DELAY_VIEW_RECORD } from "./config";
 
 export async function increaseTFGViews(tfgId: number) {
+    if(!redis.isOpen){
+        return;
+    }
     const ip = headers().get("x-forwarded-for")?.split(",")[0].trim();
 
     if (!ip) {

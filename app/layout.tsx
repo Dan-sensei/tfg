@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 import { Providers } from "./providers";
-import { getPopularCategories } from "./utils/popular";
 import { montserrat } from "./components/fonts";
 import Footer from "./components/Footer";
 import { CategoryLink } from "./types/interfaces";
+import prisma from "./lib/db";
+import { unstable_cache as cache } from "next/cache";
+import { DAY } from "./types/defaultData";
 
 export const metadata: Metadata = {
     title: "Nova",
@@ -13,19 +15,39 @@ export const metadata: Metadata = {
         "Nova es una plataforma para compartir trabajos finales de grado y másteres",
 };
 
+const getPopularCategories = cache(
+    async () => {
+        const topCategories = (await prisma.$queryRaw`
+		SELECT id, name FROM (
+			SELECT c.id, c.name, SUM(t.views) as totalViews
+			FROM "Category" c
+			JOIN "TFG" t ON t."categoryId" = c.id
+			GROUP BY c.id
+			ORDER BY totalViews DESC
+			LIMIT 12
+		) AS SubQuery
+		ORDER BY name ASC;
+	`) as { id: string; name: string }[];
+
+        const categoryNames: CategoryLink[] = topCategories.map((category) => {
+            return { id: category.id, name: category.name };
+        });
+
+        return categoryNames;
+    },
+    ["popular-categories"],
+    {
+        revalidate: DAY,
+    }
+);
+
 export default async function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const topCategoriesString = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/categories?type=popular`,
-        {
-            next: { revalidate: 12 * 3600 },
-        }
-    );
 
-    const topCategories: CategoryLink[] = await topCategoriesString.json();
+    const topCategories: CategoryLink[] = await getPopularCategories();
 
     return (
         <html lang="en" className="dark bg-dark h-full">

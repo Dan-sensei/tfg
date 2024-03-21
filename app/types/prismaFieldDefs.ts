@@ -15,5 +15,22 @@ export const tfgTopFields = {
     title: true,
     description: true,
     views: true,
-    score: true
+    score: true,
+};
+
+export const tfgFullFields = {
+    id: true,
+    thumbnail: true,
+    banner: true,
+    title: true,
+    description: true,
+    author: true,
+    tutor: true,
+    content: true,
+    pages: true,
+    documentLink: true,
+    tags: true,
+    views: true,
+    score: true,
+    createdAt: true,
 };

@@ -4,6 +4,18 @@ import { increaseTFGViews } from "@/app/lib/actions";
 import { redirect } from "next/navigation";
 import { iFullTFG } from "@/app/types/interfaces";
 import { IconCloudDownload } from "@tabler/icons-react";
+import prisma from "@/app/lib/db";
+import { tfgFullFields } from "@/app/types/prismaFieldDefs";
+
+const getTFGData = async (id: number) => {
+    const tfg = (await prisma.tFG.findUnique({
+        where: {
+            id: id,
+        },
+        select: tfgFullFields,
+    })) as iFullTFG;
+    return tfg;
+}
 
 export default async function Page({ params }: { params: { id: string } }) {
     const id = Number(params.id[0]);
@@ -11,15 +23,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         redirect("/");
     }
 
-    const queryParams = new URLSearchParams({
-        id: id.toString(),
-    });
-    const response = await fetch(
-        `${
-            process.env.NEXT_PUBLIC_API_BASE_URL
-        }api/tfg?${queryParams.toString()}`
-    );
-    const TFG: iFullTFG = await response.json();
+    const TFG: iFullTFG = await getTFGData(id);
 
     await increaseTFGViews(parseFloat(params.id));
 
