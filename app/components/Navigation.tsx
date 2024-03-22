@@ -33,7 +33,7 @@ const DefaultLink = ({ href, name, isCategories }: LinkProps & {isCategories?: B
     return (
         <Link
             color="foreground"
-            className="text-xl font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-violet-500"
+            className="text-xl font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-nova-link"
             href={href}
         >
             {name}
@@ -47,7 +47,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
     return (
         <div className="h-full group ">
             <DefaultLink href={href} name={name} isCategories={true} />
-            <div className="px-7 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[650px] bg-popup rounded-xl group-hover:visible invisible">
+            <div className="px-7 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[670px] bg-popup rounded-xl group-hover:visible invisible">
                 <div className="arrow-up absolute left-[127px] top-[-10px]"></div>
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-9">
@@ -56,7 +56,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                             <div className="">
                                 {
                                     firstColumn.map((category, index) => (
-                                        <Link key={index} href={`/categoria/${category.id}`} className="hover:text-violet-400 transition-colors block font-bold pt-1">
+                                        <Link key={index} href={`/categoria/${category.id}`} className="hover:text-nova-link transition-colors block font-bold pt-1">
                                             <div>{category.name}</div>
                                         </Link>
                                     )
@@ -65,7 +65,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                             <div className="">
                                 {
                                     secondColumn.map((category, index) => (
-                                        <Link key={index} href={`/categoria/${category.id}`} className="hover:text-violet-400 transition-colors font-bold block pt-1">
+                                        <Link key={index} href={`/categoria/${category.id}`} className="hover:text-nova-link transition-colors font-bold block pt-1">
                                             <div>{category.name}</div>
                                         </Link>
                                     )
@@ -73,25 +73,25 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                             </div>
                         </div>
                         <div className="pl-3 text-gray-400">
-                            <Link href={"/categorias"} className="hover:text-violet-400 transition-colors block font-bold pt-1">
-                                Ver todos <IconChevronRight className="inline text-violet-600" size={20} /> 
+                            <Link href={"/categorias"} className="hover:text-nova-link transition-colors block font-bold pt-1">
+                                Ver todos <IconChevronRight className="inline text-nova-link" size={20} /> 
                             </Link>
                         </div>
                     </div>
                     
                     <div className="col-span-3 flex flex-col gap-4">
                         <div className="flex-1">
-                            <Button href="#" className="w-full h-full font-bold" color="secondary" variant="ghost">
+                            <Button href="#" className="w-full h-full font-bold text-nova-link" color="primary" variant="ghost">
                                 Grados y másters
                             </Button>
                         </div>
                         <div className="flex-1">
-                            <Button href="#" className="w-full h-full font-bold" color="secondary" variant="ghost">
+                            <Button href="#" className="w-full h-full font-bold text-nova-link" color="primary" variant="ghost">
                                 Mejor valorados
                             </Button>
                         </div>
                         <div className="flex-1">
-                            <Button href="#" className="w-full h-full font-bold" color="secondary" variant="ghost">
+                            <Button href="#" className="w-full h-full font-bold text-nova-link" color="primary" variant="ghost">
                                 Más vistos
                             </Button>
                         </div>
@@ -134,10 +134,9 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
             
             onMenuOpenChange={setIsMenuOpen}
             className={` ${
-                hasScrolled ? "bg-dark" : "lg:bg-transparent"
+                hasScrolled ? "bg-nova-dark drop-shadow-light-dark border-t-nova-red border-t-3" : "lg:bg-nova-dark/70 border-t-transparent border-t-3"
             } transition-colors fixed`}
         >
-            <div className="h-[64px] w-full hidden lg:block absolute top-0 left-0 -z-10 bg-gradient-to-b from-dark opacity-70"></div>
             <NavbarContent className="lg:hidden" justify="start">
                 <NavbarMenuToggle
                     aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -162,7 +161,7 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
                     <NavbarItem
                         key={`${index}`}
                         className={`h-full relative ${pathName === link.href
-                            ? "after:border-b-4 after:border-b-violet-700 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none"
+                            ? "after:border-b-4 after:border-b-nova-link after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none"
                             : ""}`
                         }
                         data-active={
@@ -195,7 +194,7 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
                             <span
                                 className={
                                     pathName === link.href
-                                        ? "text-violet-600 font-bold"
+                                        ? "text-nova-link font-bold"
                                         : ""
                                 }
                             >

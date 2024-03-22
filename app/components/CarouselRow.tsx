@@ -99,7 +99,7 @@ export default function CarouselRow({tfgArray}: CarouselRowProps) {
                     tfgArray.map((tfg, index) => (
                         <div key={index} className="embla__slide flex-2c sm:flex-3c md:flex-4c xl:flex-5c 2xl:flex-6c px-2">
                             <Card
-                                className={getCardClassName(index, currentIndex, slidesToScroll, totalSlides.current)}
+                                className={`${getCardClassName(index, currentIndex, slidesToScroll, totalSlides.current)} drop-shadow-light-dark`}
                                 key={index} 
                                 id={tfg.id} 
                                 createdAt={tfg.createdAt}
@@ -116,14 +116,14 @@ export default function CarouselRow({tfgArray}: CarouselRowProps) {
                 </div>
             </div>
             
-            <div className='bg-gradient-to-r from-dark absolute left-0 w-6 md:w-14 -ml-4 md:-ml-14 h-full flex items-center justify-center'>
+            <div className='bg-gradient-to-r from-nova-dark absolute left-0 w-6 md:w-14 -ml-4 md:-ml-14 h-full flex items-center justify-center'>
                 <button className={(showPrev ? 'visible' : 'hidden') + " embla__prev"} onClick={scrollPrev}>
-                    <IconChevronLeft size={30}  className='transition-all duration-300 hover:scale-150' />
+                    <IconChevronLeft size={30}  className='transition-all duration-300 hover:scale-125' />
                 </button>  
             </div>
-            <div className='bg-gradient-to-l from-dark absolute right-0 w-6 md:w-14  -mr-4 md:-mr-14 h-full flex items-center justify-center'>
+            <div className='bg-gradient-to-l from-nova-dark absolute right-0 w-6 md:w-14  -mr-4 md:-mr-14 h-full flex items-center justify-center'>
                 <button className={(showNext ? 'visible' : 'hidden') + " embla__next"} onClick={scrollNext}>
-                    <IconChevronRight size={30} className='transition-all duration-300 hover:scale-150' />
+                    <IconChevronRight size={30} className='transition-all duration-300 hover:scale-125' />
                 </button>
             </div>
         </div>

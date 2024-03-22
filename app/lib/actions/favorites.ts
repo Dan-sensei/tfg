@@ -1,7 +1,7 @@
+"use server";
 import prisma from "@/app/lib/db";
 
-export async function POST(request: Request) {
-    const {ids} = await request.json();
+export async function getFavorites(ids: number[]) {
     const favorites = await prisma.tFG.findMany({
         where: {
             id: {
@@ -19,5 +19,5 @@ export async function POST(request: Request) {
             createdAt: true,
         }
     });
-    return new Response(JSON.stringify(favorites));
+    return JSON.stringify(favorites);
 }

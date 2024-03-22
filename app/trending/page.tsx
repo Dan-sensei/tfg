@@ -5,6 +5,7 @@ import { PAGE_SIZE } from "../lib/config";
 import { Pagination } from "@nextui-org/pagination";
 import { useEffect, useState } from "react";
 import { TFGPagination } from "../types/interfaces";
+import { getTrending } from "../lib/actions/trending";
 
 export default function Trending() {
     const [data, setData] = useState<TFGPagination | null>(null);
@@ -20,18 +21,12 @@ export default function Trending() {
                 process.env.NEXT_PUBLIC_API_BASE_URL
             }api/trending?${queryParams.toString()}`;
 
-            fetch(urlWithParams, {
-                next: { revalidate: 12 * 3600 },
-                cache: "no-store",
-            })
+            getTrending(page, PAGE_SIZE)
                 .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Error");
+                    const result = JSON.parse(response);
+                    if (result.success) {
+                        setData(result.data);
                     }
-                    return response.json();
-                })
-                .then((newData: TFGPagination) => {
-                    setData(newData);
                 })
                 .catch(() => {
                     console.log("Error");
@@ -49,9 +44,8 @@ export default function Trending() {
     }
 
     return (
-        <div className="flex flex-wrap flex-1">
+        <div className="flex flex-wrap flex-1 pt-6">
             <div className="w-full">
-                <h1 className="text-2xl font-bold mb-3">Trending</h1>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 w-full">
                     {data.tfgs.map((tfg, i) => {
                         return (

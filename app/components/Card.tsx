@@ -41,7 +41,7 @@ export default function Card({
             key={id}
             className={`${className} relative 
                 transition-all duration-300 delay-0 hover:delay-100
-                z-0 hover:z-30 hover:scale-[1.15]  hover:shadow-xl-d
+                z-0 hover:z-30 hover:scale-[1.15]
                 group flex items-center justify-center`}
         >
             <div className="w-full rounded-lg">
@@ -67,7 +67,7 @@ export default function Card({
                     />
                 </Link>
                 <div
-                    className="z-10 rounded-lg absolute invisible w-full transition-all group-hover:shadow-xl-d duration-300 opacity-0 delay-0 
+                    className="z-10 rounded-lg absolute invisible w-full transition-all duration-300 opacity-0 delay-0 
                 group-hover:delay-75 group-hover:opacity-100 group-hover:visible bg-popup -mt-5 pt-5"
                 >
                     <div className="w-full p-3">
@@ -87,7 +87,7 @@ export default function Card({
                                 {createdAt ? (new Date(createdAt)).getFullYear() : ""}
                             </span>
                             <span className="hidden lg:inline-block scale-85 text-lg self-center">
-                                <Chip color="secondary" variant="solid">
+                                <Chip className="bg-nova-button" variant="solid">
                                     {pages} páginas
                                 </Chip>
                             </span>

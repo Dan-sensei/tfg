@@ -24,7 +24,12 @@ const config: Config = {
       },
       colors:{
         'dark': '#05060b',
-        'popup': '#0c0e1d'
+        'popup': '#0c0e1d',
+        'nova-dark': '#10121b',
+        'nova-light-dark': '#263244',
+        'nova-red': '#7c0203',
+        'nova-link': '#d3e3f5',
+        'nova-button': '#05689c'
       },
       flex: {
         '1c': '0 0 100%',
@@ -36,6 +41,7 @@ const config: Config = {
       },
       aspectRatio: {
         'wide': '3 / 1',
+        '21-9': '21 / 9',
         'file': '9 / 12'
       }
     },
@@ -43,6 +49,16 @@ const config: Config = {
   darkMode: 'class',
   plugins: [nextui({
     addCommonColors: true,
+    themes:{
+      dark: {
+        colors:{
+          primary: {
+            DEFAULT: '#05689c',
+            foreground: '#fff'
+          }
+        }
+      }
+    }
   })]
 }
 export default config

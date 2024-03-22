@@ -1,5 +1,6 @@
 "use client";
 import Card from "@/app/components/Card";
+import { getCategoryData } from "@/app/lib/actions/category";
 import { TFGPagination } from "@/app/types/interfaces";
 import { Pagination } from "@nextui-org/pagination";
 import { useRouter } from "next/navigation";
@@ -12,28 +13,16 @@ export default function Categoria({ params }: { params: { id: string } }) {
 
     useEffect(() => {
         const fetchData = (page: number) => {
-            const queryParams = new URLSearchParams({
-                target: params.id,
-                page: String(page),
-                pageSize: "30",
-            });
-            const urlWithParams = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/category?${queryParams.toString()}`;
-
-            if (!params.id) {
+            const categoryID = Number(params.id);
+            if (isNaN(categoryID)) {
                 return;
             }
-            fetch(urlWithParams, {
-                next: { tags: [`category${params.id}`] },
-                cache: "no-store",
-            })
+            getCategoryData(categoryID, page, 30)
                 .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Not found");
+                    const result = JSON.parse(response);
+                    if(result.success){
+                        setData(result.data);
                     }
-                    return response.json();
-                })
-                .then((newData: TFGPagination) => {
-                    setData(newData);
                 })
                 .catch(() => {
                     router.push("/categoria");

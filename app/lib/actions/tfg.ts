@@ -1,8 +1,9 @@
 "use server";
+
 import { headers } from "next/headers";
 import prisma from "@/app/lib/db";
 import redis  from "@/app/lib/redis";
-import { DELAY_VIEW_RECORD } from "./config";
+import { DELAY_VIEW_RECORD } from "@/app/lib/config";
 
 export async function increaseTFGViews(tfgId: number) {
     if(!redis.isOpen){

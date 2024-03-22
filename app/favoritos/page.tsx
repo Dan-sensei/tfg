@@ -7,6 +7,7 @@ import FavButton from "@/app/components/FavButton";
 import Image from "next/image"
 import Card from "@/app/components/Card";
 import { iTFG } from "@/app/types/interfaces";
+import { getFavorites } from "../lib/actions/favorites";
 
 export default function Favoritos() {
     const [isMounted, setIsMounted] = useState(false);
@@ -20,19 +21,8 @@ export default function Favoritos() {
             setIsMounted(true);
             return;
         }
-        fetch('/api/favorites', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ids: favoritesIds }),
-        }).then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();   
-        })
-        .then((result) => {
+        getFavorites(favoritesIds).then((response) => {
+            const result = JSON.parse(response);
             setFavorites(result);
         })
         .catch((error) => {
