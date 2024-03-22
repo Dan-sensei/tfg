@@ -62,18 +62,18 @@ export default function HomeCarousel({ topTfgs }: CarouselProps) {
                                 key={item.id}
                                 className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c w-full"
                             >
-                                <div className="w-full h-full lg:rounded-2xl overflow-hidden flex justify-start items-end relative">
+                                <div className="w-full h-full flex justify-start items-end relative">
                                     <img
                                         src={item?.banner}
                                         alt=""
-                                        className="w-full h-full object-cover pointer-events-none select-none brightness-75"
+                                        className="w-full lg:rounded-2xl  h-full object-cover pointer-events-none select-none"
                                     />
-                                    <div className="h-[4px] w-full absolute left-0 z-10 bottom-0 bg-whitev pointer-events-none"></div>
-                                    <div className="absolute w-full lg:w-[70%] mx-auto px-16 pb-10 sm:pb-16 lg:py-6 xl:pb-16 md:mb-5 drop-shadow-lg">
+                                    <div className="h-full lg:rounded-[15px] w-[55%] absolute left-0 z-0 bottom-0 bg-gradient-to-r from-nova-darker/80 pointer-events-none"></div>
+                                    <div className="absolute w-full lg:w-[70%] mx-auto px-16 pb-10 sm:pb-16 lg:py-6 xl:pb-16 md:mb-5 drop-shadow-lg z-10">
                                         <h1 className="embla_nodrag text-white text-xl md:text-2xl lg:text-3xl font-bold line-clamp-3 drop-shadow-light-dark">
                                             {item?.title}
                                         </h1>
-                                        <span className="embla_nodrag text-white text-base md:text-lg mt-2 md:mt-4 line-clamp-2 md:line-clamp-2 drop-shadow-light-dark">
+                                        <span className="embla_nodrag text-white text-base md:text-lg mt-1 line-clamp-2 md:line-clamp-2 drop-shadow-light-dark">
                                             {item?.description}
                                         </span>
                                         <div className="flex mt-3">
