@@ -61,6 +61,7 @@ export interface TFGQueryParamsWhere {
 
 export interface TFGRowData {
     id: number,
+    type: string,
     name: string,
     tfgs: iTFG[]
 }

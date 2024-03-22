@@ -19,3 +19,10 @@ export const formatViews = (num: number): string => {
         return num.toString();
     }
 };
+
+export const emblaNoDragLogic = (_: any, event: MouseEvent | TouchEvent) => {
+    if (event.target instanceof Element && event.target.closest('.embla_nodrag')) {
+        return false;
+    }
+    return true;
+}

@@ -47,8 +47,8 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
     return (
         <div className="h-full group ">
             <DefaultLink href={href} name={name} isCategories={true} />
-            <div className="px-7 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[670px] bg-popup rounded-xl group-hover:visible invisible">
-                <div className="arrow-up absolute left-[127px] top-[-10px]"></div>
+            <div className="px-7 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[670px]  bg-nova-light-dark rounded-xl group-hover:visible invisible">
+                <div className="arrow-up border-b-[10px] border-b-nova-light-dark  absolute left-[127px] top-[-10px]"></div>
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-9">
                         <h1 className="text-xl font-bold">Tema</h1>
@@ -82,7 +82,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                     <div className="col-span-3 flex flex-col gap-4">
                         <div className="flex-1">
                             <Button href="#" className="w-full h-full font-bold text-nova-link" color="primary" variant="ghost">
-                                Grados y másters
+                                Titulaciones
                             </Button>
                         </div>
                         <div className="flex-1">
@@ -133,8 +133,8 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
             isBlurred={false}
             
             onMenuOpenChange={setIsMenuOpen}
-            className={` ${
-                hasScrolled ? "bg-nova-dark drop-shadow-light-dark border-t-nova-red border-t-3" : "lg:bg-nova-dark/70 border-t-transparent border-t-3"
+            className={`bg-nova-darker ${
+                hasScrolled ? "border-t-nova-red border-t-3" : "border-t-transparent border-t-3"
             } transition-colors fixed`}
         >
             <NavbarContent className="lg:hidden" justify="start">

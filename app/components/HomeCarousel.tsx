@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import Autoplay from "embla-carousel-autoplay";
 import { sanitizeString } from "../utils/util";
 import Link from "next/link";
+import { emblaNoDragLogic } from "../utils/util";
 
 interface CarouselProps {
     topTfgs: iHomeTFG[];
@@ -15,9 +16,13 @@ interface CarouselProps {
 
 export default function HomeCarousel({ topTfgs }: CarouselProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: false }, [
-        Autoplay({ delay: 8000 }),
-    ]);
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        {
+            loop: true,
+            watchDrag: emblaNoDragLogic,
+        },
+        [Autoplay({ delay: 8000 })]
+    );
 
     const scrollPrev = useCallback(() => {
         emblaApi?.scrollPrev();
@@ -49,38 +54,42 @@ export default function HomeCarousel({ topTfgs }: CarouselProps) {
 
     return (
         <>
-            <div className="embla relative">
+            <div className="embla relative lg:pt-4">
                 <div className="embla__viewport" ref={emblaRef}>
                     <div className="embla__container">
                         {topTfgs.map((item: any) => (
                             <div
                                 key={item.id}
-                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide flex-1c w-full flex justify-start items-end relative rounded-b-2xl overflow-hidden"
+                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c w-full"
                             >
-                                <img
-                                    src={item?.banner}
-                                    alt=""
-                                    className="w-full h-full object-cover pointer-events-none select-none brightness-75"
-                                />
-                                <div className="h-[4px] w-full absolute left-0 z-10 bottom-0 bg-whitev pointer-events-none"></div>
-                                <div className="absolute w-full lg:w-[70%] mx-auto px-16 pb-10 sm:pb-16 lg:py-6 xl:pb-16 md:mb-5 drop-shadow-lg">
-                                    <h1 className="text-white text-xl md:text-2xl lg:text-3xl font-bold line-clamp-3 drop-shadow-light-dark">
-                                        {item?.title}
-                                    </h1>
-                                    <span className="text-white text-base md:text-lg mt-2 md:mt-4 line-clamp-2 md:line-clamp-2 drop-shadow-light-dark">
-                                        {item?.description}
-                                    </span>
-                                    <div className="flex mt-3">
-                                        <Button
-                                            draggable="false"
-                                            href={`/page/${
-                                                item.id
-                                            }/${sanitizeString(item.title)}`}
-                                            as={Link}
-                                            className="bg-nova-button"
-                                        >
-                                            Ver
-                                        </Button>
+                                <div className="w-full h-full lg:rounded-2xl overflow-hidden flex justify-start items-end relative">
+                                    <img
+                                        src={item?.banner}
+                                        alt=""
+                                        className="w-full h-full object-cover pointer-events-none select-none brightness-75"
+                                    />
+                                    <div className="h-[4px] w-full absolute left-0 z-10 bottom-0 bg-whitev pointer-events-none"></div>
+                                    <div className="absolute w-full lg:w-[70%] mx-auto px-16 pb-10 sm:pb-16 lg:py-6 xl:pb-16 md:mb-5 drop-shadow-lg">
+                                        <h1 className="embla_nodrag text-white text-xl md:text-2xl lg:text-3xl font-bold line-clamp-3 drop-shadow-light-dark">
+                                            {item?.title}
+                                        </h1>
+                                        <span className="embla_nodrag text-white text-base md:text-lg mt-2 md:mt-4 line-clamp-2 md:line-clamp-2 drop-shadow-light-dark">
+                                            {item?.description}
+                                        </span>
+                                        <div className="flex mt-3">
+                                            <Button
+                                                draggable="false"
+                                                href={`/page/${
+                                                    item.id
+                                                }/${sanitizeString(
+                                                    item.title
+                                                )}`}
+                                                as={Link}
+                                                className="bg-nova-button embla_nodrag"
+                                            >
+                                                Ver
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -88,29 +97,29 @@ export default function HomeCarousel({ topTfgs }: CarouselProps) {
                     </div>
                 </div>
 
-                <div className="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center">
-                    <button className="embla__prev" onClick={scrollPrev}>
+                <div className="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center px-1">
+                    <button className="embla__prev rounded-lg group h-full w-full" onClick={scrollPrev}>
                         <IconChevronLeft
                             size={30}
-                            className="transition-all duration-300 hover:scale-150"
+                            className="transition-all duration-300 group-hover:scale-125 mx-auto"
                         />
                     </button>
                 </div>
-                <div className="absolute right-0 top-0 bottom-0 w-12 flex items-center justify-center">
-                    <button className="embla__next" onClick={scrollNext}>
+                <div className="absolute right-0 top-0 bottom-0 w-12 flex items-center justify-center pl-1">
+                    <button className="embla__next rounded-lg group h-full w-full" onClick={scrollNext}>
                         <IconChevronRight
                             size={30}
-                            className="transition-all duration-300 hover:scale-150"
+                            className="transition-all duration-300 group-hover:scale-125 mx-auto"
                         />
                     </button>
                 </div>
             </div>
-            <div className="flex justify-center items-center gap-2 pt-3">
+            <div className="flex justify-center items-center gap-1 pt-3">
                 {topTfgs.map((_, index) => (
                     <button
                         key={index}
                         title={`Slide ${index + 1}`}
-                        className={`rounded-full group w-[18px] h-[18px] p-[3px]`}
+                        className={`rounded-full group w-[18px] h-[18px] p-[4px]`}
                         onClick={() => scrollTo(index)}
                     >
                         <div

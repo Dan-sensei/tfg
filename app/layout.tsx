@@ -52,11 +52,11 @@ export default async function RootLayout({
     return (
         <html lang="en" className="dark h-full">
             <body
-                className={`${montserrat.className}  bg-nova-dark antialiased relative min-h-full flex flex-col`}
+                className={`${montserrat.className}  bg-nova-darker antialiased relative min-h-full flex flex-col`}
             >
                 <div className="pb-[150px] flex-1 flex flex-col">
                     <Navigation categoriesList={topCategories} />
-                    <section className="pt-[64px] px-4 md:px-14 flex-1 flex flex-col">
+                    <section className="pt-[67px] px-4 md:px-14 flex-1 flex flex-col">
                         <Providers className="flex-1 flex flex-col">
                             {children}
                         </Providers>

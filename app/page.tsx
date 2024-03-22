@@ -1,12 +1,10 @@
 import CarouselRow from "./components/CarouselRow";
 import HomeCarousel from "./components/HomeCarousel";
 import prisma from "@/app/lib/db";
-import {
-    DBProperty,
-    TFGRowData,
-    PopularFields,
-} from "@/app/types/interfaces";
+import { DBProperty, TFGRowData, PopularFields } from "@/app/types/interfaces";
 import { tfgFields, tfgTopFields } from "@/app/types/prismaFieldDefs";
+import Link from "next/link";
+import { IconChevronRight } from "@tabler/icons-react";
 
 async function foryou() {
     const recents = await prisma.tFG.findMany({
@@ -34,7 +32,7 @@ async function getTopWorks() {
     const TopWorks = await prisma.tFG.findMany({
         select: tfgTopFields,
         orderBy: [{ views: "desc" }, { score: "desc" }, { createdAt: "desc" }],
-        take: 5,
+        take: 10,
     });
     return TopWorks;
 }
@@ -88,14 +86,14 @@ function sortCombinedArray(
     categoriesArray: TFGRowData[],
     gradesArray: TFGRowData[]
 ): TFGRowData[] {
-	const sortedArray: TFGRowData[] = [];
-	for (const item of order) {
+    const sortedArray: TFGRowData[] = [];
+    for (const item of order) {
         if (item.type === DBProperty.Category) {
-			const element = categoriesArray.find(c => c.id == item.id);
-			if(element) sortedArray.push(element)
+            const element = categoriesArray.find((c) => c.id == item.id);
+            if (element) sortedArray.push(element);
         } else if (item.type === DBProperty.GradeMaster) {
-            const element = gradesArray.find(c => c.id == item.id);
-			if(element) sortedArray.push(element)
+            const element = gradesArray.find((c) => c.id == item.id);
+            if (element) sortedArray.push(element);
         }
     }
     return sortedArray;
@@ -139,6 +137,7 @@ const getRowsData = async () => {
         (category) => ({
             id: category.id,
             name: "Trabajos de " + category.name,
+            type: "categoria",
             tfgs: category.tfgs,
         })
     );
@@ -148,10 +147,11 @@ const getRowsData = async () => {
     const gradesArray: TFGRowData[] = gradesWithTopTFGs.map((grade) => ({
         id: grade.id,
         name: "Trabajos de " + grade.name,
+        type: "titulacion",
         tfgs: grade.tfgs,
     }));
 
-    return sortCombinedArray(popularFields.order, categoriesArray, gradesArray)
+    return sortCombinedArray(popularFields.order, categoriesArray, gradesArray);
 };
 
 const dataFetchers = [
@@ -166,6 +166,7 @@ async function getData() {
         result.push({
             id: -1,
             name: dataFetcher.key,
+            type: "",
             tfgs: data,
         });
     }
@@ -180,13 +181,25 @@ export default async function Home() {
     const RowData = await getData();
 
     return (
-        <div className="-mx-4 md:-mx-14  lg:-mt-[64px]  overflow-hidden">
+        <div className="-mx-4 md:-mx-14  overflow-hidden">
             <HomeCarousel topTfgs={topWorks} />
-            <div className="pb-[180px] px-4 md:px-14 pt-5">
+            <div className="pb-[180px] bg-nova-darker px-4 md:px-14 pt-7">
                 {RowData.map((rowData, index) => (
-                    <div key={index} className="pb-10">
-                        <h1 className="text-xl font-bold px-2 pt-5">
+                    <div key={index} className="pb-12">
+                        <h1 className="text-xl font-bold px-2">
                             {rowData.name}
+                            {rowData.type && (
+                                <Link
+                                    className=" pl-3 text-medium transition-colors inline-flex items-center text-gray-400 hover:text-nova-link group"
+                                    href={`/${rowData.type}/${rowData.id}`}
+                                >
+                                    Ver más{" "}
+                                    <IconChevronRight
+                                        className="inline text-yellow-500 stroke-3 duration-400 group-hover:translate-x-2"
+                                        size={20}
+                                    />{" "}
+                                </Link>
+                            )}
                         </h1>
                         <CarouselRow tfgArray={rowData.tfgs} />
                     </div>

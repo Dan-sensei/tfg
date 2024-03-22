@@ -28,7 +28,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     await increaseTFGViews(parseFloat(params.id));
 
     return (
-        <div className="lg:-mt-[134px] -mx-4 md:-mx-14 ">
+        <div className="-mx-4 md:-mx-14 ">
             <div className="aspect-video lg:aspect-wide relative z-0">
                 <Image
                     src={TFG.banner}

@@ -7,6 +7,7 @@ import { IconChevronLeft } from "@tabler/icons-react";
 
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { emblaNoDragLogic } from '../utils/util';
 
 interface CarouselRowProps {
     tfgArray: iTFG[];
@@ -51,7 +52,8 @@ export default function CarouselRow({tfgArray}: CarouselRowProps) {
             '(min-width: 768px)': { slidesToScroll: 4 },
             '(min-width: 1280px)': { slidesToScroll: 5 },
             '(min-width: 1536px)': { slidesToScroll: 6 }
-        }
+        },
+        watchDrag: emblaNoDragLogic
     })
     const [currentIndex, setCurrentIndex] = useState(-1);
     const [slidesToScroll, setSlidesToScroll] = useState(-1);
@@ -116,12 +118,12 @@ export default function CarouselRow({tfgArray}: CarouselRowProps) {
                 </div>
             </div>
             
-            <div className='bg-gradient-to-r from-nova-dark absolute left-0 w-6 md:w-14 -ml-4 md:-ml-14 h-full flex items-center justify-center'>
+            <div className='bg-gradient-to-r from-nova-darker absolute left-0 w-6 md:w-14 -ml-4 md:-ml-14 h-full scale-y-125 flex items-center justify-center'>
                 <button className={(showPrev ? 'visible' : 'hidden') + " embla__prev"} onClick={scrollPrev}>
                     <IconChevronLeft size={30}  className='transition-all duration-300 hover:scale-125' />
                 </button>  
             </div>
-            <div className='bg-gradient-to-l from-nova-dark absolute right-0 w-6 md:w-14  -mr-4 md:-mr-14 h-full flex items-center justify-center'>
+            <div className='bg-gradient-to-l from-nova-darker absolute right-0 w-6 md:w-14  -mr-4 md:-mr-14 h-full scale-y-125 flex items-center justify-center'>
                 <button className={(showNext ? 'visible' : 'hidden') + " embla__next"} onClick={scrollNext}>
                     <IconChevronRight size={30} className='transition-all duration-300 hover:scale-125' />
                 </button>
