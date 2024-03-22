@@ -33,7 +33,7 @@ const DefaultLink = ({ href, name, isCategories }: LinkProps & {isCategories?: B
     return (
         <Link
             color="foreground"
-            className="text-xl font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-nova-link"
+            className="text-lg font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-nova-link"
             href={href}
         >
             {name}

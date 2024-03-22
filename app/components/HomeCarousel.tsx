@@ -15,7 +15,7 @@ interface CarouselProps {
 
 export default function HomeCarousel({ topTfgs }: CarouselProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
+    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: false }, [
         Autoplay({ delay: 8000 }),
     ]);
 
