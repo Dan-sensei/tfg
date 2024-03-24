@@ -12,9 +12,10 @@ import { emblaNoDragLogic } from "../utils/util";
 
 interface CarouselProps {
     topTfgs: iHomeTFG[];
+    className?: string;
 }
 
-export default function HomeCarousel({ topTfgs }: CarouselProps) {
+export default function HomeCarousel({ topTfgs, className }: CarouselProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [emblaRef, emblaApi] = useEmblaCarousel(
         {
@@ -54,7 +55,7 @@ export default function HomeCarousel({ topTfgs }: CarouselProps) {
 
     return (
         <>
-            <div className="embla relative">
+            <div className={`${className} embla relative`}>
                 <div className="embla__viewport" ref={emblaRef}>
                     <div className="embla__container">
                         {topTfgs.map((item: any) => (
