@@ -82,6 +82,7 @@ export default function Defensas({ searchParams }: Props) {
                         {days.map((day, index) => (
                             <button
                                 key={index}
+                                type="button"
                                 className={`${corners[index]} p-4 flex items-center justify-center aspect-square lg:aspect-auto transition-colors ${
                                     month !== day.getMonth()
                                         ? "text-slate-400 bg-nova-light/10 hover:bg-nova-light/20"

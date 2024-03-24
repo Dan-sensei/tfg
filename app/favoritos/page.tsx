@@ -45,14 +45,19 @@ export default function Favoritos() {
         );
         setFavorites([...favorites]);
         toggleFav(id, false);
-
     };
 
     let content = <></>;
     if (!isMounted) {
         content = (
             <div className="h-full flex items-center justify-center">
-                <Spinner size="lg" color="warning"></Spinner>
+                <Spinner
+                    classNames={{
+                        circle1: "w-16 h-16 border-5",
+                        circle2: "w-16 h-16 border-4",
+                    }}
+                    color="primary"
+                ></Spinner>
             </div>
         );
     } else if (favorites.length === 0) {
@@ -71,10 +76,7 @@ export default function Favoritos() {
         content = (
             <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5 p-5 lg:p-10">
                 {favorites.map((tfg, index) => (
-                    <div
-                        key={index}
-                        className="z-0 relative shadow-lg w-full"
-                    >
+                    <div key={index} className="z-0 relative shadow-lg w-full">
                         <Link
                             href={`/page/${tfg.id}/${sanitizeString(
                                 tfg.title
@@ -107,9 +109,7 @@ export default function Favoritos() {
     }
     return (
         <div className="h-full pb-12 w-full">
-            <div className="h-full rounded-2xl bg-black/50">
-                {content}
-            </div>
+            <div className="h-full rounded-2xl bg-black/50">{content}</div>
         </div>
     );
 }

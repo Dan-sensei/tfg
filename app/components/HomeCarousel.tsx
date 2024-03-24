@@ -61,20 +61,21 @@ export default function HomeCarousel({ topTfgs, className }: CarouselProps) {
                         {topTfgs.map((item: any) => (
                             <div
                                 key={item.id}
-                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c w-full drop-shadow-light-gray"
+                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c w-full"
                             >
-                                <div className="w-full h-full flex justify-start items-end relative">
+                                <div className="w-full h-full flex justify-start items-end relative lg:rounded-2xl shadow-light-dark">
                                     <img
                                         src={item?.banner}
                                         alt=""
                                         className="w-full lg:rounded-2xl  h-full object-cover pointer-events-none select-none"
                                     />
                                     <div className="h-full lg:rounded-[15px] w-[55%] absolute left-0 z-0 bottom-0 bg-gradient-to-r from-nova-darker/90 pointer-events-none"></div>
-                                    <div className="absolute w-full lg:w-[70%] mx-auto px-16 pb-10 sm:pb-16 lg:py-6 xl:pb-16 md:mb-5 drop-shadow-lg z-10">
-                                        <h1 className="embla_nodrag text-white text-xl md:text-2xl lg:text-3xl font-bold line-clamp-3 drop-shadow-light-dark">
+
+                                    <div className="absolute w-full lg:w-[70%] mx-auto px-16 pb-10 sm:pb-16 lg:py-6 xl:pb-16 md:mb-5 z-10">
+                                        <h1 className="embla_nodrag text-white text-xl md:text-2xl lg:text-3xl font-bold line-clamp-3 text-shadow-dark">
                                             {item?.title}
                                         </h1>
-                                        <span className="embla_nodrag text-white text-base md:text-lg mt-1 line-clamp-2 md:line-clamp-2 drop-shadow-light-dark">
+                                        <span className="embla_nodrag text-white text-base md:text-lg mt-1 line-clamp-2 md:line-clamp-2 text-shadow-dark">
                                             {item?.description}
                                         </span>
                                         <div className="flex mt-3">

@@ -39,7 +39,7 @@ export default function Card({
     return (
         <div
             key={id}
-            className={`${className} relative 
+            className={`${className} relative shadow-light-dark
                 transition-all duration-300 delay-0 hover:delay-100
                 z-0 hover:z-30 hover:scale-[1.15]
                 group flex items-center justify-center`}
@@ -66,8 +66,7 @@ export default function Card({
                         className="absolute border- w-full h-full object-cover"
                     />
                 </Link>
-                <div
-                    className="embla_nodrag z-10 rounded-lg absolute invisible w-full transition-all duration-100 opacity-0 delay-0 
+                <div className="embla_nodrag z-10 rounded-lg absolute invisible w-full transition-all duration-100 opacity-0 delay-0 shadow-light-dark
                 group-hover:delay-75 pointer-events-none group-hover:pointer-events-auto group-hover:opacity-100 group-hover:visible bg-popup -mt-5 pt-5"
                 >
                     <div className="w-full p-3">

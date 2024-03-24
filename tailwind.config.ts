@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
-const { nextui } = require("@nextui-org/theme");
+import { nextui } from "@nextui-org/theme";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
     content: [
@@ -10,8 +11,14 @@ const config: Config = {
     ],
     theme: {
         extend: {
-            screens:{
-                'xs':'480px'
+            textShadow: {
+                DEFAULT: "0 2px 4px rgba(0,0,0,0.4)",
+                "light-dark": "5px 4px 7px rgba(0,0,0,0.6)",
+                dark: "5px 4px 7px rgba(0,0,0,0.7)",
+                darker: "5px 4px 7px rgba(0,0,0,0.9)",
+            },
+            screens: {
+                xs: "480px",
             },
             dropShadow: {
                 fav: "0 0 3px rgba(255, 0, 0, 0.9)",
@@ -23,7 +30,8 @@ const config: Config = {
                 "glow-medium": "0px 0px 15px #ffffff45",
             },
             boxShadow: {
-                "xl-d": "5px 3px 10px rgba(0, 0, 0, 0.7)",
+                "dark": "3px 5px 10px rgba(0, 0, 0, 0.9)",
+                "light-dark": "3px 5px 10px rgba(0, 0, 0, 0.6)",
             },
             colors: {
                 dark: "#05060b",
@@ -55,6 +63,16 @@ const config: Config = {
     },
     darkMode: "class",
     plugins: [
+        plugin(function ({ matchUtilities, theme }) {
+            matchUtilities(
+                {
+                    "text-shadow": (value) => ({
+                        textShadow: value,
+                    }),
+                },
+                { values: theme("textShadow") }
+            );
+        }),
         nextui({
             addCommonColors: true,
             themes: {

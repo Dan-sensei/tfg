@@ -14,14 +14,6 @@ export default function Trending() {
 
     useEffect(() => {
         const fetchData = (page: number) => {
-            const queryParams = new URLSearchParams({
-                page: page.toString(),
-                pageSize: PAGE_SIZE.toString(),
-            });
-            const urlWithParams = `${
-                process.env.NEXT_PUBLIC_API_BASE_URL
-            }api/trending?${queryParams.toString()}`;
-
             getTrending(page, PAGE_SIZE)
                 .then((response) => {
                     const result = JSON.parse(response);
@@ -43,7 +35,13 @@ export default function Trending() {
     if (!data) {
         return (
             <div className="h-full flex items-center justify-center">
-                <Spinner size="lg" color="warning"></Spinner>
+                <Spinner
+                    classNames={{
+                        circle1: "w-16 h-16 border-5",
+                        circle2: "w-16 h-16 border-4",
+                    }}
+                    color="primary"
+                ></Spinner>
             </div>
         );
     }

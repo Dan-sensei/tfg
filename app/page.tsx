@@ -32,7 +32,7 @@ async function getTopWorks() {
     const TopWorks = await prisma.tFG.findMany({
         select: tfgTopFields,
         orderBy: [{ views: "desc" }, { score: "desc" }, { createdAt: "desc" }],
-        take: 10,
+        take: 5,
     });
     return TopWorks;
 }

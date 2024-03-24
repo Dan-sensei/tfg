@@ -122,7 +122,7 @@ export default function CarouselRow({ tfgArray }: CarouselRowProps) {
                                     currentIndex,
                                     slidesToScroll,
                                     totalSlides.current
-                                )} drop-shadow-light-dark`}
+                                )}`}
                                 key={index}
                                 id={tfg.id}
                                 createdAt={tfg.createdAt}
