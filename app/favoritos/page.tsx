@@ -107,7 +107,7 @@ export default function Favoritos() {
     }
     return (
         <div className="h-full pb-12 w-full">
-            <div className="h-full rounded-2xl bg-black/50 bg-grid">
+            <div className="h-full rounded-2xl bg-black/50">
                 {content}
             </div>
         </div>
