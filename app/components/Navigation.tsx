@@ -133,8 +133,8 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
             isBlurred={false}
             
             onMenuOpenChange={setIsMenuOpen}
-            className={`bg-nova-darker ${
-                hasScrolled ? "border-t-nova-red border-t-3" : "border-t-transparent border-t-3"
+            className={` ${
+                hasScrolled ? "border-b-blue-500 border-b-2 bg-nova-darker/70 backdrop-blur-sm" : "border-b-transparent border-b-3 bg-transparent"
             } transition-colors fixed`}
         >
             <NavbarContent className="lg:hidden" justify="start">
@@ -161,7 +161,7 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
                     <NavbarItem
                         key={`${index}`}
                         className={`h-full relative ${pathName === link.href
-                            ? "after:border-b-4 after:border-b-nova-link after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none"
+                            ? "after:border-b-4 after:border-b-blue-500 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none"
                             : ""}`
                         }
                         data-active={

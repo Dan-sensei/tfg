@@ -50,18 +50,19 @@ export default async function RootLayout({
     const topCategories: CategoryLink[] = await getPopularCategories();
 
     return (
-        <html lang="en" className="dark h-full">
+        <html lang="en" className="dark">
             <body
-                className={`${montserrat.className}  bg-nova-darker antialiased relative min-h-full flex flex-col`}
+                className={`${montserrat.className} bg-gradient-to-bl from-nova-dark via-nova-darker to-nova-darker antialiased min-h-lvh flex flex-col`}
             >
-                <div className="pb-[150px] flex-1 flex flex-col">
-                    <Navigation categoriesList={topCategories} />
-                    <section className="pt-[67px] px-4 md:px-14 flex-1 flex flex-col">
-                        <Providers className="flex-1 flex flex-col">
+                <Navigation categoriesList={topCategories} />
+                <section className="pt-24 px-4 md:px-14 flex-1 flex">
+                    <Providers className="flex grow flex-wrap w-full">
+                        <div className="w-full">
+
                             {children}
-                        </Providers>
-                    </section>
-                </div>
+                        </div>
+                    </Providers>
+                </section>
                 <Footer />
             </body>
         </html>

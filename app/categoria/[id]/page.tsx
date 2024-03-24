@@ -61,7 +61,7 @@ export default function Categoria({ params }: { params: { id: string } }) {
                 </div>
             </div>
             <Pagination
-                color="secondary"
+                color="primary"
                 className="self-end mx-auto mb-3 pt-10"
                 showControls
                 total={data.totalPages}

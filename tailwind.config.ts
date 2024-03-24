@@ -6,7 +6,7 @@ const config: Config = {
         "./pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./components/**/*.{js,ts,jsx,tsx,mdx}",
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
-        "./node_modules/@nextui-org/theme/dist/components/(button|chip|navbar|pagination).js",
+        "./node_modules/@nextui-org/theme/dist/components/(button|chip|navbar|pagination|spinner).js",
     ],
     theme: {
         extend: {
@@ -25,8 +25,9 @@ const config: Config = {
                 dark: "#05060b",
                 popup: "#0c0e1d",
                 "nova-light-dark": "#263244",
-                "nova-dark": "#0d151b",
+                "nova-dark": "#1d2d39",
                 "nova-darker": "#090f13",
+                "nova-darker-2": "#091119",
                 "nova-red": "#7c0203",
                 "nova-link": "#d3e3f5",
                 "nova-button": "#05689c",

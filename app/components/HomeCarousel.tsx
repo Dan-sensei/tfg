@@ -54,7 +54,7 @@ export default function HomeCarousel({ topTfgs }: CarouselProps) {
 
     return (
         <>
-            <div className="embla relative lg:pt-4">
+            <div className="embla relative">
                 <div className="embla__viewport" ref={emblaRef}>
                     <div className="embla__container">
                         {topTfgs.map((item: any) => (
@@ -68,7 +68,7 @@ export default function HomeCarousel({ topTfgs }: CarouselProps) {
                                         alt=""
                                         className="w-full lg:rounded-2xl  h-full object-cover pointer-events-none select-none"
                                     />
-                                    <div className="h-full lg:rounded-[15px] w-[55%] absolute left-0 z-0 bottom-0 bg-gradient-to-r from-nova-darker/80 pointer-events-none"></div>
+                                    <div className="h-full lg:rounded-[15px] w-[55%] absolute left-0 z-0 bottom-0 bg-gradient-to-r from-nova-darker/90 pointer-events-none"></div>
                                     <div className="absolute w-full lg:w-[70%] mx-auto px-16 pb-10 sm:pb-16 lg:py-6 xl:pb-16 md:mb-5 drop-shadow-lg z-10">
                                         <h1 className="embla_nodrag text-white text-xl md:text-2xl lg:text-3xl font-bold line-clamp-3 drop-shadow-light-dark">
                                             {item?.title}

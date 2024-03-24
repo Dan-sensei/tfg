@@ -6,6 +6,7 @@ import { Pagination } from "@nextui-org/pagination";
 import { useEffect, useState } from "react";
 import { TFGPagination } from "../types/interfaces";
 import { getTrending } from "../lib/actions/trending";
+import { Spinner } from "@nextui-org/spinner";
 
 export default function Trending() {
     const [data, setData] = useState<TFGPagination | null>(null);
@@ -40,11 +41,15 @@ export default function Trending() {
     };
 
     if (!data) {
-        return <div>Loading...</div>;
+        return (
+            <div className="h-full flex items-center justify-center">
+                <Spinner size="lg" color="warning"></Spinner>
+            </div>
+        );
     }
 
     return (
-        <div className="flex flex-wrap flex-1 pt-6">
+        <div className="flex flex-wrap flex-1">
             <div className="w-full">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 w-full">
                     {data.tfgs.map((tfg, i) => {
@@ -65,7 +70,7 @@ export default function Trending() {
                 </div>
             </div>
             <Pagination
-                color="secondary"
+                color="primary"
                 className="self-end mx-auto mb-3 pt-10"
                 showControls
                 total={data.totalPages}

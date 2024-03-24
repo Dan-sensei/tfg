@@ -26,7 +26,7 @@ const getActiveSlidesToScroll = () => {
     return activeBreakpoint ? activeBreakpoint.slidesToScroll : 2;
 };
 
-const getCardClassName = (index: number, currentIndex: number, slidesToScroll: number, totalSlides: number) => {
+const getCardOrigin = (index: number, currentIndex: number, slidesToScroll: number, totalSlides: number) => {
     if(index === 0) return 'origin-left';
 
     const isBeyondTotalSlides = (currentIndex + 1) * slidesToScroll > totalSlides;
@@ -39,7 +39,7 @@ const getCardClassName = (index: number, currentIndex: number, slidesToScroll: n
     if (isBeyondTotalSlides && isFirstOfLastSet) return 'origin-left';
     if (!isBeyondTotalSlides && isFirstOfCurrentSet) return 'origin-left';
     if (!isLessThanTotal && (isLastOfCurrentSet || isLastSlide)) return 'origin-right';
-
+    if(index >= currentIndex * slidesToScroll + slidesToScroll || index < currentIndex * slidesToScroll) return 'opacity-40 ' + index
     return '';
 };
 
@@ -90,18 +90,18 @@ export default function CarouselRow({tfgArray}: CarouselRowProps) {
     const scrollNext = useCallback(() => {
         emblaApi?.scrollNext()
     }, [emblaApi])
-
+    
     const showPrev = currentIndex > 0;
     const showNext = currentIndex >= 0 && currentIndex*slidesToScroll + slidesToScroll < totalSlides.current - 1;
     return (
-        <div className="embla hover:z-10 mt-5">
+        <div className="embla hover:z-10">
             <div className="embla__viewport" ref={emblaRef}>
                 <div className="embla__container">
                 {
                     tfgArray.map((tfg, index) => (
-                        <div key={index} className="embla__slide flex-2c sm:flex-3c md:flex-4c xl:flex-5c 2xl:flex-6c px-2">
+                        <div key={index} className="embla__slide flex-2c sm:flex-3c md:flex-4c xl:flex-5c 2xl:flex-6c px-1">
                             <Card
-                                className={`${getCardClassName(index, currentIndex, slidesToScroll, totalSlides.current)} drop-shadow-light-dark`}
+                                className={`${getCardOrigin(index, currentIndex, slidesToScroll, totalSlides.current)} drop-shadow-light-dark`}
                                 key={index} 
                                 id={tfg.id} 
                                 createdAt={tfg.createdAt}
@@ -118,12 +118,12 @@ export default function CarouselRow({tfgArray}: CarouselRowProps) {
                 </div>
             </div>
             
-            <div className='bg-gradient-to-r from-nova-darker absolute left-0 w-6 md:w-14 -ml-4 md:-ml-14 h-full scale-y-125 flex items-center justify-center'>
+            <div className='absolute left-0 w-6 md:w-14 -ml-4 md:-ml-14 h-full scale-y-125 flex items-center justify-center'>
                 <button className={(showPrev ? 'visible' : 'hidden') + " embla__prev"} onClick={scrollPrev}>
                     <IconChevronLeft size={30}  className='transition-all duration-300 hover:scale-125' />
                 </button>  
             </div>
-            <div className='bg-gradient-to-l from-nova-darker absolute right-0 w-6 md:w-14  -mr-4 md:-mr-14 h-full scale-y-125 flex items-center justify-center'>
+            <div className='absolute right-0 w-6 md:w-14  -mr-4 md:-mr-14 h-full scale-y-125 flex items-center justify-center'>
                 <button className={(showNext ? 'visible' : 'hidden') + " embla__next"} onClick={scrollNext}>
                     <IconChevronRight size={30} className='transition-all duration-300 hover:scale-125' />
                 </button>

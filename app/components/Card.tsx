@@ -68,7 +68,7 @@ export default function Card({
                 </Link>
                 <div
                     className="embla_nodrag z-10 rounded-lg absolute invisible w-full transition-all duration-100 opacity-0 delay-0 
-                group-hover:delay-75 group-hover:opacity-100 group-hover:visible bg-popup -mt-5 pt-5"
+                group-hover:delay-75 pointer-events-none group-hover:pointer-events-auto group-hover:opacity-100 group-hover:visible bg-popup -mt-5 pt-5"
                 >
                     <div className="w-full p-3">
                         <div className="flex">

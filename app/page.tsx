@@ -181,13 +181,16 @@ export default async function Home() {
     const RowData = await getData();
 
     return (
-        <div className="-mx-4 md:-mx-14  overflow-hidden">
+        <div className="-mx-4 md:-mx-14 overflow-hidden">
             <HomeCarousel topTfgs={topWorks} />
-            <div className="pb-[180px] bg-nova-darker px-4 md:px-14 pt-7">
+            <div className="pb-[180px] px-4 md:px-12 pt-7">
                 {RowData.map((rowData, index) => (
-                    <div key={index} className="pb-12">
-                        <h1 className="text-xl font-bold px-2">
-                            {rowData.name}
+                    <div key={index} className="pb-10">
+                        <div className="text-xl font-bold px-2 flex items-end mb-3">
+                            <div className="pt-1 pb-1 self-stretch">
+                                <div className="w-1 h-full bg-blue-500 "></div>
+                            </div>
+                            <div className="pl-2">{rowData.name}</div>
                             {rowData.type && (
                                 <Link
                                     className=" pl-3 text-medium transition-colors inline-flex items-center text-gray-400 hover:text-nova-link group"
@@ -195,12 +198,12 @@ export default async function Home() {
                                 >
                                     Ver más{" "}
                                     <IconChevronRight
-                                        className="inline text-yellow-500 stroke-3 duration-400 group-hover:translate-x-2"
+                                        className="inline text-blue-500 stroke-3 duration-400 group-hover:translate-x-1"
                                         size={20}
                                     />{" "}
                                 </Link>
                             )}
-                        </h1>
+                        </div>
                         <CarouselRow tfgArray={rowData.tfgs} />
                     </div>
                 ))}
