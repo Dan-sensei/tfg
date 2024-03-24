@@ -10,6 +10,9 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            screens:{
+                'xs':'480px'
+            },
             dropShadow: {
                 fav: "0 0 3px rgba(255, 0, 0, 0.9)",
                 dark: "7px 5px 7px rgba(0, 0, 0, 0.9)",

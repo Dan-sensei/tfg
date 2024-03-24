@@ -186,14 +186,16 @@ export default async function Home() {
             <div className="pb-[180px] px-4 md:px-12 pt-7">
                 {RowData.map((rowData, index) => (
                     <div key={index} className="pb-10">
-                        <div className="text-xl font-bold px-2 flex items-end mb-3">
-                            <div className="pt-1 pb-1 self-stretch">
-                                <div className="w-1 h-full bg-blue-500 "></div>
+                        <div className="font-bold pl-1 flex items-end mb-3 flex-wrap">
+                            <div className="flex text-medium w-full xs:w-auto lg:text-xl">
+                                <div className="self-stretch pt-1 pb-1 mr-2 inline-block">
+                                    <div className="w-1  h-full bg-blue-500 "></div>
+                                </div>
+                                {rowData.name}
                             </div>
-                            <div className="pl-2">{rowData.name}</div>
                             {rowData.type && (
                                 <Link
-                                    className=" pl-3 text-medium transition-colors inline-flex items-center text-gray-400 hover:text-nova-link group"
+                                    className=" xs:pl-3 text-sm lg:text-medium transition-colors inline-flex items-center text-gray-400 hover:text-nova-link group"
                                     href={`/${rowData.type}/${rowData.id}`}
                                 >
                                     Ver más{" "}

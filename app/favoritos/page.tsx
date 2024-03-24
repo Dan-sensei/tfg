@@ -95,7 +95,7 @@ export default function Favoritos() {
                             </div>
                         </Link>
                         <button
-                            className="absolute z-10 top-1 right-1 rounded-full hover:bg-slate-100/20 p-1 transition-colors"
+                            className="absolute z-10 top-1 right-2 rounded-full hover:bg-slate-100/20 p-1 transition-colors"
                             onClick={() => removeFromFavorites(tfg.id)}
                         >
                             <IconX size={15}></IconX>

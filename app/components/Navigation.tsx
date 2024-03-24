@@ -47,7 +47,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
     return (
         <div className="h-full group ">
             <DefaultLink href={href} name={name} isCategories={true} />
-            <div className="px-7 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[670px]  bg-nova-light-dark rounded-xl group-hover:visible invisible">
+            <div className="px-7 py-5 absolute top-[100%] -left-[80px] transition-all opacity-0 group-hover:opacity-100 w-[670px] drop-shadow-light-dark bg-nova-light-dark rounded-xl group-hover:visible invisible">
                 <div className="arrow-up border-b-[10px] border-b-nova-light-dark  absolute left-[127px] top-[-10px]"></div>
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-9">
@@ -184,7 +184,7 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
                 </NavbarItem>
             </NavbarContent>
 
-            <NavbarMenu className="lg:bg-transparent">
+            <NavbarMenu className="bg-nova-darker/70 backdrop-blur-sm">
                 {links.map((link, index) => (
                     <NavbarMenuItem key={`${index}`}>
                         <Link

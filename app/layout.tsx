@@ -55,10 +55,9 @@ export default async function RootLayout({
                 className={`${montserrat.className} bg-gradient-to-bl from-nova-dark via-nova-darker to-nova-darker antialiased min-h-lvh flex flex-col`}
             >
                 <Navigation categoriesList={topCategories} />
-                <section className="pt-24 px-4 md:px-14 flex-1 flex">
+                <section className="pt-[70px] lg:pt-24 px-4 md:px-14 flex-1 flex">
                     <Providers className="flex grow flex-wrap w-full">
                         <div className="w-full">
-
                             {children}
                         </div>
                     </Providers>
