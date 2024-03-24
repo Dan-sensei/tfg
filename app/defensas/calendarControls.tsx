@@ -7,6 +7,7 @@ import { es } from "date-fns/locale";
 type Props = {
 	year: number;
 	month: number;
+	classname?: string;
 };
 
 type CalendarButtonControl = {
@@ -15,7 +16,7 @@ type CalendarButtonControl = {
 	label: string;
 	updateMonths: number;
 };
-export default function CalendarControls({ year, month }: Props) {
+export default function CalendarControls({ year, month, classname }: Props) {
 	const pathname = usePathname();
 	const { replace } = useRouter();
 	const activeDate = new Date(year, month);
@@ -66,7 +67,7 @@ export default function CalendarControls({ year, month }: Props) {
 
 	return (
 		<>
-			<div className="grid grid-cols-3 lg:grid-cols-5 text-center">
+			<div className={`${classname} grid grid-cols-3 lg:grid-cols-5 text-center`}>
 				{buttons.map((button, index) =>
 					button.active ? (
 						<div key={index} className="text-xl">{button.label}</div>
