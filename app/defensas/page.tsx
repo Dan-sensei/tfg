@@ -108,8 +108,8 @@ export default async function Defensas({ searchParams }: Props) {
     const defensesByDate: { [key: string]: DefenseData[] } = {};
 
     const defenses = await getMonthDefenses(
-        subDays(startOfMonth(new Date(Date.UTC(year, month))), 10),
-        addDays(endOfMonth(new Date(Date.UTC(year, month))), 10)
+        subDays(startOfMonth(new Date(Date.UTC(year, month-1))), 10),
+        addDays(endOfMonth(new Date(Date.UTC(year, month-1))), 10)
     );
 
     defenses.forEach((defense) => {

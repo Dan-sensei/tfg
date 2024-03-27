@@ -27,7 +27,6 @@ export default function CalendarControls({ year, month, classname }: Props) {
         const params = new URLSearchParams(searchParams);
         params.set("year", newDate.getFullYear().toString());
         params.set("month", (newDate.getMonth() + 1).toString());
-        params.set("display", (newDate.getMonth() + 1).toString());
         replace(`${pathname}?${params.toString()}`);
     };
 
