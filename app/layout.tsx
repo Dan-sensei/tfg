@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 import { Providers } from "./providers";
-import { montserrat } from "./components/fonts";
+import { montserrat } from "./lib/fonts";
 import Footer from "./components/Footer";
 import { CategoryLink } from "./types/interfaces";
 import prisma from "./lib/db";
@@ -55,7 +55,7 @@ export default async function RootLayout({
                 className={`${montserrat.className} bg-gradient-to-bl from-nova-dark via-nova-darker to-nova-darker antialiased min-h-lvh flex flex-col`}
             >
                 <Navigation categoriesList={topCategories} />
-                <section className="pt-[70px] bg-grid lg:pt-24 px-4 lg:px-14 flex-1 flex">
+                <section className="pt-[70px] bg-grid lg:pt-24 px-4 xl:px-14 flex-1 flex">
                     <Providers className="flex grow flex-wrap w-full">
                         <div className="w-full">
                             {children}

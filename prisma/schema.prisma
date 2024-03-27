@@ -66,6 +66,8 @@ model College{
   name String
   createdAt DateTime @default(now())
   gradeMaster GradeMaster[]
+  defenses Defense[]
+  defenseLocations Location[]
 }
 
 model Category{
@@ -97,12 +99,14 @@ model VoteLog {
 
 model Defense {
   id Int @id @default(autoincrement())
-  date DateTime 
   title String
-  startTime String
-  endTime String
+  startTime DateTime
+  endTime DateTime
   location  Location @relation(fields: [locationId], references: [id])
   locationId Int
+
+  collegeId Int
+  college College @relation(fields: [collegeId], references: [id])
 
   tfg        TFG?   @relation(fields: [tfgId], references: [id])
   tfgId      Int? @unique
@@ -110,7 +114,10 @@ model Defense {
 
 model Location {
   id      Int      @id @default(autoincrement())
-  name    String   // A friendly name for the location
-  mapLink String   // A link to the location on Google Maps
+  name    String
+  mapLink String
   defenses Defense[]
+
+  collegeId Int
+  college College @relation(fields: [collegeId], references: [id])
 }

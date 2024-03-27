@@ -5,7 +5,7 @@ import { Chip } from "@nextui-org/chip";
 import { iTFG } from "@/app/types/interfaces";
 import Link from "next/link";
 import { sanitizeString, formatViews } from "../utils/util";
-import { tulpen_one } from "./fonts";
+import { tulpen_one } from "../lib/fonts";
 import { create } from "domain";
 
 interface ExtendedTFG extends iTFG {

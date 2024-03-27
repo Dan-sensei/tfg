@@ -34,9 +34,8 @@ const getCardOrigin = (
     totalSlides: number
 ) => {
     if (index === 0) return "origin-left";
-
-    const isFirstOfLastSet = index === totalSlides - slidesToScroll;
-    const isFirstOfCurrentSet = index === currentIndex * slidesToScroll;
+    const isFirstOfLastSet = currentIndex == Math.floor(totalSlides/slidesToScroll) && index === totalSlides - slidesToScroll;
+    const isFirstOfCurrentSet = index === currentIndex * slidesToScroll && (currentIndex+1) * slidesToScroll < totalSlides;
     const isLastOfCurrentSet =
         index === currentIndex * slidesToScroll + slidesToScroll - 1;
     const isLastSlide = index === totalSlides - 1;
@@ -45,14 +44,31 @@ const getCardOrigin = (
     if (isFirstOfCurrentSet || isFirstOfLastSet) return "origin-left";
     if (!isLessThanTotal && (isLastOfCurrentSet || isLastSlide))
         return "origin-right";
-    if (
-        index >= currentIndex * slidesToScroll + slidesToScroll ||
-        (index < currentIndex * slidesToScroll &&
-            index < totalSlides - slidesToScroll)
-    )
-        return "opacity-40 " + index;
+    
     return "";
 };
+
+const getCardOpacity = (index: number,
+    currentIndex: number,
+    slidesToScroll: number,
+    totalSlides: number) => {
+        if (
+            index >= currentIndex * slidesToScroll + slidesToScroll ||
+            (index < currentIndex * slidesToScroll &&
+                index < totalSlides - slidesToScroll)
+        )
+            return "opacity-40 " + index;
+    return ""
+}
+
+const getCardClassname = (index: number,
+    currentIndex: number,
+    slidesToScroll: number,
+    totalSlides: number) => {
+
+    return getCardOrigin(index, currentIndex, slidesToScroll, totalSlides) + " " + getCardOpacity(index, currentIndex, slidesToScroll, totalSlides);
+
+}
 
 export default function CarouselRow({ tfgArray }: CarouselRowProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -106,8 +122,10 @@ export default function CarouselRow({ tfgArray }: CarouselRowProps) {
     const showNext =
         currentIndex >= 0 &&
         currentIndex * slidesToScroll + slidesToScroll <
-            totalSlides.current - 1;
+            totalSlides.current;
     return (
+        <>
+        
         <div className="embla hover:z-10">
             <div className="embla__viewport" ref={emblaRef}>
                 <div className="embla__container">
@@ -117,7 +135,7 @@ export default function CarouselRow({ tfgArray }: CarouselRowProps) {
                             className="embla__slide flex-2c sm:flex-3c md:flex-4c xl:flex-5c 2xl:flex-6c px-1"
                         >
                             <Card
-                                className={`${getCardOrigin(
+                                className={`${getCardClassname(
                                     index,
                                     currentIndex,
                                     slidesToScroll,
@@ -138,7 +156,7 @@ export default function CarouselRow({ tfgArray }: CarouselRowProps) {
                 </div>
             </div>
 
-            <div className="absolute left-0 w-6 md:w-14 -ml-4 md:-ml-14 h-full scale-y-125 flex items-center justify-center">
+            <div className="absolute left-0 w-6 lg:w-14 -ml-4 lg:-ml-14 h-full scale-y-125 flex items-center justify-center">
                 <button
                     className={
                         (showPrev ? "visible" : "hidden") + " embla__prev"
@@ -151,7 +169,7 @@ export default function CarouselRow({ tfgArray }: CarouselRowProps) {
                     />
                 </button>
             </div>
-            <div className="absolute right-0 w-6 md:w-14  -mr-4 md:-mr-14 h-full scale-y-125 flex items-center justify-center">
+            <div className="absolute right-0 w-6 lg:w-14  -mr-4 lg:-mr-14 h-full scale-y-125 flex items-center justify-center">
                 <button
                     className={
                         (showNext ? "visible" : "hidden") + " embla__next"
@@ -165,6 +183,7 @@ export default function CarouselRow({ tfgArray }: CarouselRowProps) {
                 </button>
             </div>
         </div>
+        </>
     );
 }
 
