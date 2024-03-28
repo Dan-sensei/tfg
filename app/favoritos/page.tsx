@@ -1,11 +1,7 @@
 "use client";
 import { useFavorites } from "@/app/FavoritesContext";
-import Favorites from "../components/Favorites";
 import { useEffect, useState } from "react";
-import { Chip } from "@nextui-org/chip";
-import FavButton from "@/app/components/FavButton";
 import Image from "next/image";
-import Card from "@/app/components/Card";
 import { iTFG } from "@/app/types/interfaces";
 import { getFavorites } from "../lib/actions/favorites";
 import { Spinner } from "@nextui-org/spinner";

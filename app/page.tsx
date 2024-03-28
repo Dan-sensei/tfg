@@ -1,5 +1,5 @@
-import CarouselRow from "./components/CarouselRow";
-import HomeCarousel from "./components/HomeCarousel";
+import CarouselRow from "./home-components/CarouselRow";
+import HomeCarousel from "./home-components/HomeCarousel";
 import prisma from "@/app/lib/db";
 import { DBProperty, TFGRowData, PopularFields } from "@/app/types/interfaces";
 import { tfgFields, tfgTopFields } from "@/app/types/prismaFieldDefs";
@@ -183,6 +183,7 @@ export default async function Home() {
     return (
         <div className="-mx-4 xl:-mx-14 overflow-hidden">
             <HomeCarousel topTfgs={topWorks} />
+            
             <div className="pb-[180px] px-4 lg:px-12 pt-7">
                 {RowData.map((rowData, index) => (
                     <div key={index} className="pb-10">

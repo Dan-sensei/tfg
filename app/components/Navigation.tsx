@@ -18,6 +18,7 @@ import {
 } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { CategoryLink } from "../types/interfaces";
+import Search from "./Search";
 
 interface LinkProps {
     name: string;
@@ -178,9 +179,7 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
 
             <NavbarContent justify="end">
                 <NavbarItem className="flex">
-                    <Link href={"/search"} className="lg:p-3 lg:pr-16">
-                        <IconSearch className="w-8 h-8 text-gray-300" />
-                    </Link>
+                    <Search />
                 </NavbarItem>
             </NavbarContent>
 

@@ -1,5 +1,5 @@
 "use client";
-import Card from "@/app/components/Card";
+import Card from "@/app/home-components/Card";
 import { getCategoryData } from "@/app/lib/actions/category";
 import { TFGPagination } from "@/app/types/interfaces";
 import { Pagination } from "@nextui-org/pagination";

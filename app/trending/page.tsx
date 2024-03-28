@@ -1,6 +1,6 @@
 "use client";
 
-import Card from "../components/Card";
+import Card from "../home-components/Card";
 import { PAGE_SIZE } from "../lib/config";
 import { Pagination } from "@nextui-org/pagination";
 import { useEffect, useState } from "react";
