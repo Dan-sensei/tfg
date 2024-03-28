@@ -131,10 +131,10 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
             isMenuOpen={isMenuOpen}
             maxWidth="full"
             isBlurred={false}
-            
+            disableAnimation={true}
             onMenuOpenChange={setIsMenuOpen}
             className={` ${
-                hasScrolled ? "border-b-blue-500 border-b-2 bg-nova-darker/70 backdrop-blur-sm" : "border-b-transparent border-b-3 bg-transparent"
+                hasScrolled ? "border-b-blue-500 border-b-2 bg-nova-darker/70 backdrop-blur-sm" : "border-b-blue-500 border-b-2 bg-nova-darker/70 backdrop-blur-sm lg:backdrop-blur-0 lg:border-b-transparent lg:bg-transparent"
             } transition-colors fixed`}
         >
             <NavbarContent className="lg:hidden" justify="start">
@@ -188,8 +188,9 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
                 {links.map((link, index) => (
                     <NavbarMenuItem key={`${index}`}>
                         <Link
-                            className="w-full transition-colors ease-in-out text-violet-50 hover:text-violet-500"
+                            className="w-full transition-colors ease-in-out text-violet-50 hover:text-nova-link"
                             href={link.href}
+                            onClick={() => setIsMenuOpen(false)}
                         >
                             <span
                                 className={

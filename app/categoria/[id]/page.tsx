@@ -39,7 +39,7 @@ export default function Categoria({ params }: { params: { id: string } }) {
         return <div>Loading...</div>;
     }
     return (
-        <div className="flex flex-wrap flex-1">
+        <div className="flex flex-wrap flex-1 py-5 lg:pt-0">
             <div className="w-full">
                 <h1 className="text-2xl font-bold mb-3">{data.title}</h1>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 w-full">

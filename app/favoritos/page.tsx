@@ -108,20 +108,8 @@ export default function Favoritos() {
         );
     }
     return (
-        <div className="h-full pb-12 w-full">
+        <div className="h-full py-5 lg:pt-0 w-full">
             <div className="h-full rounded-2xl bg-black/50">{content}</div>
         </div>
     );
 }
-/*
-<Card
-                        key={tfg.id}
-                        id={tfg.id}
-                        thumbnail={tfg.thumbnail}
-                        title={tfg.title}
-                        views={tfg.views}
-                        score={tfg.score}
-                        description={tfg.description}
-                        pages={tfg.pages}
-                        updateCallback={() => removeFromPage(tfg.id)}
-                    />*/

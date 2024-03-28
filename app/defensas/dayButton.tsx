@@ -39,10 +39,10 @@ export default function DayButton({
 
     let background = ""
     if(sameMonth){
-        background = selected? "text-nova-link  bg-blue-500" : "text-nova-link  hover:bg-nova-light2/50 border-2 border-white/10";
+        background = selected? "text-nova-link  bg-blue-500" : "text-nova-link  hover:bg-nova-light2/50 border-1 lg:border-2 border-white/10";
     }
     else{
-        background = selected? "text-slate-600  bg-nova-light/20" : "text-slate-600  hover:bg-nova-light/20 border-2 border-white/10";
+        background = selected? "text-slate-600  bg-nova-light/20" : "text-slate-600  hover:bg-nova-light/20 border-1 lg:border-2 border-white/10";
     }
 
     return (
