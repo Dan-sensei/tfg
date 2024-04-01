@@ -5,7 +5,6 @@ import { PAGE_SIZE } from "../lib/config";
 import { Pagination } from "@nextui-org/pagination";
 import { useEffect, useState } from "react";
 import { TFGPagination } from "../types/interfaces";
-import { getTrending } from "../lib/actions/trending";
 import { Spinner } from "@nextui-org/spinner";
 
 export default function Trending() {
@@ -14,9 +13,24 @@ export default function Trending() {
 
     useEffect(() => {
         const fetchData = (page: number) => {
-            getTrending(page, PAGE_SIZE)
+            const queryParams = new URLSearchParams({
+                page: page.toString(),
+                pageSize: PAGE_SIZE.toString(),
+            });
+            const urlWithParams = `${
+                process.env.NEXT_PUBLIC_API_BASE_URL
+            }api/trending?${queryParams.toString()}`;
+
+            fetch(urlWithParams, {
+                next: { revalidate: 12 * 3600 },
+            })
                 .then((response) => {
-                    const result = JSON.parse(response);
+                    if (!response.ok) {
+                        throw new Error("Error");
+                    }
+                    return response.json();
+                })
+                .then((result) => {
                     if (result.success) {
                         setData(result.data);
                     }

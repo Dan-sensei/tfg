@@ -195,10 +195,10 @@ export default async function Defensas({ searchParams }: Props) {
                     </div>
                     <div className="bg-black/30 rounded-lg p-5 w-full min-h-80 lg:w-auto lg:h-full flex-1 flex flex-col">
                         <div>
-                            <div className="inline-block capitalize font-bold text-2xl md:text-4xl lg:text-2xl xl:text-3xl">
+                            <div className="inline-block capitalize font-bold text-2xl md:text-2xl xl:text-3xl">
                                 {format(DateSelected, "EEEE", { locale: es })}
                             </div>
-                            <div className="pl-3 inline-block capitalize font-semibold text-sm md:text-lg lg:text-sm xl:text-lg text-gray-400">
+                            <div className="pl-3 inline-block capitalize font-semibold text-sm md:text-md lg:text-sm xl:text-lg text-gray-400">
                                 {format(DateSelected, "dd MMMM yyyy", {
                                     locale: es,
                                 })}
@@ -217,10 +217,10 @@ export default async function Defensas({ searchParams }: Props) {
                                                     />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <div className="font-semibold text-base md:text-xl lg:text-base xl:text-xl">
+                                                    <div className=" text-base md:text-xl lg:text-base xl:text-xl">
                                                         {defense.title}
                                                     </div>
-                                                    <div className="text-gray-400 uppercase font-semibold text-sm md:text-xl lg:text-sm xl:text-xl">
+                                                    <div className="text-gray-400 uppercase  text-sm md:text-xl lg:text-sm xl:text-lg -mt-1">
                                                         {format(
                                                             new Date(
                                                                 defense.startTime
@@ -269,22 +269,3 @@ export default async function Defensas({ searchParams }: Props) {
         </div>
     );
 }
-
-/*
-<div className="flex-1">
-				{selectedDate && (
-					<div>
-						<h3>Defenses for {format(selectedDate, "PP")}</h3>
-						{defenses.map((defense, index) => (
-							<div key={index}>
-								<h4>{defense.title}</h4>
-								<p>
-									{defense.startTime} - {defense.endTime}
-								</p>
-								<p>{defense.location}</p>
-							</div>
-						))}
-					</div>
-				)}
-			</div>
-            */

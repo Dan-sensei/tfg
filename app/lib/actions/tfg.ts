@@ -2,26 +2,48 @@
 
 import { headers } from "next/headers";
 import prisma from "@/app/lib/db";
-import redis  from "@/app/lib/redis";
-import { DELAY_VIEW_RECORD } from "@/app/lib/config";
+import { DELAY_VIEW_RECORD, POPULAR_TAGS_DISPLAY } from "@/app/lib/config";
+import { unstable_cache as cache } from "next/cache";
+import { DAY } from "@/app/types/defaultData";
+import { stringify } from "querystring";
+import iRedis from "../iRedis";
+
+export const getPopularTags = cache(
+    async () => {
+        const popularTags = await prisma.$queryRaw`
+            SELECT unnest(tags) as tag, COUNT(*) as count
+            FROM "TFG"
+            GROUP BY tag
+            ORDER BY count DESC
+            LIMIT ${POPULAR_TAGS_DISPLAY}
+        `;
+        return JSON.stringify(
+            popularTags,
+            (key, value) =>
+                typeof value === "bigint" ? value.toString() : value
+        );
+    },
+    ["popular-tags"],
+    {
+        revalidate: DAY,
+    }
+);
 
 export async function increaseTFGViews(tfgId: number) {
-    if(!redis.isOpen){
-        return;
-    }
+
     const ip = headers().get("x-forwarded-for")?.split(",")[0].trim();
 
     if (!ip) {
         return;
     }
 
-    const existingView = await redis.get(`views:${tfgId}:${ip}`);
+    const existingView = await iRedis.get(`views:${tfgId}:${ip}`);
     if (!existingView) {
-        await redis.set(`views:${tfgId}:${ip}`, "1", {
+        await iRedis.set(`views:${tfgId}:${ip}`, "1", {
             NX: true,
             EX: DELAY_VIEW_RECORD,
         });
-        await redis.zIncrBy("dailyViewsCurrent", 1, `tfgId:${tfgId}`);
+        await iRedis.zIncrBy("dailyViewsCurrent", 1, `tfgId:${tfgId}`);
     }
 }
 
@@ -38,10 +60,10 @@ export async function castScore(
     }
 
     const voteKey = `votes:${tfgId}`;
-    const hasVoted = await redis.sIsMember(voteKey, ip);
+    const hasVoted = await iRedis.sIsMember(voteKey, ip);
 
     if (!hasVoted) {
-        await redis.sAdd(voteKey, ip);
+        await iRedis.sAdd(voteKey, ip);
         await prisma.tFG.update({
             where: {
                 id: tfgId,

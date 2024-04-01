@@ -53,9 +53,9 @@ export default async function Page({ params }: { params: { id: string } }) {
                         Tutor: {TFG.tutor}
                     </div>
                 </div>
-                <div className="block xl:absolute z-20 right-0 xl:pr-10 -top-11 shadow-2xl mt-7 xl:mt-0">
+                <div className="block xl:absolute z-20 right-0 xl:pr-10 -top-11 mt-7 xl:mt-0 ">
                     <button className="group">
-                        <div className="h-28 xl:h-auto w-96 max-w-full xl:aspect-file xl:w-32 rounded-xl relative overflow-hidden mx-auto border-white border-small">
+                        <div className=" h-28 xl:h-auto w-96 max-w-full xl:aspect-file xl:w-32 rounded-xl relative overflow-hidden mx-auto border-white border-small">
                             <div className="w-full h-full relative z-10 items-center transition-opacity opacity-0 group-hover:opacity-100 grid grid-stack">
                                 <IconCloudDownload
                                     size={48}

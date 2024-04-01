@@ -1,18 +1,23 @@
-"use server";
 import prisma from "@/app/lib/db";
 import { tfgFields } from "@/app/types/prismaFieldDefs";
-import redis from "@/app/lib/redis";
+import iRedis from "@/app/lib/iRedis";
 
-export async function getCategoryData(
-    _targetId: number,
-    _page: number,
-    _pageSize: number
-) {
-    const targetId = _targetId ?? 10;
-    const page = Math.max(_page ?? 1);
-    const pageSize = Math.max(_pageSize ?? 3, 1);
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const targetId = parseInt(searchParams.get("target") || "", 10);
+    const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
+    const pageSize = Math.max(
+        parseInt(searchParams.get("pageSize") || "3", 10),
+        1
+    );
+
+    if (isNaN(targetId)) {
+        return new Response(JSON.stringify({ error: "Not found" }), {
+            status: 404,
+        });
+    }
     
-    let result = await redis.hGetAll(`category:${targetId}`);
+    let result:any = await iRedis.hGetAll(`category:${targetId}`);
     let categoryData =
         result && Object.keys(result).length
             ? {
@@ -20,7 +25,7 @@ export async function getCategoryData(
                   totalElements: parseInt(result.totalElements, 10),
               }
             : null;
-
+    
     if (!categoryData) {
         const [category, totalElements] = await Promise.all([
             prisma.category.findUnique({
@@ -37,7 +42,7 @@ export async function getCategoryData(
             name: category.name,
             totalElements: totalElements,
         };
-        await redis.hSet(`category:${targetId}`, categoryData);
+        await iRedis.hSet(`category:${targetId}`, categoryData);
     }
 
     const totalPages = Math.ceil(categoryData.totalElements / pageSize);
@@ -49,16 +54,21 @@ export async function getCategoryData(
         take: pageSize,
         skip: (pageAdjusted - 1) * pageSize,
     });
-
-    return JSON.stringify({
-        success: true,
-        data: {
-            tfgs,
-            page: pageAdjusted,
-            pageSize,
-            totalElements: categoryData.totalElements,
-            totalPages,
-            title: categoryData.name,
-        },
-    });
+    return new Response(
+        JSON.stringify({
+            success: true,
+            data: {
+                tfgs,
+                page: pageAdjusted,
+                pageSize,
+                totalElements: categoryData.totalElements,
+                totalPages,
+                title: categoryData.name,
+            },
+        }),
+        {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        }
+    );
 }

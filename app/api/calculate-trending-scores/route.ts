@@ -1,7 +1,9 @@
 import { TRENDING_WEIGHTS } from "@/app/lib/config";
 import prisma from "@/app/lib/db";
-import redis from "@/app/lib/redis";
+import iRedis from "@/app/lib/iRedis";
 import { RedisSet } from "@/app/types/interfaces";
+import { unstable_noStore as noStore } from 'next/cache';
+
 import pMap from "p-map";
 
 type ViewsData = {
@@ -67,28 +69,33 @@ function calculateTrendingScore(viewsData: ViewsData) {
 }
 
 async function calculateDailyViews() {
-    const exists = await redis.exists("dailyViewsCurrent");
-    if (!exists) return;
-    await redis.del("dailyViewsPrevious");
-    const currentViews: RedisSet[] = await redis.zRangeWithScores(
+    const exists = await iRedis.exists("dailyViewsCurrent");
+    //if (!exists) return;
+    //await iRedis.del("dailyViewsPrevious");
+    const currentViews = (await iRedis.zRangeWithScores(
         "dailyViewsCurrent",
         0,
-        -1
-    );
+        -1,
+        {
+            REV: true
+        }
+    ));
+    
+    console.log(currentViews);
 
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     yesterday.setUTCHours(1, 0, 0, 0);
 
     const mapper = async (view: RedisSet) => {
-        const tfgId = view.value.split(":")[1];
+        const tfgId = view.member.split(":")[1];
         const viewsCount = view.score;
-
+        
         await prisma.tFG.update({
             where: { id: Number(tfgId) },
             data: { views: { increment: viewsCount } },
         });
-
+        
         await prisma.dailyTFGView.upsert({
             where: { tfgId_date: { tfgId: Number(tfgId), date: yesterday } },
             update: { views: viewsCount },
@@ -100,10 +107,11 @@ async function calculateDailyViews() {
         });
     };
     await pMap(currentViews, mapper, { concurrency: 3 });
-    await redis.rename("dailyViewsCurrent", "dailyViewsPrevious");
+    //await iRedis.rename("dailyViewsCurrent", "dailyViewsPrevious");
 }
 
 export async function GET() {
+    noStore()
     try{
         await calculateDailyViews();
         const viewsThisWeekForAllTfgs = await fetchAllViews();
@@ -119,16 +127,16 @@ export async function GET() {
             });
             scoreMemberPairsBatch.push({
                 score: trendScore,
-                value: views.tfgId.toString(),
+                member: views.tfgId.toString(),
             });
             
             if (scoreMemberPairsBatch.length >= batchSize) {
-                await redis.zAdd("trending_tfgs", scoreMemberPairsBatch);
+                await iRedis.zAdd("trending_tfgs", scoreMemberPairsBatch);
                 scoreMemberPairsBatch = [];
             }
         }
         if (scoreMemberPairsBatch.length > 0) {
-            await redis.zAdd("trending_tfgs", scoreMemberPairsBatch);
+            await iRedis.zAdd("trending_tfgs", scoreMemberPairsBatch);
         }
     } catch (e: unknown) {
         let error = "Error";
