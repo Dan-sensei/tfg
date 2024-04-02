@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { IconSearch, IconEye } from "@tabler/icons-react";
+import { useEffect, useRef, useState } from "react";
+import { IconSearch, IconEye, IconX } from "@tabler/icons-react";
 import { Button } from "@nextui-org/button";
 import {
     Modal,
@@ -21,6 +21,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Chip } from "@nextui-org/chip";
 import { formatViews, sanitizeString } from "../utils/util";
+import { Spinner } from "@nextui-org/spinner";
+import { Loading, NoResults, ResultList } from "./SearchComponents";
 
 type PopularTag = {
     tag: string;
@@ -31,6 +33,10 @@ export default function Search() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [results, setResults] = useState<iTFG[]>([]);
     const [popularTags, setPopularTags] = useState<PopularTag[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(false);
+    const firstUpdate = useRef(true);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -40,35 +46,78 @@ export default function Search() {
             }
         };
 
-        window.onkeydown = handleKeyDown;
-        const pTags = getPopularTags().then((response) => {
-            const TAGS = JSON.parse(response);
+        window.addEventListener("keydown", handleKeyDown);
+        getPopularTags().then((response) => {
+            const TAGS: PopularTag[] = JSON.parse(response);
             setPopularTags(TAGS);
         });
 
-        return () => {
-            window.onkeydown = null;
-        };
+        return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
     const handleSearch = useDebouncedCallback((value: string) => {
-        const params = new URLSearchParams();
-        params.set("query", value);
-
-        fetch(`/api/search?${params.toString()}`)
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.success) {
-                    const TFGS: iTFG[] = result.data;
-                    setResults(TFGS);
-                } else {
-                    setResults([]);
-                }
-            })
-            .catch(() => {
-                console.log("Error");
-            });
+        setSearchTerm(value);
     }, SEARCH_INPUT_DELAY);
+
+    useEffect(() => {
+        // Skip first render
+        if (firstUpdate.current) {
+            firstUpdate.current = false;
+            return;
+        }
+
+        const performSearch = (hasInput: boolean, hasTags: boolean) => {
+            const params = new URLSearchParams();
+            if (hasInput) params.set("query", searchTerm);
+            if (hasTags)
+                params.set(
+                    "tags",
+                    encodeURIComponent(JSON.stringify(selectedTags))
+                );
+            fetch(`/api/search?${params.toString()}`)
+                .then((response) => response.json())
+                .then((result) => {
+                    if (result.success) {
+                        const TFGS: iTFG[] = result.data;
+                        setResults(TFGS);
+                    } else {
+                        setResults([]);
+                    }
+                })
+                .catch(() => {
+                    console.log("Error");
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        };
+
+        const hasInput = searchTerm.trim() !== "";
+        const hasTags = selectedTags.length > 0;
+
+        if (!hasInput && !hasTags) {
+            setResults([]);
+            return;
+        }
+        setLoading(true);
+        performSearch(hasInput, hasTags);
+    }, [searchTerm, selectedTags]);
+
+    const selectTag = (tag: PopularTag) => {
+        if (!selectedTags.find((t) => t === tag.tag)) {
+            setSelectedTags((current) => [...current, tag.tag]);
+        }
+    };
+    const removeSelectedTag = (tag: string) => {
+        setSelectedTags((current) => current.filter((t) => t !== tag));
+    };
+
+    const showSpinner = loading;
+    const showNoResults =
+        !loading &&
+        results?.length === 0 &&
+        (searchTerm.trim() !== "" || selectedTags.length > 0);
+    const showResults = !loading && results?.length > 0;
 
     return (
         <>
@@ -94,7 +143,7 @@ export default function Search() {
                 isOpen={isOpen}
                 placement={"top-center"}
                 classNames={{
-                    base: "bg-black/90 backdrop-blur-sm",
+                    base: "bg-black/90 backdrop-blur-sm transition-all",
                     header: "pb-1",
                 }}
                 scrollBehavior="inside"
@@ -108,9 +157,11 @@ export default function Search() {
                                 <div className="flex gap-3 w-full">
                                     <div className="flex grow">
                                         <Input
-                                            onChange={(event) =>
-                                                handleSearch(event.target.value)
+                                            onValueChange={(value) =>
+                                                handleSearch(value)
                                             }
+                                            spellCheck={false}
+                                            defaultValue={searchTerm}
                                             autoFocus
                                             isClearable
                                             radius="lg"
@@ -144,79 +195,69 @@ export default function Search() {
                                         </Kbd>
                                     </div>
                                 </div>
+                                <div className="w-full px-2 ">
+                                    {selectedTags.length > 0 && (
+                                        <div className="flex flex-wrap gap-1">
+                                            {selectedTags.map((tag, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() =>
+                                                        removeSelectedTag(tag)
+                                                    }
+                                                    type="button"
+                                                    className="text-xs inline-flex items-center transition-colors bg-blue-600/80 hover:bg-blue-500 pl-4 pr-3 py-2 lg:pl-2 lg:pr-1 lg:py-[2px] rounded-[4px] relative"
+                                                >
+                                                    <span className="inline-block pr-[1.5px]">
+                                                        #
+                                                    </span>
+                                                    <span className="font-medium">
+                                                        {tag}
+                                                    </span>
+                                                    <IconX
+                                                        className="text-white/50 inline-block ml-1"
+                                                        size={12}
+                                                    />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="w-full px-2 flex items-center flex-wrap gap-1 pt-2">
                                     <span className="text-xs inline-block">
-                                        Popular tags:
+                                        Tags populares:
                                     </span>
                                     {popularTags.map((tag, index) => (
                                         <button
                                             key={index}
+                                            onClick={() => selectTag(tag)}
                                             type="button"
-                                            className="text-xs inline-block bg-slate-400/20 hover:bg-slate-400/50 px-4 py-2 lg:px-2 lg:py-1 rounded-md"
+                                            className={`text-xs inline-block transition-colors bg-slate-400/20 hover:bg-slate-400/50 px-4 py-2 lg:px-2 lg:py-1 rounded-[4px]  ${
+                                                selectedTags.find(
+                                                    (t) => t === tag.tag
+                                                )
+                                                    ? "hidden"
+                                                    : ""
+                                            }`}
                                         >
-                                            {tag.tag}
+                                            <span className="inline-block pr-[1.5px] text-blue-500">
+                                                #
+                                            </span>
+                                            <span className="font-medium">
+                                                {tag.tag}
+                                            </span>
                                         </button>
                                     ))}
                                 </div>
                             </ModalHeader>
                             <ModalBody>
                                 <div className="flex flex-wrap gap-1 overflow-y-auto">
-                                    {results?.map((result, index) => (
-                                        <>
-                                            <Divider
-                                                key={`div-${index}`}
-                                                className=""
-                                            />
-                                            <Link
-                                                key={index}
-                                                href={`/page/${
-                                                    result.id
-                                                }/${sanitizeString(
-                                                    result.title
-                                                )}`}
-                                                className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md"
-                                            >
-                                                <div className="relative h-16 aspect-video rounded-lg overflow-hidden">
-                                                    <Image
-                                                        fill
-                                                        className="object-cover"
-                                                        alt={result.title}
-                                                        src={result.thumbnail}
-                                                    ></Image>
-                                                </div>
-                                                <div className="flex flex-1 pl-2">
-                                                    <div className="w-full">
-                                                        <div className="text-sm md:text-base line-clamp-2 md:line-clamp-1">
-                                                            {result.title}
-                                                        </div>
-                                                        <div className="text-xs hidden md:block line-clamp-2">
-                                                            {result.description}
-                                                        </div>
-                                                        <div className="flex items-center pt-[2px]">
-                                                            <Chip
-                                                                className="bg-nova-button text-xs h-5"
-                                                                variant="solid"
-                                                            >
-                                                                {result.pages}{" "}
-                                                                páginas
-                                                            </Chip>
-                                                            <div className="text-xs pl-2 font-medium flex items-center text-slate-300">
-                                                                <IconEye
-                                                                    size={24}
-                                                                    className="inline"
-                                                                />
-                                                                <div className="pl-1">
-                                                                    {`${formatViews(
-                                                                        result.views
-                                                                    )} `}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </>
-                                    ))}
+                                    {loading && <Loading />}
+                                    {showNoResults && (
+                                        <NoResults searchTerm={searchTerm} />
+                                    )}
+                                    {showResults && (
+                                        <ResultList results={results} />
+                                    )}
                                 </div>
                             </ModalBody>
                         </>

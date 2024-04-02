@@ -5,7 +5,6 @@ import prisma from "@/app/lib/db";
 import { DELAY_VIEW_RECORD, POPULAR_TAGS_DISPLAY } from "@/app/lib/config";
 import { unstable_cache as cache } from "next/cache";
 import { DAY } from "@/app/types/defaultData";
-import { stringify } from "querystring";
 import iRedis from "../iRedis";
 
 export const getPopularTags = cache(

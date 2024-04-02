@@ -97,3 +97,15 @@ export const convertUTCDateToLocalDateKey = (utcDateString: string) => {
     const day = date.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+export const badResponse =(errorDescription: string, statusCode: number = 400) => {
+    return new Response(
+        JSON.stringify({ success: false, error: errorDescription }),
+        {
+            status: statusCode,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+}
