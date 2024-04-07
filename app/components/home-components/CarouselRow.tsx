@@ -1,12 +1,12 @@
 "use client";
 import useEmblaCarousel from "embla-carousel-react";
 import Card from "./Card";
-import { iTFG } from "../types/interfaces";
+import { iTFG } from "../../types/interfaces";
 import { IconChevronRight } from "@tabler/icons-react";
 import { IconChevronLeft } from "@tabler/icons-react";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { emblaNoDragLogic } from "../utils/util";
+import { emblaNoDragLogic } from "../../utils/util";
 
 interface CarouselRowProps {
     tfgArray: iTFG[];
@@ -57,7 +57,7 @@ const getCardOpacity = (index: number,
             (index < currentIndex * slidesToScroll &&
                 index < totalSlides - slidesToScroll)
         )
-            return "opacity-40 " + index;
+            return "opacity-40 "
     return ""
 }
 

@@ -18,7 +18,7 @@ import {
 } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { CategoryLink } from "../types/interfaces";
-import Search from "./Search";
+import Search from "./QuickSearch";
 
 interface LinkProps {
     name: string;
@@ -34,7 +34,7 @@ const DefaultLink = ({ href, name, isCategories }: LinkProps & {isCategories?: B
     return (
         <Link
             color="foreground"
-            className="text-lg font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-nova-link"
+            className="text-base font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-nova-link"
             href={href}
         >
             {name}

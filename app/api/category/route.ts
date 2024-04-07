@@ -1,6 +1,7 @@
 import prisma from "@/app/lib/db";
 import { tfgFields } from "@/app/types/prismaFieldDefs";
 import iRedis from "@/app/lib/iRedis";
+import { badResponse, successResponse } from "@/app/utils/util";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -12,12 +13,10 @@ export async function GET(request: Request) {
     );
 
     if (isNaN(targetId)) {
-        return new Response(JSON.stringify({ error: "Not found" }), {
-            status: 404,
-        });
+        return badResponse("Not found", 404);
     }
-    
-    let result:any = await iRedis.hGetAll(`category:${targetId}`);
+
+    let result: any = await iRedis.hGetAll(`category:${targetId}`);
     let categoryData =
         result && Object.keys(result).length
             ? {
@@ -25,7 +24,7 @@ export async function GET(request: Request) {
                   totalElements: parseInt(result.totalElements, 10),
               }
             : null;
-    
+
     if (!categoryData) {
         const [category, totalElements] = await Promise.all([
             prisma.category.findUnique({
@@ -54,21 +53,12 @@ export async function GET(request: Request) {
         take: pageSize,
         skip: (pageAdjusted - 1) * pageSize,
     });
-    return new Response(
-        JSON.stringify({
-            success: true,
-            data: {
-                tfgs,
-                page: pageAdjusted,
-                pageSize,
-                totalElements: categoryData.totalElements,
-                totalPages,
-                title: categoryData.name,
-            },
-        }),
-        {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        }
-    );
+    return successResponse({
+        tfgs,
+        page: pageAdjusted,
+        pageSize,
+        totalElements: categoryData.totalElements,
+        totalPages,
+        title: categoryData.name,
+    });
 }

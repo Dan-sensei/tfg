@@ -1,6 +1,7 @@
 import prisma from "@/app/lib/db";
 import { iTFG } from "@/app/types/interfaces";
 import iRedis from "@/app/lib/iRedis";
+import { badResponse, successResponse } from "@/app/utils/util";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -20,9 +21,7 @@ export async function GET(request: Request) {
                 REV: true,
             }
         );
-        const tfgIds = tfgIdsWithScores.map((tfdId) =>
-            parseInt(tfdId, 10)
-        );
+        const tfgIds = tfgIdsWithScores.map((tfdId) => parseInt(tfdId, 10));
         const unorderedTfgs = (await prisma.tFG.findMany({
             where: {
                 id: {
@@ -40,35 +39,24 @@ export async function GET(request: Request) {
                 createdAt: true,
             },
         })) as iTFG[];
-        
-        const tfgMap = new Map(unorderedTfgs.map(tfg => [tfg.id, tfg]));
-        const orderedTfgs = tfgIds.map(id => tfgMap.get(id)).filter(tfg => tfg);
+
+        const tfgMap = new Map(unorderedTfgs.map((tfg) => [tfg.id, tfg]));
+        const orderedTfgs = tfgIds
+            .map((id) => tfgMap.get(id))
+            .filter((tfg) => tfg);
 
         const totalElements = await iRedis.zCard("trending_tfgs");
         const totalPages = Math.ceil(totalElements / pageSize);
         const pageAdjusted = Math.min(page, totalPages) || 1;
 
-        return new Response(JSON.stringify({
-            success: true,
-            data: {
-                tfgs: orderedTfgs,
-                page: pageAdjusted,
-                pageSize: pageSize,
-                totalElements: totalElements,
-                totalPages,
-            },
-        }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
+        return successResponse({
+            tfgs: orderedTfgs,
+            page: pageAdjusted,
+            pageSize: pageSize,
+            totalElements: totalElements,
+            totalPages,
         });
     } catch (error) {
-        console.error("Oops, we hit a snag:", error);
-        return new Response(
-            JSON.stringify({  success: false, error: "Error accesing trending data" }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" },
-            }
-        );
+        return badResponse("Error accesing trending data", 500)
     }
 }

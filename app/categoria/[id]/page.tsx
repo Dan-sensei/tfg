@@ -1,6 +1,7 @@
 "use client";
-import Card from "@/app/home-components/Card";
+import Card from "@/app/components/home-components/Card";
 import { TFGPagination } from "@/app/types/interfaces";
+import { getApiRouteUrl } from "@/app/utils/util";
 import { Pagination } from "@nextui-org/pagination";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ export default function Categoria({ params }: { params: { id: string } }) {
                 page: String(page),
                 pageSize: "30",
             });
-            const urlWithParams = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/category?${queryParams.toString()}`;
+            const urlWithParams = getApiRouteUrl("category", queryParams);
 
             if (!params.id) {
                 return;
@@ -33,7 +34,7 @@ export default function Categoria({ params }: { params: { id: string } }) {
             })
                 .then((result) => {
                     if(result.success){
-                        setData(result.data);
+                        setData(result.response);
                     }
                 })
                 .catch(() => {

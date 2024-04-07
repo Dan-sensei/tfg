@@ -1,6 +1,6 @@
 import { DIFFUSE_SEARCH_SIMILARITY } from "@/app/lib/config";
 import prisma from "@/app/lib/db";
-import { badResponse } from "@/app/utils/util";
+import { badResponse, successResponse } from "@/app/utils/util";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const hasTags = tags.length > 0;
     const hasInput = target?.trim() ? true : false;
     if (!hasInput && !hasTags) {
-        return badResponse("Search term is empty");
+        return badResponse("Search term and tags empty");
     }
     const parts = target.trim().split(/\s+/);
     let ILIKE = "";
@@ -27,9 +27,9 @@ export async function GET(request: Request) {
     });
     ILIKE += "%";
     let similarity = parts.join(" ")
-    console.log(ILIKE)
-    console.log(similarity)
     let result;
+    console.log(ILIKE);
+    console.log(hasInput + " " + hasTags)
     if (hasInput && hasTags) {
         result = await prisma.$queryRaw`
         SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "TFG"
@@ -50,7 +50,6 @@ export async function GET(request: Request) {
         ORDER BY word_similarity(title, ${similarity}) DESC LIMIT 30
     `;
     } else {
-        console.log("ONLY TAGS SEARCH")
         result = await prisma.$queryRaw`
         SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "TFG"
         WHERE tags @> ARRAY[${tags}]
@@ -58,10 +57,5 @@ export async function GET(request: Request) {
         LIMIT 30`;
     }
 
-    return new Response(JSON.stringify({ success: true, data: result }), {
-        status: 200,
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    return successResponse(result);
 }

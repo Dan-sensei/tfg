@@ -6,9 +6,9 @@ import { IconChevronRight } from "@tabler/icons-react";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import Autoplay from "embla-carousel-autoplay";
-import { sanitizeString } from "../utils/util";
+import { sanitizeString } from "../../utils/util";
 import Link from "next/link";
-import { emblaNoDragLogic } from "../utils/util";
+import { emblaNoDragLogic } from "../../utils/util";
 
 interface CarouselProps {
     topTfgs: iHomeTFG[];

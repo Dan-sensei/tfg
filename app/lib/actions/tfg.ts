@@ -7,29 +7,7 @@ import { unstable_cache as cache } from "next/cache";
 import { DAY } from "@/app/types/defaultData";
 import iRedis from "../iRedis";
 
-export const getPopularTags = cache(
-    async () => {
-        const popularTags = await prisma.$queryRaw`
-            SELECT unnest(tags) as tag, COUNT(*) as count
-            FROM "TFG"
-            GROUP BY tag
-            ORDER BY count DESC
-            LIMIT ${POPULAR_TAGS_DISPLAY}
-        `;
-        return JSON.stringify(
-            popularTags,
-            (key, value) =>
-                typeof value === "bigint" ? value.toString() : value
-        );
-    },
-    ["popular-tags"],
-    {
-        revalidate: DAY,
-    }
-);
-
 export async function increaseTFGViews(tfgId: number) {
-
     const ip = headers().get("x-forwarded-for")?.split(",")[0].trim();
 
     if (!ip) {

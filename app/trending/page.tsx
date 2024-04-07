@@ -1,11 +1,12 @@
 "use client";
 
-import Card from "../home-components/Card";
+import Card from "../components/home-components/Card";
 import { PAGE_SIZE } from "../lib/config";
 import { Pagination } from "@nextui-org/pagination";
 import { useEffect, useState } from "react";
 import { TFGPagination } from "../types/interfaces";
 import { Spinner } from "@nextui-org/spinner";
+import { getApiRouteUrl } from "../utils/util";
 
 export default function Trending() {
     const [data, setData] = useState<TFGPagination | null>(null);
@@ -17,9 +18,7 @@ export default function Trending() {
                 page: page.toString(),
                 pageSize: PAGE_SIZE.toString(),
             });
-            const urlWithParams = `${
-                process.env.NEXT_PUBLIC_API_BASE_URL
-            }api/trending?${queryParams.toString()}`;
+            const urlWithParams = getApiRouteUrl("trending", queryParams);
 
             fetch(urlWithParams, {
                 next: { revalidate: 12 * 3600 },
@@ -31,8 +30,9 @@ export default function Trending() {
                     return response.json();
                 })
                 .then((result) => {
+                    console.log(result)
                     if (result.success) {
-                        setData(result.data);
+                        setData(result.response);
                     }
                 })
                 .catch(() => {

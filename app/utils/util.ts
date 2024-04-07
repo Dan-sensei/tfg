@@ -6,6 +6,7 @@ export const sanitizeString = (str: string) => {
     str = str.replace(/[^a-zA-Z0-9-]/g, "");
     return str;
 };
+
 export const formatViews = (num: number): string => {
     if (num >= 1000000) {
         const milions = parseFloat((num / 1000000).toFixed(1));
@@ -88,19 +89,23 @@ export const eachDayOfIntervalUTC = (start: Date, end: Date) => {
         currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
     return daysArray;
-}
+};
 
 export const convertUTCDateToLocalDateKey = (utcDateString: string) => {
     const date = new Date(utcDateString);
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
-}
+};
 
-export const badResponse =(errorDescription: string, statusCode: number = 400) => {
+const HTTPResponse = (
+    success: boolean,
+    responseData: string,
+    statusCode: number
+) => {
     return new Response(
-        JSON.stringify({ success: false, error: errorDescription }),
+        JSON.stringify({ success: success, response: responseData }),
         {
             status: statusCode,
             headers: {
@@ -108,4 +113,31 @@ export const badResponse =(errorDescription: string, statusCode: number = 400) =
             },
         }
     );
+};
+
+export const badResponse = (errorMessage: string, statusCode: number = 400) => {
+    return HTTPResponse(false, errorMessage, statusCode);
+};
+
+export const successResponse = (data: any, statusCode: number = 200) => {
+    return HTTPResponse(true, data, statusCode);
+};
+
+export const getValidLimit = (param: string | null, minLimit: number = 1, maxLimit: number = 20) => {
+
+    const parsedLimit = parseInt(param || '', 10);
+
+    if (isNaN(parsedLimit)) {
+        return minLimit;
+    }
+
+    return Math.min(Math.max(parsedLimit, minLimit), maxLimit);
+};
+
+export const getApiRouteUrl = (endpoint: string, searchParams?: URLSearchParams) => {
+    let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/${endpoint}`;
+    if(searchParams) {
+        url += `?${searchParams.toString()}`
+    }
+    return url;
 }
