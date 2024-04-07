@@ -53,7 +53,7 @@ export default function Info({ TFG }: { TFG: iFullTFG }) {
                     Universidad de Alicante{" "}
                     <img
                         className="ml-2 mb-1"
-                        src="/icons/UA_Icon.png"
+                        src="/Icons/UA_Icon.png"
                         alt="Universidad de Alicante"
                     ></img>{" "}
                 </div>
