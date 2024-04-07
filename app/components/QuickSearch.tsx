@@ -180,7 +180,7 @@ export default function QuickSearch() {
                                         <NoResults searchTerm={searchTerm} />
                                     )}
                                     {showResults && (
-                                        <ResultList results={results} />
+                                        <ResultList close={onClose} results={results} />
                                     )}
                                 </div>
                             </ModalBody>

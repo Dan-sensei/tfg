@@ -45,6 +45,7 @@ const config: Config = {
                 "nova-light": "#e3e6ee",
                 "nova-light2": "#8091a3",
                 "nova-button": "#05689c",
+                "nova-gray": "#bfbfbf"
             },
             flex: {
                 "1c": "0 0 100%",

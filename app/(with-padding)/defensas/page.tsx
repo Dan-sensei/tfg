@@ -12,7 +12,7 @@ import {
     subDays,
 } from "date-fns";
 import CalendarControls from "./calendarControls";
-import { bebas_Neue, tulpen_one } from "../lib/fonts";
+import { bebas_Neue, tulpen_one } from "@/app/lib/fonts"
 import { unstable_cache as cache } from "next/cache";
 import prisma from "@/app/lib/db";
 import {
@@ -23,11 +23,11 @@ import {
     endOfWeekUTC,
     startOfMonthUTC,
     startOfWeekUTC,
-} from "../utils/util";
+} from "@/app/utils/util"
 import DayButton from "./dayButton";
 import { es } from "date-fns/locale";
 import { IconCactus, IconMapPin } from "@tabler/icons-react";
-import GlimmerSpot from "../components/GlimmerSpot";
+import GlimmerSpot from "@/app/components/GlimmerSpot"
 import { Divider } from "@nextui-org/divider";
 
 type Props = {

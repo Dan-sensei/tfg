@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Category } from "../types/interfaces";
+import { Category } from "@/app/types/interfaces"
 import { IconBuildingBank } from "@tabler/icons-react";
-import prisma from "../lib/db";
+import prisma from "@/app/lib/db"
 
 const getAllCategories = async () => {
     const categories = await prisma.category.findMany({

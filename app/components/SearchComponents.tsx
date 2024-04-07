@@ -10,15 +10,17 @@ import { IconCactus, IconEye, IconX } from "@tabler/icons-react";
 
 type ResultListProps = {
     results: iTFG[];
+    close: () => void
 };
 
-export function ResultList({ results }: ResultListProps) {
+export function ResultList({ results, close }: ResultListProps) {
     return (
         <>
             {results.map((result, index) => (
                 <React.Fragment key={index}>
                     <Divider />
                     <Link
+                    onClick={() => close()}
                         href={`/page/${result.id}/${sanitizeString(
                             result.title
                         )}`}

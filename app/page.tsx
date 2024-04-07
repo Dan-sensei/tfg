@@ -181,7 +181,7 @@ export default async function Home() {
     const RowData = await getData();
 
     return (
-        <div className="-mx-4 xl:-mx-14 overflow-hidden">
+        <div className="overflow-hidden pt-[66px] lg:pt-[87px] ">
             <HomeCarousel topTfgs={topWorks} />
             
             <div className="pb-[180px] px-4 lg:px-12 pt-7">

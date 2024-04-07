@@ -3,7 +3,7 @@
 import { addMonths, format, subMonths } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { es } from "date-fns/locale";
-import GlimmerSpot from "../components/GlimmerSpot";
+import GlimmerSpot from "@/app/components/GlimmerSpot"
 
 type Props = {
     year: number;

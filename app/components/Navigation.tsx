@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Logo from "../../public/logo.png";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { IconSearch, IconChevronDown, IconChevronRight, IconLayoutCollage } from "@tabler/icons-react";
+import { usePathname, useRouter } from "next/navigation";
+import { IconChevronDown, IconChevronRight, IconLayoutCollage } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import React from "react";
 import {
@@ -117,6 +117,7 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     useEffect(() => {
+        
         const handleScroll = () => {
             const offset = 50;
             setHasScrolled(window.scrollY > offset);
@@ -127,6 +128,7 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
     const pathName = usePathname();
+    
     return (
         <Navbar
             isMenuOpen={isMenuOpen}
@@ -135,8 +137,11 @@ export default function Navigation({categoriesList} : { categoriesList : Categor
             disableAnimation={true}
             onMenuOpenChange={setIsMenuOpen}
             className={` ${
-                hasScrolled ? "border-b-blue-500 border-b-2 bg-nova-darker/70 backdrop-blur-sm" : "border-b-blue-500 border-b-2 bg-nova-darker/70 backdrop-blur-sm lg:backdrop-blur-0 lg:border-b-transparent lg:bg-transparent"
-            } transition-colors fixed`}
+                hasScrolled || pathName.startsWith("/page/") ? "border-b-blue-500 border-b-2 bg-nova-darker/70" : "border-b-blue-500 border-b-2 bg-nova-darker/70 lg:border-b-transparent lg:bg-transparent"
+            }
+            ${hasScrolled ? " backdrop-blur-sm" : " backdrop-blur-sm lg:backdrop-blur-0 "}
+            
+            transition-colors fixed`}
         >
             <NavbarContent className="lg:hidden" justify="start">
                 <NavbarMenuToggle
