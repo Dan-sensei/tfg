@@ -1,4 +1,4 @@
-export default function GradosMasters() {
+export default function Titulation() {
     return (
         <div>
             <h1>Grados y masters</h1>

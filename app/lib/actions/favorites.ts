@@ -2,7 +2,7 @@
 import prisma from "@/app/lib/db";
 
 export async function getFavorites(ids: number[]) {
-    const favorites = await prisma.tFG.findMany({
+    const favorites = await prisma.tfg.findMany({
         where: {
             id: {
                 in: ids,

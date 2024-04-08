@@ -1,115 +1,121 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model TFG {
-  id Int @id @default(autoincrement())
-  thumbnail String
-  banner String
-  title String
-  description String @default("")
-  
-  author String
-  tutor String
-  content String
-  pages Int
+model tfg {
+  id           Int              @id(map: "TFG_pkey") @default(autoincrement())
+  thumbnail    String
+  banner       String
+  title        String
+  content      String
+  pages        Int
   documentLink String
-  tags String[]
-
-  views Int @default(0)
-  score Float @default(0)
-  scoredTimes Int @default(0)
-
-  category Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
-
-  grademaster GradeMaster @relation(fields: [gradeId], references: [id])
-  gradeId Int
-
-  createdAt DateTime @default(now())
-
-  dailViews DailyTFGView[]
-  voteLogs VoteLog[]
-
-  defense Defense?
+  tags         String[]
+  views        Int              @default(0)
+  score        Float            @default(0)
+  categoryId   Int
+  gradeId      Int
+  createdAt    DateTime         @default(now())
+  description  String           @default("")
+  scoredTimes  Int              @default(0)
+  author       String[]
+  collegeId    Int
+  departmentId Int?
+  DailyTFGView daily_tfg_view[]
+  defense      defense?
+  category     category         @relation(fields: [categoryId], references: [id], map: "TFG_categoryId_fkey")
+  college      college          @relation(fields: [collegeId], references: [id], map: "TFG_collegeId_fkey")
+  department   department?      @relation(fields: [departmentId], references: [id], map: "TFG_departmentId_fkey")
+  titulation   titulation       @relation(fields: [gradeId], references: [id], map: "TFG_gradeId_fkey")
+  voteLogs     votelog[]
+  tutor        tutor[]          @relation("TFGTotutor")
 }
 
-model GradeMaster{
-  id Int @id @default(autoincrement())
+model department {
+  id   Int     @id @default(autoincrement())
   name String
-  
-  tfgs TFG[]
+  link String?
+  tfgs tfg[]
+}
 
-  college College @relation(fields: [collegeId], references: [id])
+model tutor {
+  id        Int     @id @default(autoincrement())
+  name      String
+  image     String?
+  link      String?
   collegeId Int
+  college   college @relation(fields: [collegeId], references: [id])
+  tfg       tfg[]   @relation("TFGTotutor")
 }
 
-model College{
-  id Int @id @default(autoincrement())
+model titulation {
+  id        Int     @id(map: "GradeMaster_pkey") @default(autoincrement())
+  name      String
+  collegeId Int
+  tfgs      tfg[]
+  college   college @relation(fields: [collegeId], references: [id], map: "GradeMaster_collegeId_fkey")
+}
+
+model college {
+  id               Int          @id(map: "College_pkey") @default(autoincrement())
+  name             String
+  createdAt        DateTime     @default(now())
+  image            String?
+  defenses         defense[]
+  defenseLocations location[]
+  tfgs             tfg[]
+  titulation      titulation[]
+  tutors           tutor[]
+}
+
+model category {
+  id   Int    @id(map: "Category_pkey") @default(autoincrement())
   name String
+  tfgs tfg[]
+}
+
+model votelog {
+  id        Int      @id(map: "VoteLog_pkey") @default(autoincrement())
+  tfgId     Int
+  ip        String
   createdAt DateTime @default(now())
-  gradeMaster GradeMaster[]
-  defenses Defense[]
-  defenseLocations Location[]
+  tfg       tfg      @relation(fields: [tfgId], references: [id], map: "VoteLog_tfgId_fkey")
 }
 
-model Category{
-  id Int @id @default(autoincrement())
-  name String
-
-  tfgs TFG[]
-}
-
-model DailyTFGView {
-  id          Int      @id @default(autoincrement())
-  tfgId       Int
-  views       Int      @default(0)
-  date        DateTime @default(now())
-
-  tfg         TFG      @relation(fields: [tfgId], references: [id])
-
-  @@unique([tfgId, date])
-}
-
-model VoteLog {
-  id Int @id @default(autoincrement())
-  tfgId Int
-  ip String
-  createdAt DateTime @default(now())
-
-  tfg TFG @relation(fields: [tfgId], references: [id])
-}
-
-model Defense {
-  id Int @id @default(autoincrement())
-  title String
-  startTime DateTime
-  endTime DateTime
-  location  Location @relation(fields: [locationId], references: [id])
+model defense {
+  id         Int      @id(map: "Defense_pkey") @default(autoincrement())
+  title      String
   locationId Int
-
-  collegeId Int
-  college College @relation(fields: [collegeId], references: [id])
-
-  tfg        TFG?   @relation(fields: [tfgId], references: [id])
-  tfgId      Int? @unique
+  tfgId      Int?     @unique(map: "Defense_tfgId_key")
+  collegeId  Int
+  startTime  DateTime
+  endTime    DateTime
+  college    college  @relation(fields: [collegeId], references: [id], map: "Defense_collegeId_fkey")
+  location   location @relation(fields: [locationId], references: [id], map: "Defense_locationId_fkey")
+  tfg        tfg?     @relation(fields: [tfgId], references: [id], map: "Defense_tfgId_fkey")
 }
 
-model Location {
-  id      Int      @id @default(autoincrement())
-  name    String
-  mapLink String
-  defenses Defense[]
-
+model location {
+  id        Int       @id(map: "Location_pkey") @default(autoincrement())
+  name      String
+  mapLink   String
   collegeId Int
-  college College @relation(fields: [collegeId], references: [id])
+  defenses  defense[]
+  college   college   @relation(fields: [collegeId], references: [id], map: "Location_collegeId_fkey")
+}
+
+model daily_tfg_view {
+  id    Int      @id(map: "DailyTFGView_pkey") @default(autoincrement())
+  tfgId Int
+  views Int      @default(0)
+  date  DateTime @default(now())
+  tfg   tfg      @relation(fields: [tfgId], references: [id], map: "DailyTFGView_tfgId_fkey")
+
+  @@unique([tfgId, date], map: "DailyTFGView_tfgId_date_key")
 }

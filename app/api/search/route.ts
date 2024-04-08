@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     console.log(hasInput + " " + hasTags)
     if (hasInput && hasTags) {
         result = await prisma.$queryRaw`
-        SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "TFG"
+        SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "tfg"
         WHERE tags @> ARRAY[${tags}] AND (
             (title ILIKE ${ILIKE} OR word_similarity(title, ${similarity}) > ${DIFFUSE_SEARCH_SIMILARITY})
             OR (author ILIKE ${ILIKE} OR word_similarity(author, ${similarity}) > ${DIFFUSE_SEARCH_SIMILARITY})
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     `;
     } else if(hasInput) {
         result = await prisma.$queryRaw`
-        SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "TFG"
+        SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "tfg"
         WHERE
             (title ILIKE ${ILIKE} OR word_similarity(title, ${similarity}) > ${DIFFUSE_SEARCH_SIMILARITY})
             OR (author ILIKE ${ILIKE} OR word_similarity(author, ${similarity}) > ${DIFFUSE_SEARCH_SIMILARITY})
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
     `;
     } else {
         result = await prisma.$queryRaw`
-        SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "TFG"
+        SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "tfg"
         WHERE tags @> ARRAY[${tags}]
         ORDER BY title ASC 
         LIMIT 30`;

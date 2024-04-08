@@ -7,7 +7,7 @@ import Link from "next/link";
 import { IconChevronRight } from "@tabler/icons-react";
 
 async function foryou() {
-    const recents = await prisma.tFG.findMany({
+    const recents = await prisma.tfg.findMany({
         select: tfgFields,
         orderBy: {
             createdAt: "desc",
@@ -18,7 +18,7 @@ async function foryou() {
 }
 
 async function getRecents() {
-    const recents = await prisma.tFG.findMany({
+    const recents = await prisma.tfg.findMany({
         select: tfgFields,
         orderBy: {
             createdAt: "desc",
@@ -29,7 +29,7 @@ async function getRecents() {
 }
 
 async function getTopWorks() {
-    const TopWorks = await prisma.tFG.findMany({
+    const TopWorks = await prisma.tfg.findMany({
         select: tfgTopFields,
         orderBy: [{ views: "desc" }, { score: "desc" }, { createdAt: "desc" }],
         take: 5,
@@ -43,7 +43,7 @@ async function findMostPopular(): Promise<PopularFields> {
         groupByField: "gradeId" | "categoryId"
     ) {
         return (
-            await prisma.tFG.groupBy({
+            await prisma.tfg.groupBy({
                 by: [groupByField],
                 _sum: {
                     views: true,
@@ -141,13 +141,13 @@ const getRowsData = async () => {
             tfgs: category.tfgs,
         })
     );
-    const gradesWithTopTFGs = await prisma.gradeMaster.findMany(
+    const gradesWithTopTFGs = await prisma.titulation.findMany(
         getQuery(popularFields.grade)
     );
     const gradesArray: TFGRowData[] = gradesWithTopTFGs.map((grade) => ({
         id: grade.id,
         name: "Trabajos de " + grade.name,
-        type: "titulacion",
+        type: "titulation",
         tfgs: grade.tfgs,
     }));
 

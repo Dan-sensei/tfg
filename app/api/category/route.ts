@@ -31,7 +31,7 @@ export async function GET(request: Request) {
                 where: { id: targetId },
                 select: { name: true },
             }),
-            prisma.tFG.count({ where: { categoryId: targetId } }),
+            prisma.tfg.count({ where: { categoryId: targetId } }),
         ]);
         if (!category) {
             throw new Error("Category not found");
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
     const totalPages = Math.ceil(categoryData.totalElements / pageSize);
     const pageAdjusted = Math.min(page, totalPages) || 1;
 
-    const tfgs = await prisma.tFG.findMany({
+    const tfgs = await prisma.tfg.findMany({
         where: { categoryId: targetId },
         select: tfgFields,
         take: pageSize,

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const limit = getValidLimit(searchParams.get("limit"), 5, 20);
     const popularTags = await prisma.$queryRaw<Array<{ tag: string; count: BigInt }>>`
         SELECT unnest(tags) as tag, COUNT(*) as count
-        FROM "TFG"
+        FROM "tfg"
         GROUP BY tag
         ORDER BY count DESC
         LIMIT ${limit}

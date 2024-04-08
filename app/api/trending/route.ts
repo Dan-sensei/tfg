@@ -22,7 +22,7 @@ export async function GET(request: Request) {
             }
         );
         const tfgIds = tfgIdsWithScores.map((tfdId) => parseInt(tfdId, 10));
-        const unorderedTfgs = (await prisma.tFG.findMany({
+        const unorderedTfgs = (await prisma.tfg.findMany({
             where: {
                 id: {
                     in: tfgIds,

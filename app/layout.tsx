@@ -20,8 +20,8 @@ const getPopularCategories = cache(
         const topCategories = (await prisma.$queryRaw`
 		SELECT id, name FROM (
 			SELECT c.id, c.name, SUM(t.views) as totalViews
-			FROM "Category" c
-			JOIN "TFG" t ON t."categoryId" = c.id
+			FROM "category" c
+			JOIN "tfg" t ON t."categoryId" = c.id
 			GROUP BY c.id
 			ORDER BY totalViews DESC
 			LIMIT 12

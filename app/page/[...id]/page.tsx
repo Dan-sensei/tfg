@@ -17,11 +17,11 @@ import { Button } from "@nextui-org/button";
 import Info from "./InfoComponent";
 
 const getTFGData = async (id: number) => {
-    const tfg = (await prisma.tFG.findUnique({
+    const tfg = (await prisma.tfg.findUnique({
         where: {
             id: id,
         },
-        select: tfgFullFields,
+        select: tfgFullFields
     })) as iFullTFG;
     return tfg;
 };
@@ -32,8 +32,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         redirect("/");
     }
 
-    const TFG: iFullTFG = await getTFGData(id);
-
+    const TFG = await getTFGData(id);
     await increaseTFGViews(parseFloat(params.id));
 
     return (

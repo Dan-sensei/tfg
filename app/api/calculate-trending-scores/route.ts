@@ -34,8 +34,8 @@ async function fetchAllViews() {
                 WHEN d."date" >= current_date - interval '30 days' THEN d."views"
                 ELSE 0
             END) as "viewsLastMonth"
-        FROM "TFG" t
-        LEFT JOIN "DailyTFGView" d ON t."id" = d."tfgId"
+        FROM "tfg" t
+        LEFT JOIN "daily_tfg_view" d ON t."id" = d."tfgId"
         GROUP BY t."id"
     `;
     const processedResults = viewsResult.map((result) => ({
@@ -91,12 +91,12 @@ async function calculateDailyViews() {
         const tfgId = view.member.split(":")[1];
         const viewsCount = view.score;
         
-        await prisma.tFG.update({
+        await prisma.tfg.update({
             where: { id: Number(tfgId) },
             data: { views: { increment: viewsCount } },
         });
         
-        await prisma.dailyTFGView.upsert({
+        await prisma.daily_tfg_view.upsert({
             where: { tfgId_date: { tfgId: Number(tfgId), date: yesterday } },
             update: { views: viewsCount },
             create: {

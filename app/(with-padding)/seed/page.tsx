@@ -1,6 +1,6 @@
 // seed.ts
 import { PrismaClient } from "@prisma/client";
-import prisma from "../lib/db";
+import prisma from "../../lib/db";
 interface BaseDocument {
     thumbnail: string;
     banner: string;
@@ -33,7 +33,7 @@ function getRandomScore(max: number) {
 
 function getRandomBaseDocument(
     categoryLength: number,
-    gradeMasterLength: number
+    titulationLength: number
 ): BaseDocument {
     return {
         thumbnail: getRandomImage(),
@@ -44,7 +44,7 @@ function getRandomBaseDocument(
         views: getRandomNumber(1, 1000000),
         score: getRandomScore(5),
         categoryId: getRandomNumber(0, categoryLength - 1),
-        gradeId: getRandomNumber(0, gradeMasterLength - 1),
+        gradeId: getRandomNumber(0, titulationLength - 1),
     };
 }
 
@@ -56,7 +56,7 @@ async function initializeMainData(Category: any[], GradeMaster: any[]) {
         },
     });
     await prisma.category.createMany({ data: Category });
-    await prisma.gradeMaster.createMany({ data: GradeMaster });
+    await prisma.titulation.createMany({ data: GradeMaster });
 }
 
 async function postSeed() {
@@ -95,7 +95,7 @@ async function postSeed() {
         { id: 11, name: "Arquitectura", collegeId: 1 },
     ];
 
-    await initializeMainData(Category, GradeMaster);
+    //await initializeMainData(Category, GradeMaster);
 
     const tfgsData = [
         {
@@ -1547,14 +1547,14 @@ async function postSeed() {
         tfg.banner += `1920/1080`;
     });
 
-    await prisma.tFG.createMany({ data: tfgsData });
+    //await prisma.tfg.createMany({ data: tfgsData });
 }
 async function updateScoredTimes() {
     "use server";
-    const tfgRecords = await prisma.tFG.findMany();
+    const tfgRecords = await prisma.tfg.findMany();
     for (let record of tfgRecords) {
         const randomScoredTimes = Math.floor(Math.random() * 1001);
-        await prisma.tFG.update({
+        await prisma.tfg.update({
             where: { id: record.id },
             data: { scoredTimes: randomScoredTimes },
         });
@@ -1562,8 +1562,42 @@ async function updateScoredTimes() {
     console.log("All records updated with random scoredTimes!");
 }
 
+async function populateTutors() {
+    "use server";
+    const tutors = await prisma.tutor.findMany(); // Fetch all Tutor records
+    const tfgsWithoutTutors = await prisma.tfg.findMany({
+        where: {
+            tutor: {
+                none: {}, // Find TFG records without any related tutors
+            },
+        },
+    });
+
+    for (const tfg of tfgsWithoutTutors) {
+        const assignedTutors = [];
+        const numberOfTutors = Math.random() < 0.2 ? 1 : 2; // Decide to add one or two tutors
+
+        for (let i = 0; i < numberOfTutors; i++) {
+            const randomIndex = Math.floor(Math.random() * tutors.length);
+            assignedTutors.push(tutors[randomIndex].id);
+        }
+
+        // Update the TFG record with the selected tutor(s)
+        for (const tutorId of assignedTutors) {
+            await prisma.tfg.update({
+                where: { id: tfg.id },
+                data: {
+                    tutor: {
+                        connect: { id: tutorId },
+                    },
+                },
+            });
+        }
+    }
+}
+
+
 export default function SeedDb() {
-    
     return (
         <div className="m-5">
             <form action={postSeed}>

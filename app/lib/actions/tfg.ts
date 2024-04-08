@@ -41,7 +41,7 @@ export async function castScore(
 
     if (!hasVoted) {
         await iRedis.sAdd(voteKey, ip);
-        await prisma.tFG.update({
+        await prisma.tfg.update({
             where: {
                 id: tfgId,
             },

@@ -25,7 +25,18 @@ export const tfgFullFields = {
     title: true,
     description: true,
     author: true,
-    tutor: true,
+    tutor: {
+        select:{
+            name: true,
+            link: true
+        }
+    },
+    department: {
+        select:{
+            name: true,
+            link: true
+        }
+    },
     content: true,
     pages: true,
     documentLink: true,
@@ -33,4 +44,10 @@ export const tfgFullFields = {
     views: true,
     score: true,
     createdAt: true,
-};
+    college: {
+        select: {
+            name: true,
+            image: true
+        }
+    }
+}
