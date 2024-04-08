@@ -46,7 +46,7 @@ export default async function Page({ params }: { params: { id: string } }) {
                         <Info TFG={TFG} />
                     </div>
                 </div>
-                <div className="h-full hidden md:block w-full bg-gradient-to-r from-nova-darker-2/80 to-90% z-20"></div>
+                <div className="h-full hidden md:block w-full bg-gradient-to-r from-nova-darker-2/80 to-80% z-20"></div>
                 <Image
                     src={TFG.banner}
                     priority

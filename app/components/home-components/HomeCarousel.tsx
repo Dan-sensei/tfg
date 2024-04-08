@@ -61,7 +61,7 @@ export default function HomeCarousel({ topTfgs, className }: CarouselProps) {
                         {topTfgs.map((item: any) => (
                             <div
                                 key={item.id}
-                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c w-full"
+                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c  max-h-[700px] w-full"
                             >
                                 <div className="w-full h-full flex justify-start items-end relative lg:rounded-2xl shadow-light-dark">
                                     <img
