@@ -1,5 +1,5 @@
 import Image from "next/image";
-import TFGDetails from "@/app/components/TFGDetails";
+import TFGDetails from "@/app/page/[...id]/TFGDetails";
 import { increaseTFGViews } from "@/app/lib/actions/tfg";
 import { redirect } from "next/navigation";
 import { iFullTFG } from "@/app/types/interfaces";
@@ -46,7 +46,7 @@ export default async function Page({ params }: { params: { id: string } }) {
                         <Info TFG={TFG} />
                     </div>
                 </div>
-                <div className="h-full hidden md:block w-full bg-gradient-to-r from-nova-darker-2/80 z-20"></div>
+                <div className="h-full hidden md:block w-full bg-gradient-to-r from-nova-darker-2/80 to-90% z-20"></div>
                 <Image
                     src={TFG.banner}
                     priority
