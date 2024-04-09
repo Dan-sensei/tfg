@@ -12,14 +12,29 @@ body {
     color: rgb(var(--foreground-rgb));
 }
 
-.bg-grid {
-    background-image: linear-gradient(
-            hsla(0, 0%, 100%, 0.02) 1px,
-            transparent 0
-        ),
-        linear-gradient(90deg, hsla(0, 0%, 100%, 0.02) 1px, transparent 0);
-    background-size: 20px 20px;
-    background-repeat: repeat space;
+@layer utilities {
+    .bg-grid {
+        background-image: linear-gradient(
+                hsla(0, 0%, 100%, 0.02) 1px,
+                transparent 0
+            ),
+            linear-gradient(90deg, hsla(0, 0%, 100%, 0.02) 1px, transparent 0);
+        background-size: 20px 20px;
+        background-repeat: repeat space;
+    }
+    .grid-stack {
+        grid-template-areas: "stack";
+    }
+    
+    .grid-stack > * {
+        grid-area: stack;
+    }
+    .grid-auto-13rem {
+        grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    }
+    .grid-2-13rem {
+        grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    }
 }
 .embla {
     position: relative;
@@ -42,13 +57,5 @@ body {
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-}
-
-.grid-stack {
-    grid-template-areas: "stack";
-}
-
-.grid-stack > * {
-    grid-area: stack;
 }
 
