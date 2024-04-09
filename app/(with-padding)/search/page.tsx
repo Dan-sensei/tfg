@@ -1,4 +1,4 @@
-export default function FullSearch(){
+export default function FullSearch() {
     return(
         <div>
             Search
