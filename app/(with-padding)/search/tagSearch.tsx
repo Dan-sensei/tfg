@@ -4,7 +4,6 @@ import { Input } from "@nextui-org/input";
 import { IconSearch } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { sameArrays } from "@/app/utils/util";
 import { useSearch } from "@/app/contexts/SearchContext";
 
@@ -13,9 +12,6 @@ export default function App() {
 
     const [tags, setTags] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>(filters.tags ? filters.tags.split(",") : []);
-    const pathname = usePathname();
-    const { replace } = useRouter();
-    const searchParams = useSearchParams();
     const handleSearch = useDebouncedCallback((value: string) => {
         if (value.length > 0) {
             fetch("/api/tags?q=" + value)

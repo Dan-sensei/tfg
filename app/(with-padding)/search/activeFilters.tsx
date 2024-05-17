@@ -2,7 +2,6 @@
 
 import { useSearch } from "@/app/contexts/SearchContext";
 import { sameArrays } from "@/app/utils/util";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ActiveFilters() {
@@ -13,7 +12,7 @@ export default function ActiveFilters() {
     const removeTag = (tag: string) => {
         setSelectedTags((current) => current.filter((t) => t !== tag));
     };
-    
+
     useEffect(() => {
         if (selectedTags.length > 0) {
             updateFilters({
