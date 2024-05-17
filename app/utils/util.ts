@@ -123,9 +123,12 @@ export const successResponse = (data: any, statusCode: number = 200) => {
     return HTTPResponse(true, data, statusCode);
 };
 
-export const getValidLimit = (param: string | null, minLimit: number = 1, maxLimit: number = 20) => {
-
-    const parsedLimit = parseInt(param || '', 10);
+export const getValidLimit = (
+    param: string | null,
+    minLimit: number = 1,
+    maxLimit: number = 20
+) => {
+    const parsedLimit = parseInt(param || "", 10);
 
     if (isNaN(parsedLimit)) {
         return minLimit;
@@ -134,10 +137,27 @@ export const getValidLimit = (param: string | null, minLimit: number = 1, maxLim
     return Math.min(Math.max(parsedLimit, minLimit), maxLimit);
 };
 
-export const getApiRouteUrl = (endpoint: string, searchParams?: URLSearchParams) => {
+export const getApiRouteUrl = (
+    endpoint: string,
+    searchParams?: URLSearchParams
+) => {
     let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/${endpoint}`;
-    if(searchParams) {
-        url += `?${searchParams.toString()}`
+    if (searchParams) {
+        url += `?${searchParams.toString()}`;
     }
     return url;
-}
+};
+
+export const sameArrays = (a: any[], b: any[]) => {
+    if (a.length !== b.length) {
+        return false;
+    }
+    let sorted_a = a.slice().sort();
+    let sorted_b = b.slice().sort();
+    for (let i = 0; i < sorted_a.length; i++) {
+        if (sorted_a[i] !== sorted_b[i]) {
+            return false;
+        }
+    }
+    return true;
+};

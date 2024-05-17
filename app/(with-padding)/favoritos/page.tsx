@@ -1,5 +1,5 @@
 "use client";
-import { useFavorites } from "@/app/FavoritesContext";
+import { useFavorites } from "@/app/contexts/FavoritesContext";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { iTFG } from "@/app/types/interfaces";

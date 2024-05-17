@@ -7,7 +7,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
 
     let tags: string[] = parseTags(searchParams.get("tags") || "");
-    const target = searchParams.get("query") || "";
+    const filters = {
+        q: searchParams.get('q') || undefined,
+        tags: searchParams.get('tags') ? searchParams.get('tags')!.split(',').map(decodeURIComponent) : undefined,
+        category: searchParams.get('category') || undefined,
+        titulation: searchParams.get('titulation') || undefined,
+        date: searchParams.get('date') || undefined,
+        pages: searchParams.get('pages') || undefined,
+        page: searchParams.get('page') || undefined,
+        views: searchParams.get('views') || undefined,
+    };
+    const target = searchParams.get("q") || "";
     const hasTags = tags.length > 0;
     const hasInput = target?.trim() ? true : false;
 
@@ -19,6 +29,7 @@ export async function GET(request: Request) {
     const similarity = target.trim().split(/\s+/).join(" ");
 
     let query = Prisma.sql`SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "tfg" WHERE `;
+    
     let conditions = [];
     if (hasTags) {
         const tagsConditions = Prisma.sql`tags @> ARRAY[${Prisma.join(tags.map(tag => Prisma.sql`${tag}`))}]`;
@@ -45,7 +56,7 @@ export async function GET(request: Request) {
 function parseTags(rawTags: string) {
     if (rawTags) {
         try {
-            return JSON.parse(decodeURIComponent(rawTags));
+            return rawTags.split(',').map(decodeURIComponent)
         } catch {
             return [];
         }

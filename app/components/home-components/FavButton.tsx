@@ -1,6 +1,6 @@
 'use client';
 import { IconHeart } from "@tabler/icons-react";
-import { useFavorites } from "@/app/FavoritesContext";
+import { useFavorites } from "@/app/contexts/FavoritesContext";
 import { useEffect, useState } from "react";
 import React from "react";
 
