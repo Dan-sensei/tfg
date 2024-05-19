@@ -1,11 +1,13 @@
 "use client";
 
-import { useSearch } from "@/app/contexts/SearchContext";
 import { sameArrays } from "@/app/utils/util";
 import { useEffect, useState } from "react";
-
-export default function ActiveFilters() {
-    const { filters, updateFilters } = useSearch();
+import { SearchParams } from "./page";
+interface ActiveFiltersProps {
+    filters: SearchParams;
+    updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
+}
+export default function ActiveFilters({filters, updateFilters}: ActiveFiltersProps) {
     const [selectedTags, setSelectedTags] = useState<string[]>(
         filters.tags ? filters.tags.split(",").map(decodeURI) : []
     );

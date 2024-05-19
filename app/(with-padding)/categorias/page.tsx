@@ -2,14 +2,8 @@ import Link from "next/link";
 import { Category } from "@/app/types/interfaces";
 import { IconBuildingBank } from "@tabler/icons-react";
 import prisma from "@/app/lib/db";
+import { getAllCategories } from "@/app/lib/fetchCategories";
 
-const getAllCategories = async () => {
-    const categories = await prisma.category.findMany({
-        select: { id: true, name: true },
-        orderBy: { name: "asc" },
-    });
-    return categories;
-};
 
 export default async function Categorias() {
     const categories: Category[] = await getAllCategories();

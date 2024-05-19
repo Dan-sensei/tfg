@@ -5,10 +5,12 @@ import { IconSearch } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { sameArrays } from "@/app/utils/util";
-import { useSearch } from "@/app/contexts/SearchContext";
-
-export default function App() {
-    const { filters, updateFilters } = useSearch();
+import { SearchParams } from "./page";
+interface TagsProps {
+    filters: SearchParams;
+    updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
+}
+export default function App({filters, updateFilters}: TagsProps) {
 
     const [tags, setTags] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>(filters.tags ? filters.tags.split(",") : []);

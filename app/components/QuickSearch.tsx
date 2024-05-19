@@ -52,7 +52,7 @@ export default function QuickSearch() {
 
         const performSearch = (hasInput: boolean) => {
             const params = new URLSearchParams();
-            if (hasInput) params.set("query", searchTerm);
+            if (hasInput) params.set("q", searchTerm);
             fetch(getApiRouteUrl("search", params))
             .then((response) => response.json())
             .then((result) => {

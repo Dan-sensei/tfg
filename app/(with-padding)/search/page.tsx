@@ -9,32 +9,60 @@ import PopularTags from "./popularTags";
 import TagsSearch from "./tagSearch";
 import ActiveFilters from "./activeFilters";
 import { getApiRouteUrl } from "@/app/utils/util";
-import { iTFG } from "@/app/types/interfaces";
-import { useSearch } from "@/app/contexts/SearchContext";
+import { Category, iTFG } from "@/app/types/interfaces";
 import { usePathname, useRouter } from "next/navigation";
+import Card from "@/app/components/home-components/Card";
+import Sidebar from "@/app/components/Sidebar";
+import { DAY } from "@/app/types/defaultData";
+import CategoryFilter from "./categoryFilter";
 
 type Props = {
-    searchParams: {
-        q?: string;
-        tags?: string;
-        category?: string;
-        titulation?: string;
-        date?: string;
-        pages?: string;
-        page?: string;
-        views?: string;
-    };
+    searchParams?: SearchParams;
 };
+
+export interface SearchParams {
+    q?: string;
+    tags?: string;
+    category?: string;
+    titulation?: string;
+    date?: string;
+    pages?: string;
+    page?: string;
+    views?: string;
+}
+const createDefinedFilters = (
+    filters: Record<string, any>
+): URLSearchParams => {
+    const definedFilters = Object.entries(filters).reduce(
+        (acc, [key, value]) => {
+            if (value !== undefined) {
+                acc[key] = value;
+            }
+            return acc;
+        },
+        {} as Record<string, string>
+    );
+    return new URLSearchParams(definedFilters);
+};
+
 export default function FullSearch({ searchParams }: Props) {
-    const { filters, updateFilters } = useSearch();
+    const [filters, setFilters] = useState<SearchParams>({});
     const [results, setResults] = useState<iTFG[]>([]);
+    
+    const [isLoading, setIsLoading] = useState(false);
+    const pathname = usePathname();
+    const { replace } = useRouter();
+
+    const updateFilters = useCallback((newFilters: Partial<SearchParams>) => {
+        setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
+    }, []);
 
     const handleSearch = useDebouncedCallback((value: string) => {
         updateFilters({ q: !value ? undefined : value });
     }, SEARCH_INPUT_DELAY);
 
     useEffect(() => {
-        updateFilters(searchParams);
+        if (searchParams) updateFilters(searchParams);
     }, [searchParams, updateFilters]);
 
     const fetchResults = useCallback(() => {
@@ -45,17 +73,8 @@ export default function FullSearch({ searchParams }: Props) {
             setResults([]);
             return;
         }
-        const definedFilters = Object.entries(filters).reduce(
-            (acc, [key, value]) => {
-                if (value !== undefined) {
-                    acc[key] = value;
-                }
-                return acc;
-            },
-            {} as Record<string, string>
-        );
-
-        const params = new URLSearchParams(definedFilters);
+        const params = createDefinedFilters(filters);
+        setIsLoading(true);
         fetch(getApiRouteUrl("search", params))
             .then((response) => response.json())
             .then((result) => {
@@ -69,28 +88,47 @@ export default function FullSearch({ searchParams }: Props) {
             })
             .catch(() => {
                 console.log("Error");
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     }, [filters]);
 
+    
+
+    // Update params in url
+    useEffect(() => {
+        const params = createDefinedFilters(filters);
+        replace(`${pathname}?${params.toString()}`);
+    }, [filters, pathname, replace]);
+
+    // Avoid problems when changing filters too fast
     const debouncedFetchResults = useCallback(
         useDebouncedCallback(fetchResults, SEARCH_INPUT_DELAY),
         [fetchResults]
     );
-    
+
     useEffect(() => {
         debouncedFetchResults();
     }, [filters, debouncedFetchResults]);
 
+    const handleSelectionChange = (e: any) => {
+        console.log(typeof e)
+    };
+
     return (
-        <div className="container mx-auto flex">
-            <div className="w-96 bg-black/50 rounded-lg p-4">
+        <div className="container 2xl:max-w-[1800px] mx-auto flex">
+            <div className="w-80 bg-black/50 rounded-lg p-4">
                 <section>
                     <h2
                         className={`${montserrat.className} font-semibold pb-1`}
                     >
                         Popular tags
                     </h2>
-                    <PopularTags />
+                    <PopularTags
+                        filters={filters}
+                        updateFilters={updateFilters}
+                    />
                 </section>
                 <Divider className="my-4" />
                 <section>
@@ -99,7 +137,10 @@ export default function FullSearch({ searchParams }: Props) {
                     >
                         Tags
                     </h2>
-                    <TagsSearch />
+                    <TagsSearch
+                        filters={filters}
+                        updateFilters={updateFilters}
+                    />
                 </section>
                 <Divider className="my-4" />
 
@@ -109,6 +150,7 @@ export default function FullSearch({ searchParams }: Props) {
                     >
                         Categoria
                     </h2>
+                    <CategoryFilter filters={filters} updateFilters={updateFilters} />
                 </section>
                 <Divider className="my-4" />
                 <section>
@@ -176,11 +218,27 @@ export default function FullSearch({ searchParams }: Props) {
                         placeholder="Búsqueda..."
                     />
                 </div>
-                <ActiveFilters />
+                <ActiveFilters
+                    filters={filters}
+                    updateFilters={updateFilters}
+                />
+
                 <div className="w-full pt-3">
-                    {results.map((result, index) => (
-                        <div key={index}>{result.title}</div>
-                    ))}
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full">
+                        {results.map((tfg, index) => (
+                            <Card
+                                key={index}
+                                id={tfg.id}
+                                createdAt={tfg.createdAt}
+                                thumbnail={tfg.thumbnail}
+                                title={tfg.title}
+                                description={tfg.description}
+                                pages={tfg.pages}
+                                views={tfg.views}
+                                score={tfg.score}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

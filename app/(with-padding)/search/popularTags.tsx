@@ -1,16 +1,19 @@
 "use client";
-import { useSearch } from "@/app/contexts/SearchContext";
 import { DAY } from "@/app/types/defaultData";
 import { getApiRouteUrl, sameArrays } from "@/app/utils/util";
 import { Spinner } from "@nextui-org/spinner";
 import { useEffect, useState } from "react";
+import { SearchParams } from "./page";
 type PopularTag = {
     tag: string;
     count: number;
 };
+interface PopularTagsProps {
+    filters: SearchParams;
+    updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
+}
 
-export default function PopularTags() {
-    const { filters, updateFilters } = useSearch();
+export default function PopularTags({filters, updateFilters}: PopularTagsProps) {
     const [popularTags, setPopularTags] = useState<PopularTag[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>(
         filters.tags ? filters.tags.split(",").map(decodeURI) : []

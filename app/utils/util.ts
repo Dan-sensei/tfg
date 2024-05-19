@@ -139,7 +139,7 @@ export const getValidLimit = (
 
 export const getApiRouteUrl = (
     endpoint: string,
-    searchParams?: URLSearchParams
+    searchParams?: URLSearchParams | null
 ) => {
     let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/${endpoint}`;
     if (searchParams) {
