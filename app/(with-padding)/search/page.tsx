@@ -12,7 +12,7 @@ import { getApiRouteUrl } from "@/app/utils/util";
 import { Category, iTFG } from "@/app/types/interfaces";
 import { usePathname, useRouter } from "next/navigation";
 import Card from "@/app/components/home-components/Card";
-import Sidebar from "@/app/components/Sidebar";
+//import Sidebar from "@/app/components/Sidebar";
 import { DAY } from "@/app/types/defaultData";
 import CategoryFilter from "./categoryFilter";
 
