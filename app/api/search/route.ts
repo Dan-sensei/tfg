@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         tags: getTagsQuery,
         category: getCategoryQuery,
         titulation: getTitulationQuery,
-        date: getGenericCondition,
+        date: getDateQuery,
         pages: getGenericCondition,
         page: getGenericCondition,
         views: getGenericCondition,
@@ -46,7 +46,6 @@ export async function GET(request: Request) {
     query = Prisma.sql`${query} ${Prisma.join(queryParts, " AND ")}
         ORDER BY ${Prisma.sql`title ASC`}
         LIMIT 30`;
-
     let result = await prisma.$queryRaw`${query}`;
 
     return successResponse(result);
@@ -74,6 +73,28 @@ function getCategoryQuery(category: string): Prisma.Sql {
 function getTitulationQuery(category: string): Prisma.Sql {
     console.log("Filtering by category:", category);
     return Prisma.sql`"titulationId" = ${parseInt(category)}`;
+}
+function getDateQuery(date: string): Prisma.Sql {
+    function parseDate(dateString: string): Date {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return new Date(Date.UTC(year, month - 1, day)); // month is 0-indexed
+    }
+
+    if (date.startsWith("f")) {
+        // "from" date
+        const fromDate = date.slice(1); // Remove the "f" prefix
+        return Prisma.sql`"createdAt" >= ${parseDate(fromDate)}`;
+    } else if (date.startsWith("t")) {
+        // "to" date
+        const toDate = date.slice(1); // Remove the "t" prefix
+        return Prisma.sql`"createdAt" <= ${parseDate(toDate)}`;
+    } else if (date.startsWith("r")) {
+        // "range" date
+        const [startDate, endDate] = date.slice(1).split("t"); // Remove the "r" prefix and split by "t"
+        return Prisma.sql`"createdAt" BETWEEN ${parseDate(startDate)} AND ${parseDate(endDate)}`;
+    } else {
+        throw new Error("Invalid date format");
+    }
 }
 function getGenericCondition(value: any): Prisma.Sql {
     return Prisma.sql``;

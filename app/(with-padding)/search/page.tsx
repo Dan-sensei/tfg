@@ -6,7 +6,7 @@ import { SEARCH_INPUT_DELAY } from "@/app/lib/config";
 import { useCallback, useEffect, useState } from "react";
 import { Divider } from "@nextui-org/divider";
 import PopularTags from "./popularTags";
-import TagsSearch from "./tagSearch";
+import TagsSearch from "./tagFilter";
 import ActiveFilters from "./activeFilters";
 import { getApiRouteUrl } from "@/app/utils/util";
 import { Category, iTFG } from "@/app/types/interfaces";
@@ -16,6 +16,8 @@ import Card from "@/app/components/home-components/Card";
 import { DAY } from "@/app/types/defaultData";
 import CategoryFilter from "./categoryFilter";
 import TitulationFilter from "./titulationFilter";
+import { DatePicker } from "@nextui-org/date-picker";
+import DateFilter from "./dateFilter";
 
 type Props = {
     searchParams?: SearchParams;
@@ -114,7 +116,7 @@ export default function FullSearch({ searchParams }: Props) {
     }, [filters, debouncedFetchResults]);
 
     return (
-        <div className="container 2xl:max-w-[1800px] mx-auto flex">
+        <div className="container 2xl:max-w-[1800px] mx-auto flex h-full pb-10">
             <div className="w-80 bg-black/50 rounded-lg p-4">
                 <section>
                     <h2
@@ -165,6 +167,8 @@ export default function FullSearch({ searchParams }: Props) {
                     >
                         Fecha
                     </h2>
+                    <DateFilter filters={filters}
+                        updateFilters={updateFilters} />
                 </section>
                 <Divider className="my-4" />
                 <section>
@@ -183,7 +187,7 @@ export default function FullSearch({ searchParams }: Props) {
                     </h2>
                 </section>
             </div>
-            <div className="flex-1 pl-3">
+            <div className="flex-1 pl-3 flex flex-col">
                 <div className="bg-dark rounded-xl p-3">
                     <Input
                         onValueChange={(value) => handleSearch(value)}
@@ -221,8 +225,8 @@ export default function FullSearch({ searchParams }: Props) {
                     updateFilters={updateFilters}
                 />
 
-                <div className="w-full pt-3">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full">
+                <div className="w-full mt-3 p-3 flex-1 bg-black/50 rounded-lg  min-h-[300px]">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full  ">
                         {results.map((tfg, index) => (
                             <Card
                                 key={index}

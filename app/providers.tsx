@@ -9,7 +9,7 @@ type Props = {
 };
 export function Providers({ children, className }: Props) {
     return (
-        <NextUIProvider className={className}>
+        <NextUIProvider locale="es-ES" className={className}>
             <FavoritesProvider>
                 {children}
             </FavoritesProvider>

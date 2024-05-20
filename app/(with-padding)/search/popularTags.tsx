@@ -78,7 +78,7 @@ export default function PopularTags({filters, updateFilters}: PopularTagsProps) 
         <div
             className={`flex flex-wrap ${
                 isLoading ? "" : "content-start"
-            } gap-1 min-h-[150px]`}
+            } gap-1 min-h-[110px]`}
         >
             {isLoading ? (
                 <div className="w-full flex justify-center items-center">
