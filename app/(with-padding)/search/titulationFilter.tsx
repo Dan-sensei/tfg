@@ -1,7 +1,7 @@
 import { Select, SelectItem, SelectSection } from "@nextui-org/select";
 import { use, useEffect, useState } from "react";
 import { SearchParams } from "./page";
-import { Category } from "@/app/types/interfaces";
+import { Category, Titulation } from "@/app/types/interfaces";
 import { DAY } from "@/app/types/defaultData";
 import { fetchData } from "@/app/utils/fetchData";
 
@@ -9,21 +9,21 @@ interface PopularTagsProps {
     filters: SearchParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
-export default function CategoryFilter({
+export default function TitulationFilter({
     filters,
     updateFilters,
 }: PopularTagsProps) {
     const [isLoading, setIsLoading] = useState(true);
-    const [categorias, setCategorias] = useState<Category[]>([]);
-    const [selected, setSelected] = useState(
-        filters.category ? [filters.category] : []
+    const [titulations, setTitulations] = useState<Titulation[]>([]);
+    const [selected, setSelected] = useState<string[]>(
+        filters.titulation ? [filters.titulation] : []
     );
     useEffect(() => {
         const fetchTopTags = () => {
-            fetchData("categories", null, DAY)
+            fetchData("titulations", null, DAY)
                 .then((result) => {
                     if (result.success) {
-                        setCategorias(result.response);
+                        setTitulations(result.response);
                     }
                 })
                 .catch(() => {
@@ -40,22 +40,22 @@ export default function CategoryFilter({
         if (!value.trim() || value == "-1") {
             setSelected([]);
             updateFilters({
-                category: undefined,
+                titulation: undefined,
             });
         } else {
             updateFilters({
-                category: value,
+                titulation: value,
             });
         }
     };
     useEffect(() => {
-        if (filters.category) {
-            setSelected([filters.category]);
+        if (filters.titulation) {
+            setSelected([filters.titulation]);
         }
-    }, [filters.category]);
+    }, [filters.titulation]);
     return (
         <Select
-            aria-label="Categorias"
+            aria-label="Titulaciones"
             className="max-w-xs"
             isLoading={isLoading}
             selectionMode="single"
@@ -70,8 +70,12 @@ export default function CategoryFilter({
                 </SelectItem>
             </SelectSection>
             <SelectSection>
-                {categorias.map((item, i) => (
-                    <SelectItem key={i} value={item.id} className="capitalize">
+                {titulations.map((item) => (
+                    <SelectItem
+                        key={item.id}
+                        value={item.id}
+                        className="capitalize"
+                    >
                         {item.name}
                     </SelectItem>
                 ))}

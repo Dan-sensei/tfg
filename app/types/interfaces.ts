@@ -58,7 +58,7 @@ export type CategoryLink = {
 }
 
 export enum DBProperty {
-    GradeMaster = 0,
+    Titulation = 0,
     Category = 1
 }
 
@@ -93,6 +93,10 @@ export type TFGPagination = {
     title: string
 }
 export type Category = {
+    id: number,
+    name: string,
+}
+export type Titulation = {
     id: number,
     name: string,
 }

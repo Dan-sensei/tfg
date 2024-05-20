@@ -40,7 +40,7 @@ async function getTopWorks() {
 async function findMostPopular(): Promise<PopularFields> {
     async function getPopular(
         type: DBProperty,
-        groupByField: "gradeId" | "categoryId"
+        groupByField: "titulationId" | "categoryId"
     ) {
         return (
             await prisma.tfg.groupBy({
@@ -63,7 +63,7 @@ async function findMostPopular(): Promise<PopularFields> {
     }
 
     const [mostPopularGradeMasters, mostPopularCategories] = await Promise.all([
-        getPopular(DBProperty.GradeMaster, "gradeId"),
+        getPopular(DBProperty.Titulation, "titulationId"),
         getPopular(DBProperty.Category, "categoryId"),
     ]);
 
@@ -91,7 +91,7 @@ function sortCombinedArray(
         if (item.type === DBProperty.Category) {
             const element = categoriesArray.find((c) => c.id == item.id);
             if (element) sortedArray.push(element);
-        } else if (item.type === DBProperty.GradeMaster) {
+        } else if (item.type === DBProperty.Titulation) {
             const element = gradesArray.find((c) => c.id == item.id);
             if (element) sortedArray.push(element);
         }

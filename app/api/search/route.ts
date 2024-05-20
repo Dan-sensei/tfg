@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         q: getInputQuery,
         tags: getTagsQuery,
         category: getCategoryQuery,
-        titulation: getGenericCondition,
+        titulation: getTitulationQuery,
         date: getGenericCondition,
         pages: getGenericCondition,
         page: getGenericCondition,
@@ -46,21 +46,12 @@ export async function GET(request: Request) {
     query = Prisma.sql`${query} ${Prisma.join(queryParts, " AND ")}
         ORDER BY ${Prisma.sql`title ASC`}
         LIMIT 30`;
+
     let result = await prisma.$queryRaw`${query}`;
-    console.log(result)
+
     return successResponse(result);
 }
 
-function getCategoryQuery(category: string): Prisma.Sql {
-    console.log("Filtering by category:", category);
-    return Prisma.sql`"categoryId" = ${parseInt(category)}`;
-}
-
-function getTagsQuery(tags: string[]): Prisma.Sql {
-    return Prisma.sql`tags @> ARRAY[${Prisma.join(
-        tags.map((tag) => Prisma.sql`${tag}`)
-    )}]`;
-}
 
 function getInputQuery(input: string): Prisma.Sql {
     const ILIKE = `%${input.trim().split(/\s+/).join("%")}%`;
@@ -71,7 +62,19 @@ function getInputQuery(input: string): Prisma.Sql {
         OR (EXISTS(SELECT 1 FROM unnest(author) as author_unnest WHERE author_unnest ILIKE ${ILIKE}) OR word_similarity(array_to_string(author, ' '), ${similarity}) > ${DIFFUSE_SEARCH_SIMILARITY})
     )`;
 }
-
+function getTagsQuery(tags: string[]): Prisma.Sql {
+    return Prisma.sql`tags @> ARRAY[${Prisma.join(
+        tags.map((tag) => Prisma.sql`${tag}`)
+    )}]`;
+}
+function getCategoryQuery(category: string): Prisma.Sql {
+    console.log("Filtering by category:", category);
+    return Prisma.sql`"categoryId" = ${parseInt(category)}`;
+}
+function getTitulationQuery(category: string): Prisma.Sql {
+    console.log("Filtering by category:", category);
+    return Prisma.sql`"titulationId" = ${parseInt(category)}`;
+}
 function getGenericCondition(value: any): Prisma.Sql {
     return Prisma.sql``;
 }

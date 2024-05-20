@@ -20,7 +20,7 @@ model tfg {
   views        Int              @default(0)
   score        Float            @default(0)
   categoryId   Int
-  gradeId      Int
+  titulationId      Int
   createdAt    DateTime         @default(now())
   description  String           @default("")
   scoredTimes  Int              @default(0)
@@ -32,9 +32,9 @@ model tfg {
   category     category         @relation(fields: [categoryId], references: [id], map: "TFG_categoryId_fkey")
   college      college          @relation(fields: [collegeId], references: [id], map: "TFG_collegeId_fkey")
   department   department?      @relation(fields: [departmentId], references: [id], map: "TFG_departmentId_fkey")
-  titulation   titulation       @relation(fields: [gradeId], references: [id], map: "TFG_gradeId_fkey")
+  titulation   titulation       @relation(fields: [titulationId], references: [id], map: "TFG_titulationId_fkey")
   voteLogs     votelog[]
-  tutor        tutor[]          @relation("TFGTotutor")
+  tutor        tutor[]          @relation("TFGTutor")
 }
 
 model department {
@@ -51,7 +51,7 @@ model tutor {
   link      String?
   collegeId Int
   college   college @relation(fields: [collegeId], references: [id])
-  tfg       tfg[]   @relation("TFGTotutor")
+  tfg       tfg[]   @relation("TFGTutor")
 }
 
 model titulation {

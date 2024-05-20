@@ -2,6 +2,7 @@
 import { PrismaClient } from "@prisma/client";
 import prisma from "../../lib/db";
 interface BaseDocument {
+    collegeId: number;
     thumbnail: string;
     banner: string;
     content: string;
@@ -10,7 +11,7 @@ interface BaseDocument {
     views: number;
     score: number;
     categoryId: number;
-    gradeId: number;
+    titulationId: number;
 }
 
 function getRandomImage(): string {
@@ -36,6 +37,7 @@ function getRandomBaseDocument(
     titulationLength: number
 ): BaseDocument {
     return {
+        collegeId: 1,
         thumbnail: getRandomImage(),
         banner: "",
         content: "",
@@ -44,7 +46,7 @@ function getRandomBaseDocument(
         views: getRandomNumber(1, 1000000),
         score: getRandomScore(5),
         categoryId: getRandomNumber(0, categoryLength - 1),
-        gradeId: getRandomNumber(0, titulationLength - 1),
+        titulationId: getRandomNumber(0, titulationLength - 1),
     };
 }
 
@@ -1547,7 +1549,25 @@ async function postSeed() {
         tfg.banner += `1920/1080`;
     });
 
-    //await prisma.tfg.createMany({ data: tfgsData });
+    let data = tfgsData.map((tfg) => ({
+        collegeId: tfg.collegeId,
+        thumbnail: tfg.thumbnail,
+        banner: tfg.banner,
+        content: tfg.content,
+        pages: tfg.pages,
+        documentLink: tfg.documentLink,
+        views: tfg.views,
+        score: tfg.score,
+        categoryId: tfg.categoryId,
+        titulationId: tfg.titulationId,
+        title: tfg.title,
+        description: tfg.description,
+        author: [tfg.author],
+        tags: tfg.tags,
+    }));
+
+    await prisma.tfg.createMany({ data: data });
+    console.log("All TFGs added to database!");
 }
 async function updateScoredTimes() {
     "use server";
@@ -1594,13 +1614,13 @@ async function populateTutors() {
             });
         }
     }
+    console.log("populateTutors() completed!");
 }
-
 
 export default function SeedDb() {
     return (
         <div className="m-5">
-            <form action={postSeed}>
+            <form action={updateScoredTimes}>
                 <button
                     type="submit"
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

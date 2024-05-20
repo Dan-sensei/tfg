@@ -15,6 +15,7 @@ import Card from "@/app/components/home-components/Card";
 //import Sidebar from "@/app/components/Sidebar";
 import { DAY } from "@/app/types/defaultData";
 import CategoryFilter from "./categoryFilter";
+import TitulationFilter from "./titulationFilter";
 
 type Props = {
     searchParams?: SearchParams;
@@ -112,10 +113,6 @@ export default function FullSearch({ searchParams }: Props) {
         debouncedFetchResults();
     }, [filters, debouncedFetchResults]);
 
-    const handleSelectionChange = (e: any) => {
-        console.log(typeof e)
-    };
-
     return (
         <div className="container 2xl:max-w-[1800px] mx-auto flex">
             <div className="w-80 bg-black/50 rounded-lg p-4">
@@ -159,6 +156,7 @@ export default function FullSearch({ searchParams }: Props) {
                     >
                         Titulacion
                     </h2>
+                    <TitulationFilter filters={filters} updateFilters={updateFilters} />
                 </section>
                 <Divider className="my-4" />
                 <section>
