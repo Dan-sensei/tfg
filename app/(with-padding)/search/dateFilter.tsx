@@ -123,7 +123,7 @@ export default function DateFilter({
                 variant="bordered"
                 color="primary"
                 classNames={{
-                    base: "w-full px-2",
+                    base: "w-full px-4",
                     tabList: "p-0 rounded-full py-0 w-full",
                     tabContent: " py-0",
                     panel: "mt-3 ",
