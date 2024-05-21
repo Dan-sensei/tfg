@@ -71,7 +71,6 @@ export default function DateFilter({
 
 
     const clearDataParam = () => {
-        console.log("wah")
         updateFilters({
             fromdate: undefined,
             todate: undefined

@@ -118,8 +118,8 @@ export type QueryParams = {
     titulation?: string;
     fromdate?: string;
     todate?: string;
-    minpages?: number;
-    maxpages?: number;
-    minviews?: number;
-    maxviews?: number;
+    minpages?: string;
+    maxpages?: string;
+    minviews?: string;
+    maxviews?: string;
 };

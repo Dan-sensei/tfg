@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         pages: {
             requiredParams: [],
             optionalParams: ["minpages", "maxpages"],
-            queryGetter: ({ minpages, maxpages }) => getGenericCondition({ minpages, maxpages }),
+            queryGetter: ({ minpages, maxpages }) => getPagesQuery(minpages, maxpages),
         },
         views: {
             requiredParams: [],
@@ -107,16 +107,25 @@ function getDateQuery(fromDate?: string, toDate?: string): Prisma.Sql {
     }
 
     if(fromDate && !toDate) {
-        // "from" date
         return Prisma.sql`"createdAt" >= ${parseDate(fromDate)}`;
     } else if (!fromDate && toDate) {
-        // "to" date
         return Prisma.sql`"createdAt" <= ${parseDate(toDate)}`;
     } else if (fromDate && toDate) {
-        // "range" date
         return Prisma.sql`"createdAt" BETWEEN ${parseDate(fromDate)} AND ${parseDate(toDate)}`;
     } else {
         throw new Error("Invalid date format");
+    }
+}
+function getPagesQuery(minPages?: string, maxPages?: string): Prisma.Sql {
+    if (minPages && maxPages) {
+        return Prisma.sql`"pages" >= ${parseInt(minPages, 10)} AND "pages" <= ${parseInt(maxPages, 10)}`;
+    } else if (minPages) {
+        return Prisma.sql`"pages" >= ${parseInt(minPages, 10)}`;
+    } else if (maxPages) {
+        return Prisma.sql`"pages" <= ${parseInt(maxPages, 10)}`;
+    } else {
+        // Should never get here since either minPages or maxPages is not null
+        return Prisma.sql``;
     }
 }
 function getGenericCondition(value: any): Prisma.Sql {
