@@ -44,8 +44,13 @@ export async function GET(request: Request) {
         views: {
             requiredParams: [],
             optionalParams: ["minviews", "maxviews"],
-            queryGetter: ({ minviews, maxviews }) => getGenericCondition({ minviews, maxviews }),
+            queryGetter: ({ minviews, maxviews }) => getViewsQuery(minviews, maxviews),
         },
+        score: {
+            requiredParams: [],
+            optionalParams: ["minscore", "maxscore"],
+            queryGetter: ({minscore, maxscore}) => getScoreQuery(minscore, maxscore)
+        }
     };
     const queryParts: Prisma.Sql[] = [];
 
@@ -54,6 +59,7 @@ export async function GET(request: Request) {
         const hasOptionalParams = value.optionalParams ? value.optionalParams.some(param => searchParams.get(param) != undefined) : true;
 
         if (hasRequiredParams && hasOptionalParams) {
+            // TODO: validate params
             const params = Object.fromEntries(
                 [...value.requiredParams, ...(value.optionalParams || [])]
                     .map(param => [param, searchParams.get(param)])
@@ -128,6 +134,29 @@ function getPagesQuery(minPages?: string, maxPages?: string): Prisma.Sql {
         return Prisma.sql``;
     }
 }
-function getGenericCondition(value: any): Prisma.Sql {
-    return Prisma.sql``;
+
+function getViewsQuery(minViews?: string, maxViews?: string): Prisma.Sql {
+    if (minViews && maxViews) {
+        return Prisma.sql`"views" >= ${parseInt(minViews, 10)} AND "views" <= ${parseInt(maxViews, 10)}`;
+    } else if (minViews) {
+        return Prisma.sql`"views" >= ${parseInt(minViews, 10)}`;
+    } else if (maxViews) {
+        return Prisma.sql`"views" <= ${parseInt(maxViews, 10)}`;
+    } else {
+        // Should never get here since either minPages or maxPages is not null
+        return Prisma.sql``;
+    }
+}
+
+function getScoreQuery(minScore?: string, maxScore?: string): Prisma.Sql {
+    if (minScore && maxScore) {
+        return Prisma.sql`"score" >= ${parseInt(minScore, 10)} AND "score" <= ${parseInt(maxScore, 10)}`;
+    } else if (minScore) {
+        return Prisma.sql`"score" >= ${parseInt(minScore, 10)}`;
+    } else if (maxScore) {
+        return Prisma.sql`"score" <= ${parseInt(maxScore, 10)}`;
+    } else {
+        // Should never get here since either minPages or maxPages is not null
+        return Prisma.sql``;
+    }
 }

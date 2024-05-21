@@ -19,6 +19,7 @@ import TitulationFilter from "./titulationFilter";
 import { DatePicker } from "@nextui-org/date-picker";
 import DateFilter from "./dateFilter";
 import PageFilter from "./pageFilter";
+import ViewsFilter from "./viewsFilter";
 
 type Props = {
     searchParams?: QueryParams;
@@ -178,6 +179,7 @@ export default function FullSearch({ searchParams }: Props) {
                     >
                         Visitas
                     </h2>
+                    <ViewsFilter filters={filters} updateFilters={updateFilters} />
                 </section>
             </div>
             <div className="flex-1 pl-3 flex flex-col">
