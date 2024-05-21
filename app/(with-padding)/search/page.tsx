@@ -9,7 +9,7 @@ import PopularTags from "./popularTags";
 import TagsSearch from "./tagFilter";
 import ActiveFilters from "./activeFilters";
 import { getApiRouteUrl } from "@/app/utils/util";
-import { Category, iTFG } from "@/app/types/interfaces";
+import { Category, QueryParams, iTFG } from "@/app/types/interfaces";
 import { usePathname, useRouter } from "next/navigation";
 import Card from "@/app/components/home-components/Card";
 //import Sidebar from "@/app/components/Sidebar";
@@ -18,21 +18,13 @@ import CategoryFilter from "./categoryFilter";
 import TitulationFilter from "./titulationFilter";
 import { DatePicker } from "@nextui-org/date-picker";
 import DateFilter from "./dateFilter";
+import PageFilter from "./pageFilter";
 
 type Props = {
-    searchParams?: SearchParams;
+    searchParams?: QueryParams;
 };
 
-export interface SearchParams {
-    q?: string;
-    tags?: string;
-    category?: string;
-    titulation?: string;
-    date?: string;
-    pages?: string;
-    page?: string;
-    views?: string;
-}
+
 const createDefinedFilters = (
     filters: Record<string, any>
 ): URLSearchParams => {
@@ -49,14 +41,14 @@ const createDefinedFilters = (
 };
 
 export default function FullSearch({ searchParams }: Props) {
-    const [filters, setFilters] = useState<SearchParams>({});
+    const [filters, setFilters] = useState<QueryParams>({});
     const [results, setResults] = useState<iTFG[]>([]);
     
     const [isLoading, setIsLoading] = useState(false);
     const pathname = usePathname();
     const { replace } = useRouter();
 
-    const updateFilters = useCallback((newFilters: Partial<SearchParams>) => {
+    const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
         setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
     }, []);
 
@@ -175,8 +167,9 @@ export default function FullSearch({ searchParams }: Props) {
                     <h2
                         className={`${montserrat.className} font-semibold pb-1`}
                     >
-                        Páginas
+                        Número de páginas
                     </h2>
+                    <PageFilter filters={filters} updateFilters={updateFilters} />
                 </section>
                 <Divider className="my-4" />
                 <section>

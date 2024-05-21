@@ -2,38 +2,63 @@ import { DIFFUSE_SEARCH_SIMILARITY } from "@/app/lib/config";
 import prisma from "@/app/lib/db";
 import { badResponse, successResponse } from "@/app/utils/util";
 import { Prisma } from "@prisma/client";
+import {QueryParams} from "@/app/types/interfaces"
 
+type FilterFunction = (params: QueryParams) => Prisma.Sql;
+
+type Filter = {
+    requiredParams: (keyof QueryParams)[];
+    optionalParams?: (keyof QueryParams)[];
+    queryGetter: FilterFunction;
+}
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
 
-    const filters = {
-        q: searchParams.get("q") || undefined,
-        tags: searchParams.get("tags")
-            ? searchParams.get("tags")!.split(",").map(decodeURIComponent)
-            : undefined,
-        category: searchParams.get("category") || undefined,
-        titulation: searchParams.get("titulation") || undefined,
-        date: searchParams.get("date") || undefined,
-        pages: searchParams.get("pages") || undefined,
-        page: searchParams.get("page") || undefined,
-        views: searchParams.get("views") || undefined,
-    };
-
-    const filterFunctions: { [key: string]: (value: any) => Prisma.Sql } = {
-        q: getInputQuery,
-        tags: getTagsQuery,
-        category: getCategoryQuery,
-        titulation: getTitulationQuery,
-        date: getDateQuery,
-        pages: getGenericCondition,
-        page: getGenericCondition,
-        views: getGenericCondition,
+    const filterFunctions: { [key: string]: Filter } = {
+        q: {
+            requiredParams: ["q"],
+            queryGetter: ({ q }) => getInputQuery(q!),
+        },
+        tags: {
+            requiredParams: ["tags"],
+            queryGetter: ({ tags }) => getTagsQuery(tags!),
+        },
+        category: {
+            requiredParams: ["category"],
+            queryGetter: ({ category }) => getCategoryQuery(category!),
+        },
+        titulation: {
+            requiredParams: ["titulation"],
+            queryGetter: ({ titulation }) => getTitulationQuery(titulation!),
+        },
+        date: {
+            requiredParams: [],
+            optionalParams: ["fromdate", "todate"],
+            queryGetter: ({ fromdate, todate }) => getDateQuery(fromdate, todate),
+        },
+        pages: {
+            requiredParams: [],
+            optionalParams: ["minpages", "maxpages"],
+            queryGetter: ({ minpages, maxpages }) => getGenericCondition({ minpages, maxpages }),
+        },
+        views: {
+            requiredParams: [],
+            optionalParams: ["minviews", "maxviews"],
+            queryGetter: ({ minviews, maxviews }) => getGenericCondition({ minviews, maxviews }),
+        },
     };
     const queryParts: Prisma.Sql[] = [];
-    for (const [key, value] of Object.entries(filters)) {
-        if (value !== undefined && value !== null && value !== "") {
-            const filterFunction = filterFunctions[key];
-            queryParts.push(filterFunction(value));
+
+    for (const [key, value] of Object.entries(filterFunctions)) {
+        const hasRequiredParams = value.requiredParams.every(param => searchParams.get(param) != undefined);
+        const hasOptionalParams = value.optionalParams ? value.optionalParams.some(param => searchParams.get(param) != undefined) : true;
+
+        if (hasRequiredParams && hasOptionalParams) {
+            const params = Object.fromEntries(
+                [...value.requiredParams, ...(value.optionalParams || [])]
+                    .map(param => [param, searchParams.get(param)])
+            );
+            queryParts.push(value.queryGetter(params as QueryParams));
         }
     }
 
@@ -51,7 +76,6 @@ export async function GET(request: Request) {
     return successResponse(result);
 }
 
-
 function getInputQuery(input: string): Prisma.Sql {
     const ILIKE = `%${input.trim().split(/\s+/).join("%")}%`;
     const similarity = input.trim().split(/\s+/).join(" ");
@@ -61,9 +85,11 @@ function getInputQuery(input: string): Prisma.Sql {
         OR (EXISTS(SELECT 1 FROM unnest(author) as author_unnest WHERE author_unnest ILIKE ${ILIKE}) OR word_similarity(array_to_string(author, ' '), ${similarity}) > ${DIFFUSE_SEARCH_SIMILARITY})
     )`;
 }
-function getTagsQuery(tags: string[]): Prisma.Sql {
+
+function getTagsQuery(tags: string): Prisma.Sql {
+    const array_tags = tags.split(",").map(decodeURIComponent)
     return Prisma.sql`tags @> ARRAY[${Prisma.join(
-        tags.map((tag) => Prisma.sql`${tag}`)
+        array_tags.map((tag) => Prisma.sql`${tag}`)
     )}]`;
 }
 function getCategoryQuery(category: string): Prisma.Sql {
@@ -74,24 +100,21 @@ function getTitulationQuery(category: string): Prisma.Sql {
     console.log("Filtering by category:", category);
     return Prisma.sql`"titulationId" = ${parseInt(category)}`;
 }
-function getDateQuery(date: string): Prisma.Sql {
+function getDateQuery(fromDate?: string, toDate?: string): Prisma.Sql {
     function parseDate(dateString: string): Date {
         const [year, month, day] = dateString.split('-').map(Number);
         return new Date(Date.UTC(year, month - 1, day)); // month is 0-indexed
     }
 
-    if (date.startsWith("f")) {
+    if(fromDate && !toDate) {
         // "from" date
-        const fromDate = date.slice(1); // Remove the "f" prefix
         return Prisma.sql`"createdAt" >= ${parseDate(fromDate)}`;
-    } else if (date.startsWith("t")) {
+    } else if (!fromDate && toDate) {
         // "to" date
-        const toDate = date.slice(1); // Remove the "t" prefix
         return Prisma.sql`"createdAt" <= ${parseDate(toDate)}`;
-    } else if (date.startsWith("r")) {
+    } else if (fromDate && toDate) {
         // "range" date
-        const [startDate, endDate] = date.slice(1).split("t"); // Remove the "r" prefix and split by "t"
-        return Prisma.sql`"createdAt" BETWEEN ${parseDate(startDate)} AND ${parseDate(endDate)}`;
+        return Prisma.sql`"createdAt" BETWEEN ${parseDate(fromDate)} AND ${parseDate(toDate)}`;
     } else {
         throw new Error("Invalid date format");
     }

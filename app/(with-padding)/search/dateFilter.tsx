@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { SearchParams } from "./page";
 import { Calendar, RangeCalendar, RangeValue } from "@nextui-org/calendar";
 
 import type { DateValue } from "@react-types/calendar";
@@ -8,9 +7,10 @@ import { today, getLocalTimeZone } from "@internationalized/date";
 import { Tabs, Tab } from "@nextui-org/tabs";
 import { Button } from "@nextui-org/button";
 import { parseDate } from "@internationalized/date";
+import { QueryParams } from "@/app/types/interfaces";
 
 interface PopularTagsProps {
-    filters: SearchParams;
+    filters: QueryParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 export default function DateFilter({
@@ -18,21 +18,23 @@ export default function DateFilter({
     updateFilters,
 }: PopularTagsProps) {
     const [selectedTab, setSelectedTab] = useState("from");
-    let [from, setFrom] = useState<DateValue | null>(null);
-    const [focusedFrom, setFocusedFrom] = useState<DateValue | undefined>(undefined);
-    let [to, setTo] = useState<DateValue | null>(null);
-    const [focusedTo, setFocusedTo] = useState<DateValue | undefined>(undefined);
+    const [from, setFrom] = useState<DateValue | null>(null);
+    const [focusedFrom, setFocusedFrom] = useState<DateValue | undefined>(
+        undefined
+    );
+    const [to, setTo] = useState<DateValue | null>(null);
+    const [focusedTo, setFocusedTo] = useState<DateValue | undefined>(
+        undefined
+    );
 
-    let [rangeValue, setRangeValue] = useState<
-        RangeValue<DateValue> | null
-    >(null);
+    const [rangeValue, setRangeValue] = useState<RangeValue<DateValue> | null>(
+        null
+    );
 
-    let [focusedRangeValue, setFocusedRangeValue] = useState<DateValue | undefined>(undefined);
-    const handleSelectionChange = (value: string) => {
-        updateFilters({
-            date: value,
-        });
-    };
+    let [focusedRangeValue, setFocusedRangeValue] = useState<
+        DateValue | undefined
+    >(undefined);
+
     const formatToUTC = (date: DateValue, isEndOfDay: boolean = false) => {
         if (isEndOfDay) {
             return new Date(
@@ -46,72 +48,52 @@ export default function DateFilter({
             .split("T")[0];
     };
 
-    useEffect(() => {
-        if (filters.date) {
-            if (filters.date.startsWith("f")) {
-                const fromDate = filters.date.slice(1);
-                setSelectedTab("from")
-                setFocusedFrom(parseDate(fromDate))
-                setFrom(parseDate(fromDate))
-            } else if (filters.date.startsWith("t")) {
-                const toDate = filters.date.slice(1);
-                setSelectedTab("to")
-                setTo(parseDate(toDate))
-                setFocusedTo(parseDate(toDate))
-            } else if (filters.date.startsWith("r")) {
-                const [startDate, endDate] = filters.date.slice(1).split("t");
-                setSelectedTab("between")
-                setRangeValue({
-                    start: parseDate(startDate),
-                    end: parseDate(endDate)
-                })
-            }
-            else {
-                updateFilters({
-                    date: undefined
-                })
-            }
+    useEffect(() => {  
+        if (filters.fromdate && !filters.todate) {
+            const fromdate = filters.fromdate;
+            setSelectedTab("from");
+            setFocusedFrom(parseDate(fromdate));
+            setFrom(parseDate(fromdate));
         }
-    }, [filters.date]);
+        else if (!filters.fromdate && filters.todate) {
+            const todate = filters.todate
+            setSelectedTab("to");
+            setTo(parseDate(todate));
+            setFocusedTo(parseDate(todate));
+        } else if (filters.fromdate && filters.todate) {
+            setSelectedTab("between");
+            setRangeValue({
+                start: parseDate(filters.fromdate),
+                end: parseDate(filters.todate),
+            });
+        }
+    }, [filters.fromdate, filters.todate]);
 
-    const formatRangeToUTC = (range: RangeValue<DateValue>) => {
-        const startDate = new Date(
-            Date.UTC(range.start.year, range.start.month - 1, range.start.day)
-        );
-        const endDate = new Date(
-            Date.UTC(
-                range.end.year,
-                range.end.month - 1,
-                range.end.day,
-                23,
-                59,
-                59
-            )
-        );
-        return `r${startDate.toISOString().split("T")[0]}t${
-            endDate.toISOString().split("T")[0]
-        }`;
-    };
 
     const clearDataParam = () => {
+        console.log("wah")
         updateFilters({
-            date: undefined,
+            fromdate: undefined,
+            todate: undefined
         });
     };
 
     const handleTabChange = (key: React.Key) => {
-        setSelectedTab(key.toString())
-        if(key === "from" && from) {
+        setSelectedTab(key.toString());
+        if (key === "from" && from) {
             updateFilters({
-                date: `f${formatToUTC(from)}`,
+                fromdate: `${formatToUTC(from)}`,
+                todate: undefined
             });
-        } else if(key === "to" && to) {
+        } else if (key === "to" && to) {
             updateFilters({
-                date: `t${formatToUTC(to, true)}`,
+                fromdate: undefined,
+                todate: `${formatToUTC(to, true)}`,
             });
-        } else if(key === "between" && rangeValue) {
+        } else if (key === "between" && rangeValue) {
             updateFilters({
-                date: formatRangeToUTC(rangeValue),
+                fromdate: formatToUTC(rangeValue.start),
+                todate: formatToUTC(rangeValue.end, true)
             });
         } else {
             clearDataParam();
@@ -149,7 +131,9 @@ export default function DateFilter({
                         onFocusChange={setFocusedFrom}
                         onChange={(e) => {
                             setFrom(e);
-                            handleSelectionChange(`f${formatToUTC(e)}`);
+                            updateFilters({
+                                fromdate: formatToUTC(e)
+                            })
                         }}
                         bottomContent={
                             <div className="flex justify-center pb-3">
@@ -185,7 +169,10 @@ export default function DateFilter({
                         value={rangeValue}
                         onChange={(e) => {
                             setRangeValue(e);
-                            handleSelectionChange(formatRangeToUTC(e));
+                            updateFilters({
+                                fromdate: formatToUTC(e.start),
+                                todate: formatToUTC(e.end, true)
+                            })
                         }}
                         onFocusChange={setFocusedRangeValue}
                         bottomContent={
@@ -223,7 +210,9 @@ export default function DateFilter({
                         value={to}
                         onChange={(e) => {
                             setTo(e);
-                            handleSelectionChange(`t${formatToUTC(e, true)}`);
+                            updateFilters({
+                                todate: formatToUTC(e, true)
+                            })
                         }}
                         bottomContent={
                             <div className="flex justify-center pb-3">

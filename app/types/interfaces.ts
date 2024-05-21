@@ -109,3 +109,17 @@ export type RedisSet = {
     member: string,
     score: number
 }
+
+
+export type QueryParams = {
+    q?: string;
+    tags?: string;
+    category?: string;
+    titulation?: string;
+    fromdate?: string;
+    todate?: string;
+    minpages?: number;
+    maxpages?: number;
+    minviews?: number;
+    maxviews?: number;
+};

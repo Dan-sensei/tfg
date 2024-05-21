@@ -1,12 +1,11 @@
 import { Select, SelectItem, SelectSection } from "@nextui-org/select";
 import { use, useEffect, useState } from "react";
-import { SearchParams } from "./page";
-import { Category, Titulation } from "@/app/types/interfaces";
+import { Category, QueryParams, Titulation } from "@/app/types/interfaces";
 import { DAY } from "@/app/types/defaultData";
 import { fetchData } from "@/app/utils/fetchData";
 
 interface PopularTagsProps {
-    filters: SearchParams;
+    filters: QueryParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 export default function TitulationFilter({

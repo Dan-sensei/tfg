@@ -1,15 +1,15 @@
 "use client";
 import { DAY } from "@/app/types/defaultData";
+import { QueryParams } from "@/app/types/interfaces";
 import { getApiRouteUrl, sameArrays } from "@/app/utils/util";
 import { Spinner } from "@nextui-org/spinner";
 import { useEffect, useState } from "react";
-import { SearchParams } from "./page";
 type PopularTag = {
     tag: string;
     count: number;
 };
 interface PopularTagsProps {
-    filters: SearchParams;
+    filters: QueryParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 
