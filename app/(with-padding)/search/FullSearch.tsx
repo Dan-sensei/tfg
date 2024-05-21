@@ -159,7 +159,7 @@ export default function FullSearch() {
         <>
             <div className="lg:container 2xl:max-w-[1800px] mx-auto flex h-full pb-10 pt-5 lg:pt-0">
                 <div
-                    className={`lg:w-[340px] bg-content1 lg:bg-black/50 lg:rounded-lg transition-transform lg:transition-none  h-full overflow-y-auto fixed lg:relative z-50 top-0 left-0 w-screen max-w-md ${
+                    className={`lg:w-[340px] bg-content1 lg:bg-black/50 lg:rounded-lg transition-transform lg:transition-none h-full overflow-y-auto fixed lg:relative lg:z-50 top-0 left-0 w-screen max-w-md ${
                         isSidebarOpen
                             ? "translate-x-[0]"
                             : "translate-x-[-100%] lg:translate-x-[unset]"

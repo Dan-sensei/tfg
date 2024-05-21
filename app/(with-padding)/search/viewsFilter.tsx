@@ -54,6 +54,7 @@ export default function ViewsFilter({
                 labelPlacement="outside"
                 placeholder="0"
                 value={minViews}
+                onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => preventNegativeNumbers(e)}
             />
             <div className="pt-5 px-2">-</div>
@@ -65,6 +66,7 @@ export default function ViewsFilter({
                 labelPlacement="outside"
                 value={maxViews}
                 placeholder="100"
+                onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => preventNegativeNumbers(e)}
             />
         </div>

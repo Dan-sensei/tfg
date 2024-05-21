@@ -54,6 +54,7 @@ export default function PageFilter({
                 labelPlacement="outside"
                 placeholder="0"
                 value={minPages}
+                onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => preventNegativeNumbers(e)}
             />
             <div className="pt-5 px-2">-</div>
@@ -65,6 +66,7 @@ export default function PageFilter({
                 labelPlacement="outside"
                 value={maxPages}
                 placeholder="100"
+                onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => preventNegativeNumbers(e)}
             />
         </div>
