@@ -18,7 +18,7 @@ import CategoryFilter from "./categoryFilter";
 import TitulationFilter from "./titulationFilter";
 import { DatePicker } from "@nextui-org/date-picker";
 import DateFilter from "./dateFilter";
-import PageFilter from "./pageFilter";
+//import PageFilter from "./pageFilter";
 
 type Props = {
     searchParams?: QueryParams;
@@ -169,7 +169,6 @@ export default function FullSearch({ searchParams }: Props) {
                     >
                         Número de páginas
                     </h2>
-                    <PageFilter filters={filters} updateFilters={updateFilters} />
                 </section>
                 <Divider className="my-4" />
                 <section>
