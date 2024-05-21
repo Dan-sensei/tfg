@@ -1,10 +1,11 @@
 "use client";
 
+import { QueryParams } from "@/app/types/interfaces";
 import { sameArrays } from "@/app/utils/util";
 import { useEffect, useState } from "react";
-import { SearchParams } from "./page";
+
 interface ActiveFiltersProps {
-    filters: SearchParams;
+    filters: QueryParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 export default function ActiveFilters({filters, updateFilters}: ActiveFiltersProps) {

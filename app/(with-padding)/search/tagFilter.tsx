@@ -5,9 +5,9 @@ import { IconSearch } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { sameArrays } from "@/app/utils/util";
-import { SearchParams } from "./page";
+import { QueryParams } from "@/app/types/interfaces";
 interface TagsProps {
-    filters: SearchParams;
+    filters: QueryParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 export default function App({filters, updateFilters}: TagsProps) {
