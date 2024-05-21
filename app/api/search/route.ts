@@ -99,11 +99,9 @@ function getTagsQuery(tags: string): Prisma.Sql {
     )}]`;
 }
 function getCategoryQuery(category: string): Prisma.Sql {
-    console.log("Filtering by category:", category);
     return Prisma.sql`"categoryId" = ${parseInt(category)}`;
 }
 function getTitulationQuery(category: string): Prisma.Sql {
-    console.log("Filtering by category:", category);
     return Prisma.sql`"titulationId" = ${parseInt(category)}`;
 }
 function getDateQuery(fromDate?: string, toDate?: string): Prisma.Sql {
