@@ -27,22 +27,20 @@ export default function App({filters, updateFilters}: TagsProps) {
     }, SEARCH_INPUT_DELAY);
 
     const selectTag = (tag: string) => {
-        setSelectedTags((current) => {
-            if (!current.includes(tag)) {
-                return [...current, tag];
-            } else {
-                return current.filter((t) => t !== tag);
-            }
-        });
-    };
-    
-    useEffect(() => {
-        if(selectedTags.length > 0) {
-            updateFilters({ tags: selectedTags.map(encodeURIComponent).join(",")});
-        } else {
-            updateFilters({ tags: undefined});
+        const newTags = selectedTags.includes(tag)
+            ? selectedTags.filter((t) => t !== tag)
+            : [...selectedTags, tag];
+        setSelectedTags(newTags);
+        if(newTags.length > 0){
+            updateFilters({
+                tags: newTags.map(encodeURIComponent).join(","),
+            });
         }
-    }, [selectedTags, updateFilters]);
+        else{
+            updateFilters({ tags: undefined });
+        }
+    };
+
     useEffect(() => {
         const tags = filters.tags ? filters.tags.split(",").map(decodeURI) : [];
         if (!sameArrays(tags, selectedTags)) {

@@ -55,7 +55,6 @@ export default function TitulationFilter({
     return (
         <Select
             aria-label="Titulaciones"
-            className="max-w-xs"
             isLoading={isLoading}
             selectionMode="single"
             placeholder="Seleccionar"

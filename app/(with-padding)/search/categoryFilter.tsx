@@ -55,7 +55,6 @@ export default function CategoryFilter({
     return (
         <Select
             aria-label="Categorias"
-            className="max-w-xs"
             isLoading={isLoading}
             selectionMode="single"
             placeholder="Seleccionar"

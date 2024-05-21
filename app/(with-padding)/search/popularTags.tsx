@@ -13,7 +13,10 @@ interface PopularTagsProps {
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 
-export default function PopularTags({filters, updateFilters}: PopularTagsProps) {
+export default function PopularTags({
+    filters,
+    updateFilters,
+}: PopularTagsProps) {
     const [popularTags, setPopularTags] = useState<PopularTag[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>(
         filters.tags ? filters.tags.split(",").map(decodeURI) : []
@@ -21,6 +24,9 @@ export default function PopularTags({filters, updateFilters}: PopularTagsProps) 
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        if (popularTags.length > 0) {
+            return;
+        }
         const fetchTopTags = () => {
             const url = getApiRouteUrl("top-tags");
             fetch(url, {
@@ -50,22 +56,20 @@ export default function PopularTags({filters, updateFilters}: PopularTagsProps) 
     }, []);
 
     const selectTag = (tag: PopularTag) => {
-        setSelectedTags((current) => {
-            return current.includes(tag.tag)
-                ? current.filter((t) => t !== tag.tag)
-                : [...current, tag.tag];
-        });
-    };
-
-    useEffect(() => {
-        if (selectedTags.length > 0) {
+        const newTags = selectedTags.includes(tag.tag)
+            ? selectedTags.filter((t) => t !== tag.tag)
+            : [...selectedTags, tag.tag];
+        setSelectedTags(newTags);
+        if(newTags.length > 0){
             updateFilters({
-                tags: selectedTags.map(encodeURIComponent).join(","),
+                tags: newTags.map(encodeURIComponent).join(","),
             });
-        } else {
+        }
+        else{
+            console.log("remove")
             updateFilters({ tags: undefined });
         }
-    }, [selectedTags, updateFilters]);
+    };
 
     useEffect(() => {
         const tags = filters.tags ? filters.tags.split(",").map(decodeURI) : [];
@@ -76,7 +80,7 @@ export default function PopularTags({filters, updateFilters}: PopularTagsProps) 
 
     return (
         <div
-            className={`flex flex-wrap ${
+            className={`flex flex-wrap pt-1 ${
                 isLoading ? "" : "content-start"
             } gap-1 min-h-[110px]`}
         >
