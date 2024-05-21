@@ -26,7 +26,7 @@ const createDefinedFilters = (
     filters: Record<string, any>
 ): URLSearchParams => {
     const params = new URLSearchParams();
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
         if (filters[key] !== undefined) {
             params.append(key, filters[key]);
         }
@@ -42,52 +42,47 @@ const hasParams = (filters: QueryParams) => {
 
 export default function FullSearch() {
     const [filters, setFilters] = useState<QueryParams>({});
+    const [searchValue, setSearchValue] = useState("");
     const [results, setResults] = useState<iTFG[]>([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const pathname = usePathname();
     const { replace } = useRouter();
-    const searchParams = useSearchParams()
-    
+    const searchParams = useSearchParams();
+
     const paramKeys: Array<keyof QueryParams> = [
-        'q',
-        'tags',
-        'category',
-        'titulation',
-        'fromdate',
-        'todate',
-        'minpages',
-        'maxpages',
-        'minviews',
-        'maxviews',
-        'minscore',
-        'maxscore',
+        "q",
+        "tags",
+        "category",
+        "titulation",
+        "fromdate",
+        "todate",
+        "minpages",
+        "maxpages",
+        "minviews",
+        "maxviews",
+        "minscore",
+        "maxscore",
     ];
-    
 
     const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
         setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
     }, []);
     useEffect(() => {
         const params: QueryParams = Object.fromEntries(
-            paramKeys.map(key => [key, searchParams.get(key) || undefined])
+            paramKeys.map((key) => [key, searchParams.get(key) || undefined])
         );
 
         updateFilters(params);
     }, [searchParams]);
 
-    const handleSearch = useDebouncedCallback((value: string) => {
+    const handleSearch = (value: string) => {
+        setSearchValue(value);
         updateFilters({ q: !value ? undefined : value });
-    }, SEARCH_INPUT_DELAY);
-
+    };
 
     const fetchResults = useCallback(() => {
-        if (!hasParams(filters)) {
-            setResults([]);
-            return;
-        }
         const params = createDefinedFilters(filters);
-        setIsLoading(true);
         fetch(getApiRouteUrl("search", params))
             .then((response) => response.json())
             .then((result) => {
@@ -110,7 +105,6 @@ export default function FullSearch() {
     // Update params in url
     useEffect(() => {
         const params = createDefinedFilters(filters);
-        console.log(params)
         replace(`${pathname}?${params.toString()}`);
     }, [filters, pathname, replace]);
 
@@ -121,6 +115,11 @@ export default function FullSearch() {
     );
 
     useEffect(() => {
+        if (!hasParams(filters)) {
+            if (results.length > 0) setResults([]);
+            return;
+        }
+        setIsLoading(true);
         debouncedFetchResults();
     }, [filters, debouncedFetchResults]);
 
@@ -144,6 +143,12 @@ export default function FullSearch() {
             window.removeEventListener("resize", handleResize);
         };
     }, []);
+
+    useEffect(() => {
+        if (filters.q) {
+            setSearchValue(filters.q);
+        }
+    }, [filters.q]);
 
     const ready = !isLoading && !hasParams(filters);
     const showNoResults =
@@ -274,11 +279,10 @@ export default function FullSearch() {
                             <Input
                                 onValueChange={(value) => handleSearch(value)}
                                 spellCheck={false}
-                                defaultValue={filters.q}
                                 autoFocus
                                 isClearable
                                 radius="lg"
-                                value={filters.q}
+                                value={searchValue}
                                 classNames={{
                                     input: [
                                         "bg-transparent",
