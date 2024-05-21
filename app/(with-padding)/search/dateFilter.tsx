@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchParams } from "./page";
 import { Calendar, RangeCalendar, RangeValue } from "@nextui-org/calendar";
 
@@ -7,6 +7,8 @@ import type { DateValue } from "@react-types/calendar";
 import { today, getLocalTimeZone } from "@internationalized/date";
 import { Tabs, Tab } from "@nextui-org/tabs";
 import { Button } from "@nextui-org/button";
+import { parseDate } from "@internationalized/date";
+
 interface PopularTagsProps {
     filters: SearchParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
@@ -15,18 +17,17 @@ export default function DateFilter({
     filters,
     updateFilters,
 }: PopularTagsProps) {
-    let defaultDate = today(getLocalTimeZone());
+    const [selectedTab, setSelectedTab] = useState("from");
     let [from, setFrom] = useState<DateValue | null>(null);
+    const [focusedFrom, setFocusedFrom] = useState<DateValue | undefined>(undefined);
     let [to, setTo] = useState<DateValue | null>(null);
+    const [focusedTo, setFocusedTo] = useState<DateValue | undefined>(undefined);
 
     let [rangeValue, setRangeValue] = useState<
         RangeValue<DateValue> | null
     >(null);
 
-    let [focusedRangeValue, setFocusedValue] = useState<DateValue>(
-        today(getLocalTimeZone())
-    );
-
+    let [focusedRangeValue, setFocusedRangeValue] = useState<DateValue | undefined>(undefined);
     const handleSelectionChange = (value: string) => {
         updateFilters({
             date: value,
@@ -44,6 +45,34 @@ export default function DateFilter({
             .toISOString()
             .split("T")[0];
     };
+
+    useEffect(() => {
+        if (filters.date) {
+            if (filters.date.startsWith("f")) {
+                const fromDate = filters.date.slice(1);
+                setSelectedTab("from")
+                setFocusedFrom(parseDate(fromDate))
+                setFrom(parseDate(fromDate))
+            } else if (filters.date.startsWith("t")) {
+                const toDate = filters.date.slice(1);
+                setSelectedTab("to")
+                setTo(parseDate(toDate))
+                setFocusedTo(parseDate(toDate))
+            } else if (filters.date.startsWith("r")) {
+                const [startDate, endDate] = filters.date.slice(1).split("t");
+                setSelectedTab("between")
+                setRangeValue({
+                    start: parseDate(startDate),
+                    end: parseDate(endDate)
+                })
+            }
+            else {
+                updateFilters({
+                    date: undefined
+                })
+            }
+        }
+    }, [filters.date]);
 
     const formatRangeToUTC = (range: RangeValue<DateValue>) => {
         const startDate = new Date(
@@ -71,6 +100,7 @@ export default function DateFilter({
     };
 
     const handleTabChange = (key: React.Key) => {
+        setSelectedTab(key.toString())
         if(key === "from" && from) {
             updateFilters({
                 date: `f${formatToUTC(from)}`,
@@ -98,6 +128,7 @@ export default function DateFilter({
                     tabContent: " py-0",
                     panel: "mt-3 ",
                 }}
+                selectedKey={selectedTab}
                 onSelectionChange={handleTabChange}
             >
                 <Tab key="from" className="text-tiny py-0" title="Después de">
@@ -114,6 +145,8 @@ export default function DateFilter({
                             variant: "bordered",
                         }}
                         value={from}
+                        focusedValue={focusedFrom}
+                        onFocusChange={setFocusedFrom}
                         onChange={(e) => {
                             setFrom(e);
                             handleSelectionChange(`f${formatToUTC(e)}`);
@@ -154,7 +187,7 @@ export default function DateFilter({
                             setRangeValue(e);
                             handleSelectionChange(formatRangeToUTC(e));
                         }}
-                        onFocusChange={setFocusedValue}
+                        onFocusChange={setFocusedRangeValue}
                         bottomContent={
                             <div className="flex justify-center pb-3">
                                 <Button
@@ -185,6 +218,8 @@ export default function DateFilter({
                         prevButtonProps={{
                             variant: "bordered",
                         }}
+                        focusedValue={focusedTo}
+                        onFocusChange={setFocusedTo}
                         value={to}
                         onChange={(e) => {
                             setTo(e);
