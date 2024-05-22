@@ -11,6 +11,8 @@ type Filter = {
     optionalParams?: (keyof QueryParams)[];
     queryGetter: FilterFunction;
 }
+
+
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
 
@@ -53,7 +55,7 @@ export async function GET(request: Request) {
         }
     };
     const queryParts: Prisma.Sql[] = [];
-
+    
     for (const [key, value] of Object.entries(filterFunctions)) {
         const hasRequiredParams = value.requiredParams.every(param => searchParams.get(param) != undefined);
         const hasOptionalParams = value.optionalParams ? value.optionalParams.some(param => searchParams.get(param) != undefined) : true;
@@ -74,9 +76,22 @@ export async function GET(request: Request) {
 
     let query = Prisma.sql`SELECT id, title, thumbnail, description, views, score, pages, "createdAt" FROM "tfg" WHERE `;
 
+    let sortBy = searchParams.get("sortby") || "title";
+    const validSortValues = ["title", "views", "pages", "score", "createdAt"]
+    if(!validSortValues.includes(sortBy)){
+        sortBy = "title";
+    }
+    let sortOrder = searchParams.get("sortorder") || "ASC";
+    const validSortOrders = ["ASC", "DESC"];
+    if (!validSortOrders.includes(sortOrder)) {
+        sortOrder = "ASC";
+    }
+
+    const orderByClause = Prisma.sql`"${Prisma.raw(sortBy)}" ${Prisma.raw(sortOrder)}`;
     query = Prisma.sql`${query} ${Prisma.join(queryParts, " AND ")}
-        ORDER BY ${Prisma.sql`title ASC`}
+        ORDER BY ${orderByClause}
         LIMIT 30`;
+
     let result = await prisma.$queryRaw`${query}`;
 
     return successResponse(result);

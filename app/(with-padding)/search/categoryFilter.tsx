@@ -36,7 +36,10 @@ export default function CategoryFilter({
     }, []);
 
     const handleSelectionChange = (value: string) => {
-        if (!value.trim() || value == "-1") {
+        if (!value.trim()) {
+            return;
+        }
+        if (value == "-1") {
             setSelected([]);
             updateFilters({
                 category: undefined,

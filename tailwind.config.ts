@@ -19,6 +19,7 @@ const config: Config = {
             },
             screens: {
                 xs: "480px",
+                "3xl": "1800px",
             },
             dropShadow: {
                 fav: "0 0 3px rgba(255, 0, 0, 0.9)",

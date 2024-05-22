@@ -84,8 +84,8 @@ export default function Card({
                             <span className="text-xs text-slate-400 font-semibold self-center">
                                 {createdAt ? (new Date(createdAt)).getFullYear() : ""}
                             </span>
-                            <span className="hidden lg:inline-block scale-85 text-lg self-center">
-                                <Chip className="bg-nova-button" variant="solid">
+                            <span className="hidden lg:inline-block scale-85 self-center">
+                                <Chip className="bg-nova-button  text-tiny p-1" variant="solid">
                                     {pages} páginas
                                 </Chip>
                             </span>

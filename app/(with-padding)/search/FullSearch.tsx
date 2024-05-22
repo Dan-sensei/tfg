@@ -21,6 +21,9 @@ import PopularTags from "./popularTags";
 import { Divider } from "@nextui-org/divider";
 import TagsSearch from "./tagFilter";
 import { Loading } from "@/app/components/SearchComponents";
+import { Select, SelectItem } from "@nextui-org/select";
+import SearchFilter from "./searchFilter";
+import SortFilter from "./sortFilter";
 
 const createDefinedFilters = (
     filters: Record<string, any>
@@ -42,7 +45,6 @@ const hasParams = (filters: QueryParams) => {
 
 export default function FullSearch() {
     const [filters, setFilters] = useState<QueryParams>({});
-    const [searchValue, setSearchValue] = useState("");
     const [results, setResults] = useState<iTFG[]>([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +65,9 @@ export default function FullSearch() {
         "maxviews",
         "minscore",
         "maxscore",
+        "sortby",
+        "sortorder",
+        "page"
     ];
 
     const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
@@ -76,11 +81,7 @@ export default function FullSearch() {
         updateFilters(params);
     }, [searchParams]);
 
-    const handleSearch = (value: string) => {
-        setSearchValue(value);
-        updateFilters({ q: !value ? undefined : value });
-    };
-
+    
     const fetchResults = useCallback(() => {
         const params = createDefinedFilters(filters);
         fetch(getApiRouteUrl("search", params))
@@ -144,11 +145,7 @@ export default function FullSearch() {
         };
     }, []);
 
-    useEffect(() => {
-        if (filters.q) {
-            setSearchValue(filters.q);
-        }
-    }, [filters.q]);
+    
 
     const ready = !isLoading && !hasParams(filters);
     const showNoResults =
@@ -276,44 +273,17 @@ export default function FullSearch() {
                             Filtros{" "}
                         </Button>
                         <div className="bg-dark rounded-xl p-2 flex-1">
-                            <Input
-                                onValueChange={(value) => handleSearch(value)}
-                                spellCheck={false}
-                                autoFocus
-                                isClearable
-                                radius="lg"
-                                value={searchValue}
-                                classNames={{
-                                    input: [
-                                        "bg-transparent",
-                                        "text-black/90 dark:text-white/90",
-                                        "placeholder:text-default-700/50 dark:placeholder:text-white/60",
-                                        "text-lg",
-                                    ],
-                                    innerWrapper: "bg-transparent",
-                                    inputWrapper: [
-                                        "bg-transparent",
-                                        "dark:bg-transparent",
-                                        "hover:bg-transparent",
-                                        "dark:hover:bg-transparent",
-                                        "group-data-[focus=true]:bg-transparent",
-                                        "dark:group-data-[focus=true]:bg-transparent",
-                                        "group-data-[focus=true]:shadow-[none]",
-                                        "dark:group-data-[focus=true]:shadow-[none]",
-                                        "!cursor-text",
-                                    ],
-                                }}
-                                style={{ boxShadow: "none" }}
-                                placeholder="Búsqueda..."
-                            />
+                            <SearchFilter filters={filters} updateFilters={updateFilters} />
                         </div>
                     </div>
                     <ActiveFilters
                         filters={filters}
                         updateFilters={updateFilters}
                     />
-
-                    <div className="w-full mt-3 p-3 flex-1 bg-black/50 rounded-lg  min-h-[300px]">
+                    <div className="h-10 pt-1 ml-auto flex items-center w-64 bg-black/50 rounded-t-lg px-3">
+                        <SortFilter isDisabled={!showResults} filters={filters} updateFilters={updateFilters} />
+                    </div>
+                    <div className="w-full p-3 flex-1 bg-black/50 rounded-lg rounded-tr-none min-h-[300px]">
                         {ready && (
                             <div className="h-full w-full flex items-center justify-center">
                                 <IconSearch
@@ -339,21 +309,23 @@ export default function FullSearch() {
                             </div>
                         )}
                         {showResults && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full  ">
-                                {results.map((tfg, index) => (
-                                    <Card
-                                        key={index}
-                                        id={tfg.id}
-                                        createdAt={tfg.createdAt}
-                                        thumbnail={tfg.thumbnail}
-                                        title={tfg.title}
-                                        description={tfg.description}
-                                        pages={tfg.pages}
-                                        views={tfg.views}
-                                        score={tfg.score}
-                                    />
-                                ))}
-                            </div>
+                            <>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-4 w-full">
+                                    {results.map((tfg, index) => (
+                                        <Card
+                                            key={index}
+                                            id={tfg.id}
+                                            createdAt={tfg.createdAt}
+                                            thumbnail={tfg.thumbnail}
+                                            title={tfg.title}
+                                            description={tfg.description}
+                                            pages={tfg.pages}
+                                            views={tfg.views}
+                                            score={tfg.score}
+                                        />
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

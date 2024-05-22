@@ -124,4 +124,7 @@ export type QueryParams = {
     maxviews?: string;
     minscore?: string;
     maxscore?: string;
+    sortby?: string;
+    sortorder?: string;
+    page?: string;
 };
