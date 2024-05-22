@@ -7,8 +7,10 @@ import { useEffect, useState } from "react";
 import { TFGPagination } from "../../types/interfaces";
 import { Spinner } from "@nextui-org/spinner";
 import { getApiRouteUrl } from "../../utils/util";
-
+import { unstable_noStore as noStore } from 'next/cache';
+import { DAY } from "@/app/types/defaultData";
 export default function Trending() {
+    noStore();
     const [data, setData] = useState<TFGPagination | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -20,9 +22,7 @@ export default function Trending() {
             });
             const urlWithParams = getApiRouteUrl("trending", queryParams);
 
-            fetch(urlWithParams, {
-                next: { revalidate: 12 * 3600 },
-            })
+            fetch(urlWithParams, { next: { revalidate: DAY }})
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error("Error");
@@ -30,7 +30,6 @@ export default function Trending() {
                     return response.json();
                 })
                 .then((result) => {
-                    console.log(result)
                     if (result.success) {
                         setData(result.response);
                     }

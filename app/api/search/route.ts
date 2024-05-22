@@ -2,7 +2,7 @@ import { DIFFUSE_SEARCH_SIMILARITY } from "@/app/lib/config";
 import prisma from "@/app/lib/db";
 import { badResponse, successResponse } from "@/app/utils/util";
 import { Prisma } from "@prisma/client";
-import {QueryParams} from "@/app/types/interfaces"
+import {QueryParams, iTFG} from "@/app/types/interfaces"
 
 type FilterFunction = (params: QueryParams) => Prisma.Sql;
 
@@ -88,13 +88,61 @@ export async function GET(request: Request) {
     }
 
     const orderByClause = Prisma.sql`"${Prisma.raw(sortBy)}" ${Prisma.raw(sortOrder)}`;
+    // Extract and validate pagination parameters
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const pageSize = parseInt(searchParams.get("pagesize") || "30", 10);
+
+    if (isNaN(page) || page < 1) {
+        return badResponse("Invalid page number");
+    }
+    if (isNaN(pageSize) || pageSize < 1) {
+        return badResponse("Invalid page size");
+    }
+
+    const offset = (page - 1) * pageSize;
+    /*
     query = Prisma.sql`${query} ${Prisma.join(queryParts, " AND ")}
         ORDER BY ${orderByClause}
         LIMIT 30`;
+*/
+        query = Prisma.sql`
+        WITH filtered_tfg AS (
+            SELECT * FROM "tfg"
+            WHERE ${Prisma.join(queryParts, " AND ")}
+        )
+        SELECT id, title, thumbnail, description, views, score, pages, "createdAt",
+               COUNT(*) OVER() AS "totalCount"
+        FROM filtered_tfg
+        ORDER BY ${orderByClause}
+        LIMIT ${pageSize} OFFSET ${offset}`;
+    let result = await prisma.$queryRaw`${query}` as any[];
 
-    let result = await prisma.$queryRaw`${query}`;
+    if (result.length === 0) {
+        return successResponse({
+            data: [],
+            meta: {
+                totalCount: 0,
+                page,
+                pageSize,
+                totalPages: 0,
+            },
+        });
+    }
 
-    return successResponse(result);
+    const totalCount = Number(result[0].totalCount);
+    const data = result.map(row => ({
+        ...row,
+        totalCount: Number(row.totalCount)
+    }));
+    return successResponse({
+        data,
+        meta: {
+            totalCount,
+            page,
+            pageSize,
+            totalPages: Math.ceil(totalCount / pageSize),
+        },
+    });
 }
 
 function getInputQuery(input: string): Prisma.Sql {

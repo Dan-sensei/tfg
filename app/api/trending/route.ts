@@ -2,8 +2,9 @@ import prisma from "@/app/lib/db";
 import { iTFG } from "@/app/types/interfaces";
 import iRedis from "@/app/lib/iRedis";
 import { badResponse, successResponse } from "@/app/utils/util";
-
+import { unstable_noStore } from "next/cache";
 export async function GET(request: Request) {
+
     const { searchParams } = new URL(request.url);
     const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
     const pageSize = Math.max(
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
                 createdAt: true,
             },
         })) as iTFG[];
-
+        console.log(unorderedTfgs)
         const tfgMap = new Map(unorderedTfgs.map((tfg) => [tfg.id, tfg]));
         const orderedTfgs = tfgIds
             .map((id) => tfgMap.get(id))
@@ -56,7 +57,13 @@ export async function GET(request: Request) {
             totalElements: totalElements,
             totalPages,
         });
-    } catch (error) {
-        return badResponse("Error accesing trending data", 500)
+    } catch (e: unknown) {
+        let error = "Error";
+        if (typeof e === "string") {
+            error = e;
+        } else if (e instanceof Error) {
+            error = e.message
+        }
+        return new Response(error, { status: 500 });
     }
 }

@@ -116,10 +116,9 @@ const zRangeWithScores = async (
     const resultSet: RedisSet[] = [];
 
     for (let i = 0; i < result.length; i += 2) {
-        const member = result[i];
-        const score = result[i + 1];
-
-        if (typeof member === "string" && typeof score === "number") {
+        const member = result[i] as string;
+        const score = parseFloat(result[i + 1] as string);
+        if (!isNaN(score)) {
             resultSet.push({ member, score });
         }
     }
@@ -130,6 +129,11 @@ const zCard = async (key: string) => {
     const result = await kv.zcard(key);
     return result;
 };
+const zRem = async(key: string, members: string[]) => {
+    if (members.length === 0) return 0;
+    const result = await kv.zrem(key, ...members);
+    return result;
+}
 
 const iRedis = {
     get,
@@ -146,6 +150,7 @@ const iRedis = {
     zRange,
     zRangeWithScores,
     zCard,
+    zRem
 };
 
 export default iRedis;
