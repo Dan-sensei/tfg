@@ -60,7 +60,7 @@ const config: Config = {
                 wide: "3 / 1",
                 "21-9": "21 / 9",
                 file: "9 / 12",
-            },
+            }
         },
     },
     darkMode: "class",

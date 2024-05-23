@@ -1,12 +1,11 @@
 "use client";
 import { montserrat } from "@/app/lib/fonts";
-import { Input } from "@nextui-org/input";
 import { useDebouncedCallback } from "use-debounce";
 import { SEARCH_INPUT_DELAY } from "@/app/lib/config";
 import { useCallback, useEffect, useState } from "react";
 
 import ActiveFilters from "./activeFilters";
-import { getApiRouteUrl } from "@/app/utils/util";
+import { getApiRouteUrl, sanitizeString } from "@/app/utils/util";
 import { QueryParams, iTFG } from "@/app/types/interfaces";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Card from "@/app/components/home-components/Card";
@@ -20,10 +19,12 @@ import ViewsFilter from "./viewsFilter";
 import PopularTags from "./popularTags";
 import { Divider } from "@nextui-org/divider";
 import TagsSearch from "./tagFilter";
-import { Loading } from "@/app/components/SearchComponents";
-import { Select, SelectItem } from "@nextui-org/select";
+import { Loading, SearchResultRow } from "@/app/components/SearchComponents";
 import SearchFilter from "./searchFilter";
 import SortFilter from "./sortFilter";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
+import Link from "next/link";
 
 const createDefinedFilters = (
     filters: Record<string, any>
@@ -37,8 +38,10 @@ const createDefinedFilters = (
     return params;
 };
 const hasParams = (filters: QueryParams) => {
-    const hasParams = Object.values(filters).some(
-        (value) => value !== undefined
+    const nonTriggeringParams = ["sortby", "sortorder"];
+    const hasParams = Object.entries(filters).some(
+        ([key, value]) =>
+            value !== undefined && !nonTriggeringParams.includes(key)
     );
     return hasParams;
 };
@@ -67,7 +70,7 @@ export default function FullSearch() {
         "maxscore",
         "sortby",
         "sortorder",
-        "page"
+        "page",
     ];
 
     const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
@@ -81,7 +84,6 @@ export default function FullSearch() {
         updateFilters(params);
     }, [searchParams]);
 
-    
     const fetchResults = useCallback(() => {
         const params = createDefinedFilters(filters);
         fetch(getApiRouteUrl("search", params))
@@ -89,7 +91,7 @@ export default function FullSearch() {
             .then((result) => {
                 if (result.success) {
                     const TFGS: iTFG[] = result.response.data;
-                    console.log(result.response.meta)
+                    console.log(result.response.meta);
                     setResults(TFGS);
                 } else {
                     console.error(result.response);
@@ -146,8 +148,6 @@ export default function FullSearch() {
         };
     }, []);
 
-    
-
     const ready = !isLoading && !hasParams(filters);
     const showNoResults =
         !isLoading && results?.length === 0 && hasParams(filters);
@@ -155,115 +155,118 @@ export default function FullSearch() {
 
     return (
         <>
-            <div className="lg:container 2xl:max-w-[1800px] mx-auto flex h-full pb-10 pt-5 lg:pt-0">
+            <div className="lg:container 2xl:max-w-[1800px] mx-auto flex h-full pb-10 pt-5 lg:pt-0  min-h-[300px]">
                 <div
-                    className={`lg:w-[340px] bg-content1 lg:bg-black/50 lg:rounded-lg transition-transform lg:transition-none h-full overflow-y-auto fixed lg:relative z-[100] lg:z-0 top-0 left-0 w-screen max-w-md ${
+                    className={`lg:w-[340px] bg-content1 lg:bg-black/50 lg:rounded-lg transition-transform lg:transition-none h-full fixed lg:relative z-[100] lg:z-0 top-0 left-0 w-screen max-w-md ${
                         isSidebarOpen
                             ? "translate-x-[0]"
                             : "translate-x-[-100%] lg:translate-x-[unset]"
                     }`}
                 >
-                    <div className="absolute top-0 left-0 right-0 bottom-0 p-4">
-                        <Button
-                            title="close"
-                            className="lg:hidden w-7 h-7 flex items-center justify-center px-0 min-w-0 absolute top-3 right-3"
-                            variant="bordered"
-                            size="sm"
-                            radius="full"
-                            onPress={() => handleCloseSidebar()}
-                        >
-                            <IconX size={15} />
-                        </Button>
-                        <div className="pb-10">
-                            <section>
-                                <h2
-                                    className={`${montserrat.className} font-semibold pb-1`}
+                    <div className="absolute top-0 left-0 right-0 bottom-0 py-2 px-1">
+                        <SimpleBar autoHide={false} className="h-full p-3">
+                            <div className="pr-2">
+                                <Button
+                                    title="close"
+                                    className="lg:hidden w-7 h-7 flex items-center justify-center px-0 min-w-0 absolute top-3 right-3"
+                                    variant="bordered"
+                                    size="sm"
+                                    radius="full"
+                                    onPress={() => handleCloseSidebar()}
                                 >
-                                    Popular tags
-                                </h2>
-                                <PopularTags
-                                    filters={filters}
-                                    updateFilters={updateFilters}
-                                />
-                            </section>
-                            <Divider className="my-4" />
-                            <section>
-                                <h2
-                                    className={`${montserrat.className} font-semibold pb-1`}
-                                >
-                                    Tags
-                                </h2>
-                                <TagsSearch
-                                    filters={filters}
-                                    updateFilters={updateFilters}
-                                />
-                            </section>
-                            <Divider className="my-4" />
+                                    <IconX size={15} />
+                                </Button>
+                                <div className="pb-10">
+                                    <section>
+                                        <h2
+                                            className={`${montserrat.className} font-semibold pb-1`}
+                                        >
+                                            Popular tags
+                                        </h2>
+                                        <PopularTags
+                                            filters={filters}
+                                            updateFilters={updateFilters}
+                                        />
+                                    </section>
+                                    <Divider className="my-4" />
+                                    <section>
+                                        <h2
+                                            className={`${montserrat.className} font-semibold pb-1`}
+                                        >
+                                            Tags
+                                        </h2>
+                                        <TagsSearch
+                                            filters={filters}
+                                            updateFilters={updateFilters}
+                                        />
+                                    </section>
+                                    <Divider className="my-4" />
 
-                            <section>
-                                <h2
-                                    className={`${montserrat.className} font-semibold pb-1`}
-                                >
-                                    Categoria
-                                </h2>
-                                <CategoryFilter
-                                    filters={filters}
-                                    updateFilters={updateFilters}
-                                />
-                            </section>
-                            <Divider className="my-4" />
-                            <section>
-                                <h2
-                                    className={`${montserrat.className} font-semibold pb-1`}
-                                >
-                                    Titulacion
-                                </h2>
-                                <TitulationFilter
-                                    filters={filters}
-                                    updateFilters={updateFilters}
-                                />
-                            </section>
-                            <Divider className="my-4" />
-                            <section>
-                                <h2
-                                    className={`${montserrat.className} font-semibold pb-1`}
-                                >
-                                    Fecha
-                                </h2>
-                                <DateFilter
-                                    filters={filters}
-                                    updateFilters={updateFilters}
-                                />
-                            </section>
-                            <Divider className="my-4" />
-                            <section>
-                                <h2
-                                    className={`${montserrat.className} font-semibold pb-1`}
-                                >
-                                    Número de páginas
-                                </h2>
-                                <PageFilter
-                                    filters={filters}
-                                    updateFilters={updateFilters}
-                                />
-                            </section>
-                            <Divider className="my-4" />
-                            <section>
-                                <h2
-                                    className={`${montserrat.className} font-semibold pb-1`}
-                                >
-                                    Visitas
-                                </h2>
-                                <ViewsFilter
-                                    filters={filters}
-                                    updateFilters={updateFilters}
-                                />
-                            </section>
-                        </div>
+                                    <section>
+                                        <h2
+                                            className={`${montserrat.className} font-semibold pb-1`}
+                                        >
+                                            Categoria
+                                        </h2>
+                                        <CategoryFilter
+                                            filters={filters}
+                                            updateFilters={updateFilters}
+                                        />
+                                    </section>
+                                    <Divider className="my-4" />
+                                    <section>
+                                        <h2
+                                            className={`${montserrat.className} font-semibold pb-1`}
+                                        >
+                                            Titulacion
+                                        </h2>
+                                        <TitulationFilter
+                                            filters={filters}
+                                            updateFilters={updateFilters}
+                                        />
+                                    </section>
+                                    <Divider className="my-4" />
+                                    <section>
+                                        <h2
+                                            className={`${montserrat.className} font-semibold pb-1`}
+                                        >
+                                            Fecha
+                                        </h2>
+                                        <DateFilter
+                                            filters={filters}
+                                            updateFilters={updateFilters}
+                                        />
+                                    </section>
+                                    <Divider className="my-4" />
+                                    <section>
+                                        <h2
+                                            className={`${montserrat.className} font-semibold pb-1`}
+                                        >
+                                            Número de páginas
+                                        </h2>
+                                        <PageFilter
+                                            filters={filters}
+                                            updateFilters={updateFilters}
+                                        />
+                                    </section>
+                                    <Divider className="my-4" />
+                                    <section>
+                                        <h2
+                                            className={`${montserrat.className} font-semibold pb-1`}
+                                        >
+                                            Visitas
+                                        </h2>
+                                        <ViewsFilter
+                                            filters={filters}
+                                            updateFilters={updateFilters}
+                                        />
+                                    </section>
+                                </div>
+                            </div>
+                        </SimpleBar>
                     </div>
                 </div>
-
-                <div className="flex-1 pl-3 flex flex-col">
+                <div className="flex-1 lg:pl-3 flex flex-col">
                     <div className="flex gap-2 items-center">
                         <Button
                             className="h-full block lg:hidden"
@@ -274,7 +277,10 @@ export default function FullSearch() {
                             Filtros{" "}
                         </Button>
                         <div className="bg-dark rounded-xl p-2 flex-1">
-                            <SearchFilter filters={filters} updateFilters={updateFilters} />
+                            <SearchFilter
+                                filters={filters}
+                                updateFilters={updateFilters}
+                            />
                         </div>
                     </div>
                     <ActiveFilters
@@ -282,9 +288,13 @@ export default function FullSearch() {
                         updateFilters={updateFilters}
                     />
                     <div className="h-10 pt-1 ml-auto flex items-center w-64 bg-black/50 rounded-t-lg px-3">
-                        <SortFilter isDisabled={!showResults} filters={filters} updateFilters={updateFilters} />
+                        <SortFilter
+                            isDisabled={!showResults}
+                            filters={filters}
+                            updateFilters={updateFilters}
+                        />
                     </div>
-                    <div className="w-full p-3 flex-1 bg-black/50 rounded-lg rounded-tr-none min-h-[300px]">
+                    <div className="w-full p-3 flex-1 bg-black/50 rounded-lg rounded-tr-none min-h-[300px] relative">
                         {ready && (
                             <div className="h-full w-full flex items-center justify-center">
                                 <IconSearch
@@ -311,20 +321,29 @@ export default function FullSearch() {
                         )}
                         {showResults && (
                             <>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-4 w-full">
-                                    {results.map((tfg, index) => (
-                                        <Card
-                                            key={index}
-                                            id={tfg.id}
-                                            createdAt={tfg.createdAt}
-                                            thumbnail={tfg.thumbnail}
-                                            title={tfg.title}
-                                            description={tfg.description}
-                                            pages={tfg.pages}
-                                            views={tfg.views}
-                                            score={tfg.score}
-                                        />
-                                    ))}
+                                <div className="absolute top-0 left-0 right-0 bottom-0 py-2 px-1">
+                                    <SimpleBar
+                                        autoHide={false}
+                                        className="h-full pl-3 pt-2 pr-4"
+                                    >
+                                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-1 w-full">
+                                            {results.map((tfg, index) => (
+                                                <Link
+                                                    key={index}
+                                                    href={`/page/${
+                                                        tfg.id
+                                                    }/${sanitizeString(
+                                                        tfg.title
+                                                    )}`}
+                                                    className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md"
+                                                >
+                                                    <SearchResultRow
+                                                        tfg={tfg}
+                                                    />
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </SimpleBar>
                                 </div>
                             </>
                         )}

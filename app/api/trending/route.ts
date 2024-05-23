@@ -2,7 +2,6 @@ import prisma from "@/app/lib/db";
 import { iTFG } from "@/app/types/interfaces";
 import iRedis from "@/app/lib/iRedis";
 import { badResponse, successResponse } from "@/app/utils/util";
-import { unstable_noStore } from "next/cache";
 export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
@@ -40,7 +39,6 @@ export async function GET(request: Request) {
                 createdAt: true,
             },
         })) as iTFG[];
-        console.log(unorderedTfgs)
         const tfgMap = new Map(unorderedTfgs.map((tfg) => [tfg.id, tfg]));
         const orderedTfgs = tfgIds
             .map((id) => tfgMap.get(id))

@@ -58,3 +58,7 @@ body {
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
 }
+
+.simplebar-scrollbar:before {
+    background: white !important;
+}

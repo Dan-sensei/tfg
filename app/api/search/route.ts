@@ -100,12 +100,8 @@ export async function GET(request: Request) {
     }
 
     const offset = (page - 1) * pageSize;
-    /*
-    query = Prisma.sql`${query} ${Prisma.join(queryParts, " AND ")}
-        ORDER BY ${orderByClause}
-        LIMIT 30`;
-*/
-        query = Prisma.sql`
+
+    query = Prisma.sql`
         WITH filtered_tfg AS (
             SELECT * FROM "tfg"
             WHERE ${Prisma.join(queryParts, " AND ")}

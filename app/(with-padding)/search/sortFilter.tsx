@@ -74,8 +74,10 @@ export default function SortFilter({
                 </SelectItem>
             </Select>
             <button
-                className="flex items-center"
-                onClick={toggleSortOrder}
+                className={`flex items-center ${isDisabled ? "cursor-default opacity-50" : ""}`}
+                onClick={() => {
+                    if (!isDisabled) toggleSortOrder();
+                }}
                 aria-label="Toggle sort order"
             >
                 <IconArrowUp
