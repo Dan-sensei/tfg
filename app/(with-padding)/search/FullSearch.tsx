@@ -172,7 +172,7 @@ export default function FullSearch() {
                                     variant="bordered"
                                     size="sm"
                                     radius="full"
-                                    onPress={() => handleCloseSidebar()}
+                                    onClick={() => handleCloseSidebar()}
                                 >
                                     <IconX size={15} />
                                 </Button>
@@ -266,12 +266,21 @@ export default function FullSearch() {
                         </SimpleBar>
                     </div>
                 </div>
+                <div
+                    className={`fixed top-0 left-0 w-full h-full bg-black/50 z-40 ${
+                        isSidebarOpen ? "open" : "hidden"
+                    }`}
+                    onClick={handleCloseSidebar}
+                ></div>
                 <div className="flex-1 lg:pl-3 flex flex-col">
                     <div className="flex gap-2 items-center">
                         <Button
                             className="h-full block lg:hidden"
                             color="primary"
-                            onPress={handleSidebarToggle}
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent event from reaching the overlay
+                                handleSidebarToggle();
+                            }}
                         >
                             {" "}
                             Filtros{" "}
@@ -350,12 +359,6 @@ export default function FullSearch() {
                     </div>
                 </div>
             </div>
-            <div
-                className={`fixed top-0 left-0 w-full h-full bg-black/50 z-40 ${
-                    isSidebarOpen ? "open" : "hidden"
-                }`}
-                onClick={handleCloseSidebar}
-            ></div>
         </>
     );
 }
