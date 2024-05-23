@@ -57,7 +57,7 @@ export default function QuickSearch() {
             .then((response) => response.json())
             .then((result) => {
                 if (result.success) {
-                    const TFGS: iTFG[] = result.response;
+                    const TFGS: iTFG[] = result.response.data;
                     setResults(TFGS);
                 } else {
                     setResults([]);
