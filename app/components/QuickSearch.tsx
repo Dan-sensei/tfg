@@ -90,7 +90,7 @@ export default function QuickSearch() {
                 <Button
                     onClick={onOpen}
                     radius="full"
-                    className="group bg-nova-darker-2/50 hidden lg:block"
+                    className="group bg-nova-darker-2/50 hidden lg:block border-1 border-white/20 "
                 >
                     <div className="duration-500 w-40 group-hover:w-44 flex">
                         <div className="mr-auto flex items-center">
@@ -113,7 +113,7 @@ export default function QuickSearch() {
                 <Button
                     as={Link}
                     href="/search"
-                    className="h-[40px] flex items-center px-4 min-w-0 bg-transparent lg:bg-nova-darker-2/50 "
+                    className="h-[40px] flex items-center px-4 min-w-0 bg-transparent lg:bg-nova-darker-2/50  border-1 border-white/20 "
                     radius="full"
                 >
                     <IconAdjustmentsSearch className="stroke-1 hidden lg:block" />

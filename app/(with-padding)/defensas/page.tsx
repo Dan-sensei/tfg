@@ -167,7 +167,7 @@ export default async function Defensas({ searchParams }: Props) {
                         ))}
                     </div>
                     <div
-                        className={`${bebas_Neue.className} gap-[2px] grid grid-cols-7 text-xl lg:text-2xl 2xl:text-4xl lg:flex-1 rounded-2xl`}
+                        className={`${bebas_Neue.className} gap-2 grid grid-cols-7 text-xl lg:text-2xl 2xl:text-4xl lg:flex-1 rounded-2xl`}
                     >
                         {daysWithDefenses.map((day, index) => (
                             <DayButton
