@@ -170,103 +170,105 @@ export default function Navigation({
     const pathName = usePathname();
 
     return (
-        <div className={`fixed top-0 left-0 right-0 z-50  ${
-            hasScrolled || pathName.startsWith("/page/")
-                ? "border-b-blue-500 border-b-2 bg-nova-darker/70"
-                : "border-b-blue-500 border-b-2 bg-nova-darker/70 lg:border-b-transparent lg:bg-transparent"
-        }
+        <div
+            className={`fixed top-0 left-0 right-0 z-50  ${
+                hasScrolled || pathName.startsWith("/page/")
+                    ? "border-b-blue-500 border-b-2 bg-nova-darker/70"
+                    : "border-b-blue-500 border-b-2 bg-nova-darker/70 lg:border-b-transparent lg:bg-transparent"
+            }
     ${
         hasScrolled
             ? " backdrop-blur-sm"
             : " backdrop-blur-sm lg:backdrop-blur-0 "
     }
     
-    transition-colors`}>
-        <div className="lg:container mx-auto">
-            <Navbar
-                isMenuOpen={isMenuOpen}
-                maxWidth="full"
-                isBlurred={false}
-                disableAnimation={true}
-                onMenuOpenChange={setIsMenuOpen}
-                className={`bg-transparent`}
-            >
-                <NavbarContent className="lg:hidden" justify="start">
-                    <NavbarMenuToggle
-                        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                    />
-                </NavbarContent>
-
-                <NavbarContent className="lg:hidden pr-3" justify="center">
-                    <NavbarBrand>
-                        <Link href={links[0].href}>
-                            <Image src={Logo} alt="Logo" height={55} />
-                        </Link>
-                    </NavbarBrand>
-                </NavbarContent>
-
-                <NavbarContent
-                    className="hidden lg:flex gap-4"
-                    justify="center"
+    transition-colors`}
+        >
+            <div className="lg:container mx-auto">
+                <Navbar
+                    isMenuOpen={isMenuOpen}
+                    maxWidth="full"
+                    isBlurred={false}
+                    disableAnimation={true}
+                    onMenuOpenChange={setIsMenuOpen}
+                    className={`bg-transparent`}
                 >
-                    <NavbarBrand className="py-2">
-                        <Link href={links[0].href}>
-                            <Image src={Logo} alt="Logo" height={50} />
-                        </Link>
-                    </NavbarBrand>
-                    {links.map((link, index) => (
-                        <NavbarItem
-                            key={`${index}`}
-                            className={`h-full relative ${
-                                pathName === link.href
-                                    ? "after:border-b-4 after:border-b-blue-500 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none"
-                                    : ""
-                            }`}
-                            data-active={
-                                pathName === link.href ? "true" : undefined
-                            }
-                        >
-                            {link.isCategories ? (
-                                <TooltipLink
-                                    {...link}
-                                    categoriesElements={categoriesList}
-                                />
-                            ) : (
-                                <DefaultLink {...link} />
-                            )}
-                        </NavbarItem>
-                    ))}
-                </NavbarContent>
+                    <NavbarContent className="lg:hidden" justify="start">
+                        <NavbarMenuToggle
+                            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                        />
+                    </NavbarContent>
 
-                <NavbarContent justify="end">
-                    <NavbarItem className="flex">
-                        <Search />
-                    </NavbarItem>
-                </NavbarContent>
-
-                <NavbarMenu className="bg-nova-darker/70 backdrop-blur-sm">
-                    {links.map((link, index) => (
-                        <NavbarMenuItem key={`${index}`}>
-                            <Link
-                                className="w-full transition-colors ease-in-out text-violet-50 hover:text-nova-link"
-                                href={link.href}
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                <span
-                                    className={
-                                        pathName === link.href
-                                            ? "text-nova-link font-bold"
-                                            : ""
-                                    }
-                                >
-                                    {link.name}
-                                </span>
+                    <NavbarContent className="lg:hidden pr-3" justify="center">
+                        <NavbarBrand>
+                            <Link href={links[0].href}>
+                                <Image src={Logo} alt="Logo" height={55} />
                             </Link>
-                        </NavbarMenuItem>
-                    ))}
-                </NavbarMenu>
-            </Navbar>
-        </div>
+                        </NavbarBrand>
+                    </NavbarContent>
+
+                    <NavbarContent
+                        className="hidden lg:flex gap-4"
+                        justify="center"
+                    >
+                        <NavbarBrand className="py-2">
+                            <Link href={links[0].href}>
+                                <Image src={Logo} alt="Logo" height={50} />
+                            </Link>
+                        </NavbarBrand>
+                        {links.map((link, index) => (
+                            <NavbarItem
+                                key={`${index}`}
+                                className={`h-full relative ${
+                                    pathName === link.href
+                                        ? "after:border-b-4 after:border-b-blue-500 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none"
+                                        : ""
+                                }`}
+                                data-active={
+                                    pathName === link.href ? "true" : undefined
+                                }
+                            >
+                                {link.isCategories ? (
+                                    <TooltipLink
+                                        {...link}
+                                        categoriesElements={categoriesList}
+                                    />
+                                ) : (
+                                    <DefaultLink {...link} />
+                                )}
+                            </NavbarItem>
+                        ))}
+                    </NavbarContent>
+
+                    <NavbarContent justify="end">
+                        <NavbarItem className="flex">
+                            <Search />
+                        </NavbarItem>
+                    </NavbarContent>
+
+                    <NavbarMenu className="bg-nova-darker/70 backdrop-blur-sm">
+                        {links.map((link, index) => (
+                            <NavbarMenuItem key={`${index}`}>
+                                <Link
+                                    className="w-full transition-colors ease-in-out text-violet-50 hover:text-nova-link"
+                                    href={link.href}
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    <span
+                                        className={
+                                            pathName === link.href
+                                                ? "text-nova-link font-bold"
+                                                : ""
+                                        }
+                                    >
+                                        {link.name}
+                                    </span>
+                                </Link>
+                            </NavbarMenuItem>
+                        ))}
+                    </NavbarMenu>
+                </Navbar>
+            </div>
         </div>
     );
 }

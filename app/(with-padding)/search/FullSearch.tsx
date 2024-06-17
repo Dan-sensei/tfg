@@ -6,9 +6,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import ActiveFilters from "./activeFilters";
 import { getApiRouteUrl, sanitizeString } from "@/app/utils/util";
-import { QueryParams, iTFG } from "@/app/types/interfaces";
+import { Category, PopularTag, QueryParams, Titulation, iTFG } from "@/app/types/interfaces";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import Card from "@/app/components/home-components/Card";
 import { Button } from "@nextui-org/button";
 import { IconSearch, IconX } from "@tabler/icons-react";
 import CategoryFilter from "./categoryFilter";
@@ -25,10 +24,9 @@ import SortFilter from "./sortFilter";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import Link from "next/link";
+import ScoreFilter from "./scoreFilter";
 
-const createDefinedFilters = (
-    filters: Record<string, any>
-): URLSearchParams => {
+const createDefinedFilters = (filters: Record<string, any>): URLSearchParams => {
     const params = new URLSearchParams();
     Object.keys(filters).forEach((key) => {
         if (filters[key] !== undefined) {
@@ -39,14 +37,17 @@ const createDefinedFilters = (
 };
 const hasParams = (filters: QueryParams) => {
     const nonTriggeringParams = ["sortby", "sortorder"];
-    const hasParams = Object.entries(filters).some(
-        ([key, value]) =>
-            value !== undefined && !nonTriggeringParams.includes(key)
-    );
+    const hasParams = Object.entries(filters).some(([key, value]) => value !== undefined && !nonTriggeringParams.includes(key));
     return hasParams;
 };
 
-export default function FullSearch() {
+type SearchProps = {
+    categories: Category[];
+    popular_tags: PopularTag[];
+    titulations: Titulation[];
+};
+
+export default function FullSearch({ categories, popular_tags, titulations }: SearchProps) {
     const [filters, setFilters] = useState<QueryParams>({});
     const [results, setResults] = useState<iTFG[]>([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -77,9 +78,7 @@ export default function FullSearch() {
         setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
     }, []);
     useEffect(() => {
-        const params: QueryParams = Object.fromEntries(
-            paramKeys.map((key) => [key, searchParams.get(key) || undefined])
-        );
+        const params: QueryParams = Object.fromEntries(paramKeys.map((key) => [key, searchParams.get(key) || undefined]));
 
         updateFilters(params);
     }, [searchParams]);
@@ -113,10 +112,7 @@ export default function FullSearch() {
     }, [filters, pathname, replace]);
 
     // Avoid problems when changing filters too fast
-    const debouncedFetchResults = useCallback(
-        useDebouncedCallback(fetchResults, SEARCH_INPUT_DELAY),
-        [fetchResults]
-    );
+    const debouncedFetchResults = useCallback(useDebouncedCallback(fetchResults, SEARCH_INPUT_DELAY), [fetchResults]);
 
     useEffect(() => {
         if (!hasParams(filters)) {
@@ -149,8 +145,7 @@ export default function FullSearch() {
     }, []);
 
     const ready = !isLoading && !hasParams(filters);
-    const showNoResults =
-        !isLoading && results?.length === 0 && hasParams(filters);
+    const showNoResults = !isLoading && results?.length === 0 && hasParams(filters);
     const showResults = !isLoading && results?.length > 0 && hasParams(filters);
 
     return (
@@ -158,11 +153,8 @@ export default function FullSearch() {
             <div className="lg:container 2xl:max-w-[1800px] mx-auto flex h-full pb-10 pt-5 lg:pt-0  min-h-[300px]">
                 <div
                     className={`lg:w-[340px] bg-content1 lg:bg-black/50 lg:rounded-lg transition-transform lg:transition-none h-full fixed lg:relative z-[100] lg:z-0 top-0 left-0 w-screen max-w-md ${
-                        isSidebarOpen
-                            ? "translate-x-[0]"
-                            : "translate-x-[-100%] lg:translate-x-[unset]"
-                    }`}
-                >
+                        isSidebarOpen ? "translate-x-[0]" : "translate-x-[-100%] lg:translate-x-[unset]"
+                    }`}>
                     <div className="absolute top-0 left-0 right-0 bottom-0 py-2 px-1">
                         <SimpleBar autoHide={false} className="h-full p-3">
                             <div className="pr-2">
@@ -172,94 +164,49 @@ export default function FullSearch() {
                                     variant="bordered"
                                     size="sm"
                                     radius="full"
-                                    onClick={() => handleCloseSidebar()}
-                                >
+                                    onClick={() => handleCloseSidebar()}>
                                     <IconX size={15} />
                                 </Button>
                                 <div className="pb-10">
                                     <section>
-                                        <h2
-                                            className={`${montserrat.className} font-semibold pb-1`}
-                                        >
-                                            Popular tags
-                                        </h2>
-                                        <PopularTags
-                                            filters={filters}
-                                            updateFilters={updateFilters}
-                                        />
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Popular tags</h2>
+                                        <PopularTags popularTags={popular_tags} filters={filters} updateFilters={updateFilters} />
                                     </section>
                                     <Divider className="my-4" />
                                     <section>
-                                        <h2
-                                            className={`${montserrat.className} font-semibold pb-1`}
-                                        >
-                                            Tags
-                                        </h2>
-                                        <TagsSearch
-                                            filters={filters}
-                                            updateFilters={updateFilters}
-                                        />
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Tags</h2>
+                                        <TagsSearch filters={filters} updateFilters={updateFilters} />
                                     </section>
                                     <Divider className="my-4" />
 
                                     <section>
-                                        <h2
-                                            className={`${montserrat.className} font-semibold pb-1`}
-                                        >
-                                            Categoria
-                                        </h2>
-                                        <CategoryFilter
-                                            filters={filters}
-                                            updateFilters={updateFilters}
-                                        />
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Categoria</h2>
+                                        <CategoryFilter categories={categories} filters={filters} updateFilters={updateFilters} />
                                     </section>
                                     <Divider className="my-4" />
                                     <section>
-                                        <h2
-                                            className={`${montserrat.className} font-semibold pb-1`}
-                                        >
-                                            Titulacion
-                                        </h2>
-                                        <TitulationFilter
-                                            filters={filters}
-                                            updateFilters={updateFilters}
-                                        />
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Titulacion</h2>
+                                        <TitulationFilter titulations={titulations} filters={filters} updateFilters={updateFilters} />
                                     </section>
                                     <Divider className="my-4" />
                                     <section>
-                                        <h2
-                                            className={`${montserrat.className} font-semibold pb-1`}
-                                        >
-                                            Fecha
-                                        </h2>
-                                        <DateFilter
-                                            filters={filters}
-                                            updateFilters={updateFilters}
-                                        />
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Fecha</h2>
+                                        <DateFilter filters={filters} updateFilters={updateFilters} />
                                     </section>
                                     <Divider className="my-4" />
                                     <section>
-                                        <h2
-                                            className={`${montserrat.className} font-semibold pb-1`}
-                                        >
-                                            Número de páginas
-                                        </h2>
-                                        <PageFilter
-                                            filters={filters}
-                                            updateFilters={updateFilters}
-                                        />
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Número de páginas</h2>
+                                        <PageFilter filters={filters} updateFilters={updateFilters} />
                                     </section>
                                     <Divider className="my-4" />
                                     <section>
-                                        <h2
-                                            className={`${montserrat.className} font-semibold pb-1`}
-                                        >
-                                            Visitas
-                                        </h2>
-                                        <ViewsFilter
-                                            filters={filters}
-                                            updateFilters={updateFilters}
-                                        />
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Visitas</h2>
+                                        <ViewsFilter filters={filters} updateFilters={updateFilters} />
+                                    </section>
+                                    <Divider className="my-4" />
+                                    <section>
+                                        <h2 className={`${montserrat.className} font-semibold pb-1`}>Puntuación</h2>
+                                        <ScoreFilter filters={filters} updateFilters={updateFilters} />
                                     </section>
                                 </div>
                             </div>
@@ -267,11 +214,8 @@ export default function FullSearch() {
                     </div>
                 </div>
                 <div
-                    className={`fixed top-0 left-0 w-full h-full bg-black/50 z-40 ${
-                        isSidebarOpen ? "open" : "hidden"
-                    }`}
-                    onClick={handleCloseSidebar}
-                ></div>
+                    className={`fixed top-0 left-0 w-full h-full bg-black/50 z-40 ${isSidebarOpen ? "open" : "hidden"}`}
+                    onClick={handleCloseSidebar}></div>
                 <div className="flex-1 lg:pl-3 flex flex-col">
                     <div className="flex gap-2 items-center">
                         <Button
@@ -280,36 +224,22 @@ export default function FullSearch() {
                             onClick={(e) => {
                                 e.stopPropagation(); // Prevent event from reaching the overlay
                                 handleSidebarToggle();
-                            }}
-                        >
+                            }}>
                             {" "}
                             Filtros{" "}
                         </Button>
                         <div className="bg-dark rounded-xl p-2 flex-1">
-                            <SearchFilter
-                                filters={filters}
-                                updateFilters={updateFilters}
-                            />
+                            <SearchFilter filters={filters} updateFilters={updateFilters} />
                         </div>
                     </div>
-                    <ActiveFilters
-                        filters={filters}
-                        updateFilters={updateFilters}
-                    />
+                    <ActiveFilters categories={categories} titulations={titulations} filters={filters} updateFilters={updateFilters} />
                     <div className="h-10 pt-1 ml-auto flex items-center w-64 bg-black/50 rounded-t-lg px-3">
-                        <SortFilter
-                            isDisabled={!showResults}
-                            filters={filters}
-                            updateFilters={updateFilters}
-                        />
+                        <SortFilter isDisabled={!showResults} filters={filters} updateFilters={updateFilters} />
                     </div>
                     <div className="w-full p-3 flex-1 bg-black/50 rounded-lg rounded-tr-none min-h-[300px] relative">
                         {ready && (
                             <div className="h-full w-full flex items-center justify-center">
-                                <IconSearch
-                                    size={120}
-                                    className=" opacity-50"
-                                />
+                                <IconSearch size={120} className=" opacity-50" />
                             </div>
                         )}
                         {isLoading && (
@@ -320,10 +250,7 @@ export default function FullSearch() {
                         {showNoResults && (
                             <div className="h-full w-full flex items-center justify-center">
                                 <div className="text-gray-300 text-sm md:text-xl lg:text-sm xl:text-lg text-center">
-                                    <IconX
-                                        size={70}
-                                        className="mx-auto stroke-1"
-                                    />
+                                    <IconX size={70} className="mx-auto stroke-1" />
                                     No hay resultados
                                 </div>
                             </div>
@@ -331,24 +258,14 @@ export default function FullSearch() {
                         {showResults && (
                             <>
                                 <div className="absolute top-0 left-0 right-0 bottom-0 py-2 px-1">
-                                    <SimpleBar
-                                        autoHide={false}
-                                        className="h-full pl-3 pt-2 pr-4"
-                                    >
+                                    <SimpleBar autoHide={false} className="h-full pl-3 pt-2 pr-4">
                                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-1 w-full">
                                             {results.map((tfg, index) => (
                                                 <Link
                                                     key={index}
-                                                    href={`/page/${
-                                                        tfg.id
-                                                    }/${sanitizeString(
-                                                        tfg.title
-                                                    )}`}
-                                                    className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md"
-                                                >
-                                                    <SearchResultRow
-                                                        tfg={tfg}
-                                                    />
+                                                    href={`/page/${tfg.id}/${sanitizeString(tfg.title)}`}
+                                                    className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md">
+                                                    <SearchResultRow tfg={tfg} />
                                                 </Link>
                                             ))}
                                         </div>

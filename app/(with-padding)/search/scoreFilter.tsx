@@ -7,35 +7,37 @@ interface PopularTagsProps {
     filters: QueryParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
-export default function ViewsFilter({ filters, updateFilters }: PopularTagsProps) {
-    const [minViews, setMinViews] = useState<string>("");
-    const [maxViews, setMaxViews] = useState<string>("");
+export default function ScoreFilter({ filters, updateFilters }: PopularTagsProps) {
+    const [minScore, setMinScore] = useState<string>("");
+    const [maxScore, setMaxScore] = useState<string>("");
     const preventNegativeNumbers = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let val: string | number = parseInt(e.target.value, 10);
-        console.log(e.target.value)
+        let val: string | number = parseFloat(e.target.value);
         if (isNaN(val)) {
             val = "";
         } else if (val < 0) {
             val = 0;
         }
+        else if(val > 5){
+            val = 5;
+        }
 
-        if (e.target.name === "minviews") {
+        if (e.target.name === "minscore") {
             updateFilters({
-                minviews: val.toString() || undefined,
+                minscore: val.toString() || undefined,
             });
-            setMinViews(val.toString());
-        } else if (e.target.name === "maxviews") {
+            setMinScore(val.toString());
+        } else if (e.target.name === "maxscore") {
             updateFilters({
-                maxviews: val.toString() || undefined,
+                maxscore: val.toString() || undefined,
             });
-            setMaxViews(val.toString());
+            setMaxScore(val.toString());
         }
     };
 
     useEffect(() => {
-        setMinViews(filters.minviews ?? "");
-        setMaxViews(filters.maxviews ?? "");
-    }, [filters.minviews, filters.maxviews]);
+        setMinScore(filters.minscore ?? "");
+        setMaxScore(filters.maxscore ?? "");
+    }, [filters.minscore, filters.maxscore]);
 
     return (
         <div className="flex items-center pt-2">
@@ -43,10 +45,11 @@ export default function ViewsFilter({ filters, updateFilters }: PopularTagsProps
                 type="number"
                 variant="bordered"
                 label="Desde"
-                name="minviews"
+                name="minscore"
                 labelPlacement="outside"
-                placeholder="0"
-                value={minViews}
+                placeholder="0.00"
+                step={"0.01"}
+                value={minScore}
                 onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => preventNegativeNumbers(e)}
             />
@@ -55,10 +58,11 @@ export default function ViewsFilter({ filters, updateFilters }: PopularTagsProps
                 type="number"
                 variant="bordered"
                 label="Hasta"
-                name="maxviews"
+                name="maxscore"
                 labelPlacement="outside"
-                value={maxViews}
-                placeholder="100"
+                value={maxScore}
+                placeholder="5.00"
+                step={"0.01"}
                 onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => preventNegativeNumbers(e)}
             />

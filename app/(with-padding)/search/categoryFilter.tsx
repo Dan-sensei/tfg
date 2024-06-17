@@ -6,35 +6,17 @@ import { fetchData } from "@/app/utils/fetchData";
 
 interface PopularTagsProps {
     filters: QueryParams;
+    categories: Category[];
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 export default function CategoryFilter({
     filters,
+    categories,
     updateFilters,
 }: PopularTagsProps) {
-    const [isLoading, setIsLoading] = useState(true);
-    const [categorias, setCategorias] = useState<Category[]>([]);
     const [selected, setSelected] = useState(
         filters.category ? [filters.category] : []
     );
-    useEffect(() => {
-        const fetchTopTags = () => {
-            fetchData("categories", null, DAY)
-                .then((result) => {
-                    if (result.success) {
-                        setCategorias(result.response);
-                    }
-                })
-                .catch(() => {
-                    console.error("Error al obtener las categorias");
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        };
-        fetchTopTags();
-    }, []);
-
     const handleSelectionChange = (value: string) => {
         if (!value.trim()) {
             return;
@@ -54,11 +36,13 @@ export default function CategoryFilter({
         if (filters.category) {
             setSelected([filters.category]);
         }
+        else{
+            setSelected([]);
+        }
     }, [filters.category]);
     return (
         <Select
             aria-label="Categorias"
-            isLoading={isLoading}
             selectionMode="single"
             placeholder="Seleccionar"
             variant="bordered"
@@ -71,8 +55,8 @@ export default function CategoryFilter({
                 </SelectItem>
             </SelectSection>
             <SelectSection>
-                {categorias.map((item, i) => (
-                    <SelectItem key={i} value={item.id} className="capitalize">
+                {categories.map((item, i) => (
+                    <SelectItem key={item.id} value={item.id} className="capitalize">
                         {item.name}
                     </SelectItem>
                 ))}

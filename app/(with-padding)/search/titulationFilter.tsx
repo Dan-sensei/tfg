@@ -6,36 +6,20 @@ import { fetchData } from "@/app/utils/fetchData";
 
 interface PopularTagsProps {
     filters: QueryParams;
+    titulations: Titulation[];
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
 export default function TitulationFilter({
     filters,
+    titulations,
     updateFilters,
 }: PopularTagsProps) {
-    const [isLoading, setIsLoading] = useState(true);
-    const [titulations, setTitulations] = useState<Titulation[]>([]);
     const [selected, setSelected] = useState<string[]>(
         filters.titulation ? [filters.titulation] : []
     );
-    useEffect(() => {
-        const fetchTopTags = () => {
-            fetchData("titulations", null, DAY)
-                .then((result) => {
-                    if (result.success) {
-                        setTitulations(result.response);
-                    }
-                })
-                .catch(() => {
-                    console.error("Error al obtener las categorias");
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        };
-        fetchTopTags();
-    }, []);
-
+    
     const handleSelectionChange = (value: string) => {
+        console.log(value)
         if (!value.trim()) {
             return;
         }
@@ -55,11 +39,13 @@ export default function TitulationFilter({
         if (filters.titulation) {
             setSelected([filters.titulation]);
         }
+        else{
+            setSelected([]);
+        }
     }, [filters.titulation]);
     return (
         <Select
             aria-label="Titulaciones"
-            isLoading={isLoading}
             selectionMode="single"
             placeholder="Seleccionar"
             variant="bordered"

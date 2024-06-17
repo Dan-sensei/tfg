@@ -7,10 +7,7 @@ interface PopularTagsProps {
     filters: QueryParams;
     updateFilters: (newFilters: { [key: string]: string | undefined }) => void;
 }
-export default function PageFilter({
-    filters,
-    updateFilters,
-}: PopularTagsProps) {
+export default function PageFilter({ filters, updateFilters }: PopularTagsProps) {
     const [minPages, setMinPages] = useState<string>("");
     const [maxPages, setMaxPages] = useState<string>("");
     const preventNegativeNumbers = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,25 +21,20 @@ export default function PageFilter({
         if (e.target.name === "minpages") {
             updateFilters({
                 minpages: val.toString() || undefined,
-            })
+            });
             setMinPages(val.toString());
         } else if (e.target.name === "maxpages") {
             updateFilters({
                 maxpages: val.toString() || undefined,
-            })
+            });
             setMaxPages(val.toString());
         }
     };
 
-    useEffect(() => {  
-        if (filters.minpages) {
-            setMinPages(filters.minpages);
-        }
-        if (filters.maxpages) {
-            setMaxPages(filters.maxpages);
-        }
+    useEffect(() => {
+        setMinPages(filters.minpages ?? "");
+        setMaxPages(filters.maxpages ?? "");
     }, [filters.minpages, filters.maxpages]);
-
 
     return (
         <div className="flex items-center pt-2">

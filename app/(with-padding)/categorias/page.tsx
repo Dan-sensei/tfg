@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Category } from "@/app/types/interfaces";
 import { IconBuildingBank } from "@tabler/icons-react";
 import prisma from "@/app/lib/db";
-import { getAllCategories } from "@/app/lib/fetchCategories";
+import { getAllCategories } from "@/app/lib/fetchData";
 
 
 export default async function Categorias() {

@@ -48,15 +48,14 @@ export default function DateFilter({
             .split("T")[0];
     };
 
-    useEffect(() => {  
+    useEffect(() => {
         if (filters.fromdate && !filters.todate) {
             const fromdate = filters.fromdate;
             setSelectedTab("from");
             setFocusedFrom(parseDate(fromdate));
             setFrom(parseDate(fromdate));
-        }
-        else if (!filters.fromdate && filters.todate) {
-            const todate = filters.todate
+        } else if (!filters.fromdate && filters.todate) {
+            const todate = filters.todate;
             setSelectedTab("to");
             setTo(parseDate(todate));
             setFocusedTo(parseDate(todate));
@@ -66,14 +65,17 @@ export default function DateFilter({
                 start: parseDate(filters.fromdate),
                 end: parseDate(filters.todate),
             });
+        } else {
+            setFrom(null);
+            setTo(null);
+            setRangeValue(null);
         }
     }, [filters.fromdate, filters.todate]);
-
 
     const clearDataParam = () => {
         updateFilters({
             fromdate: undefined,
-            todate: undefined
+            todate: undefined,
         });
     };
 
@@ -82,7 +84,7 @@ export default function DateFilter({
         if (key === "from" && from) {
             updateFilters({
                 fromdate: `${formatToUTC(from)}`,
-                todate: undefined
+                todate: undefined,
             });
         } else if (key === "to" && to) {
             updateFilters({
@@ -92,7 +94,7 @@ export default function DateFilter({
         } else if (key === "between" && rangeValue) {
             updateFilters({
                 fromdate: formatToUTC(rangeValue.start),
-                todate: formatToUTC(rangeValue.end, true)
+                todate: formatToUTC(rangeValue.end, true),
             });
         } else {
             clearDataParam();
@@ -131,8 +133,8 @@ export default function DateFilter({
                         onChange={(e) => {
                             setFrom(e);
                             updateFilters({
-                                fromdate: formatToUTC(e)
-                            })
+                                fromdate: formatToUTC(e),
+                            });
                         }}
                         bottomContent={
                             <div className="flex justify-center pb-3">
@@ -170,8 +172,8 @@ export default function DateFilter({
                             setRangeValue(e);
                             updateFilters({
                                 fromdate: formatToUTC(e.start),
-                                todate: formatToUTC(e.end, true)
-                            })
+                                todate: formatToUTC(e.end, true),
+                            });
                         }}
                         onFocusChange={setFocusedRangeValue}
                         bottomContent={
@@ -210,8 +212,8 @@ export default function DateFilter({
                         onChange={(e) => {
                             setTo(e);
                             updateFilters({
-                                todate: formatToUTC(e, true)
-                            })
+                                todate: formatToUTC(e, true),
+                            });
                         }}
                         bottomContent={
                             <div className="flex justify-center pb-3">

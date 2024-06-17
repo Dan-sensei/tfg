@@ -16,8 +16,8 @@ type ResultListProps = {
 export function ResultList({ results, close }: ResultListProps) {
     return (
         <>
-            {results.map((result, index) => (
-                <React.Fragment key={index}>
+            {results.map(result => (
+                <React.Fragment key={result.id}>
                     <Divider />
                     <Link
                         onClick={() => close()}

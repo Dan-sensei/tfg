@@ -109,7 +109,10 @@ export type RedisSet = {
     member: string,
     score: number
 }
-
+export type PopularTag = {
+    tag: string;
+    count: number;
+};
 
 export type QueryParams = {
     q?: string;
