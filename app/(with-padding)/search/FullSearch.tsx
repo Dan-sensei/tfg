@@ -90,7 +90,6 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
             .then((result) => {
                 if (result.success) {
                     const TFGS: iTFG[] = result.response.data;
-                    console.log(result.response.meta);
                     setResults(TFGS);
                 } else {
                     console.error(result.response);
