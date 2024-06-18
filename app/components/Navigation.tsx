@@ -137,7 +137,7 @@ const mobile_links: MobileLinkProps[] = [
     },
     { name: "Mejor valorados", href: "/categoria", isCategories: true, icon: <IconStarFilled size={15} />, isSubcategory: true },
     { name: "Más vistos", href: "/categoria", isCategories: true, icon: <IconEyeUp size={15} />, isSubcategory: true },
-    { name: "Próximas defensas", href: "/defensas", icon: <IconCalendarUser size={15} /> },
+    { name: "Próximas defensas", href: "/defensas", icon: <IconCalendarUser size={DEF_ICON_SIZE} /> },
     { name: "Favoritos", href: "/favoritos", icon: <IconHeartFilled size={DEF_ICON_SIZE} /> },
 ];
 const SELECTED_ICON_SIZE = 18;

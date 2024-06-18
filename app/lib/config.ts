@@ -6,7 +6,7 @@ export const TRENDING_WEIGHTS = {
     TOTAL: 0.05,
     TOTAL_VIEWS_CAP: 100000
 }
-export const PAGE_SIZE = 30
+export const PAGE_SIZE = 50
 export const MAX_REQUEST_SIZE = 50
 export const SEARCH_INPUT_DELAY = 300
 export const POPULAR_TAGS_DISPLAY = 10
