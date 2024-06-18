@@ -79,7 +79,6 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     }, []);
     useEffect(() => {
         const params: QueryParams = Object.fromEntries(paramKeys.map((key) => [key, searchParams.get(key) || undefined]));
-
         updateFilters(params);
     }, [searchParams]);
 
@@ -132,7 +131,7 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     useEffect(() => {
         const handleResize = () => {
             // 1024 = lg breakpoint
-            if (window.innerWidth >= 1024) {
+            if (window.innerWidth >= 1024 && isSidebarOpen) {
                 setIsSidebarOpen(false);
             }
         };
@@ -141,7 +140,7 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, []);
+    }, [isSidebarOpen]);
 
     const ready = !isLoading && !hasParams(filters);
     const showNoResults = !isLoading && results?.length === 0 && hasParams(filters);

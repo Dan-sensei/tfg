@@ -1,21 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import {
-    IconAdjustmentsSearch,
-    IconSearch,
-} from "@tabler/icons-react";
+import { IconAdjustmentsSearch, IconSearch } from "@tabler/icons-react";
 import { Button } from "@nextui-org/button";
-import {
-    Modal,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    useDisclosure,
-} from "@nextui-org/modal";
+import { Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@nextui-org/modal";
 import { Kbd } from "@nextui-org/kbd";
 import { Input } from "@nextui-org/input";
 import { useDebouncedCallback } from "use-debounce";
-import {  SEARCH_INPUT_DELAY } from "../lib/config";
+import { SEARCH_INPUT_DELAY } from "../lib/config";
 import { iTFG } from "../types/interfaces";
 import Link from "next/link";
 import { Loading, NoResults, ResultList } from "./SearchComponents";
@@ -54,21 +45,21 @@ export default function QuickSearch() {
             const params = new URLSearchParams();
             if (hasInput) params.set("q", searchTerm);
             fetch(getApiRouteUrl("search", params))
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.success) {
-                    const TFGS: iTFG[] = result.response.data;
-                    setResults(TFGS);
-                } else {
-                    setResults([]);
-                }
-            })
-            .catch(() => {
-                console.log("Error");
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+                .then((response) => response.json())
+                .then((result) => {
+                    if (result.success) {
+                        const TFGS: iTFG[] = result.response.data;
+                        setResults(TFGS);
+                    } else {
+                        setResults([]);
+                    }
+                })
+                .catch(() => {
+                    console.log("Error");
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
         };
 
         const hasInput = searchTerm.trim() !== "";
@@ -86,40 +77,18 @@ export default function QuickSearch() {
 
     return (
         <>
-            <div className="rounded-full flex gap-1">
-                <Button
-                    onClick={onOpen}
-                    radius="full"
-                    className="group bg-nova-darker-2/50 hidden lg:block border-1 border-white/20 "
-                >
-                    <div className="duration-500 w-40 group-hover:w-44 flex">
-                        <div className="mr-auto flex items-center">
-                            <img
-                                src="/Icons/QuickSearch.png"
-                                alt="Quick Search"
-                            ></img>
-                            <div className="pl-2 text-xs group-hover:tracking-wider duration-500">
-                                Búsqueda...
-                            </div>
-                        </div>
-                        <Kbd
-                            keys={["shift"]}
-                            className="bg-nova-darker-2 ml-auto"
-                        >
-                            F
-                        </Kbd>
+            <Button onClick={onOpen} radius="full" className="group bg-nova-darker-2/50 hidden lg:block border-1 border-white/20 ">
+                <div className="duration-500 w-40 group-hover:w-44 flex">
+                    <div className="mr-auto flex items-center">
+                        <img src="/Icons/QuickSearch.png" alt="Quick Search"></img>
+                        <div className="pl-2 text-xs group-hover:tracking-wider duration-500">Búsqueda...</div>
                     </div>
-                </Button>
-                <Button
-                    as={Link}
-                    href="/search"
-                    className="h-[40px] flex items-center px-4 min-w-0 bg-transparent lg:bg-nova-darker-2/50  border-1 border-white/20 "
-                    radius="full"
-                >
-                    <IconAdjustmentsSearch className="stroke-1 hidden lg:block" />
-                    <IconSearch className="stroke-1 block lg:hidden" />
-                </Button>
-            </div>
+                    <Kbd keys={["shift"]} className="bg-nova-darker-2 ml-auto">
+                        F
+                    </Kbd>
+                </div>
+            </Button>
+
             <Modal
                 size="5xl"
                 isOpen={isOpen}
@@ -130,8 +99,7 @@ export default function QuickSearch() {
                 }}
                 scrollBehavior="inside"
                 closeButton={<></>}
-                onOpenChange={onOpenChange}
-            >
+                onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -139,9 +107,7 @@ export default function QuickSearch() {
                                 <div className="flex gap-3 w-full">
                                     <div className="flex flex-1">
                                         <Input
-                                            onValueChange={(value) =>
-                                                handleSearch(value)
-                                            }
+                                            onValueChange={(value) => handleSearch(value)}
                                             spellCheck={false}
                                             defaultValue={searchTerm}
                                             autoFocus
@@ -176,12 +142,8 @@ export default function QuickSearch() {
                             <ModalBody>
                                 <div className="flex flex-wrap gap-1 overflow-y-auto">
                                     {loading && <Loading />}
-                                    {showNoResults && (
-                                        <NoResults searchTerm={searchTerm} />
-                                    )}
-                                    {showResults && (
-                                        <ResultList close={onClose} results={results} />
-                                    )}
+                                    {showNoResults && <NoResults searchTerm={searchTerm} />}
+                                    {showResults && <ResultList close={onClose} results={results} />}
                                 </div>
                             </ModalBody>
                         </>

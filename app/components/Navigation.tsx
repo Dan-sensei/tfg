@@ -4,8 +4,8 @@ import Image from "next/image";
 import Logo from "../../public/logo.png";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconChevronDown, IconChevronRight, IconTriangle } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { IconAdjustmentsSearch, IconChevronDown, IconChevronRight, IconSearch, IconTriangle } from "@tabler/icons-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
@@ -26,7 +26,9 @@ const DefaultLink = ({ href, name, isCategories }: LinkProps & { isCategories?: 
     return (
         <Link
             color="foreground"
-            className="relative text-base font-semibold h-full px-2 flex items-center transition-colors ease-in-out text-violet-50 hover:text-nova-link"
+            className={`uppercase relative text-sm font-semibold h-full px-2 flex items-center transition-colors ease-in-out ${
+                isCategories && "mr-2"
+            }`}
             href={href}>
             {name}
             {isCategories && <IconChevronDown className=" ml-2 mt-1 absolute -right-[14px] mb-1" size={20} />}
@@ -108,43 +110,73 @@ const SELECTED_ICON_SIZE = 18;
 export default function Navigation({ categoriesList }: { categoriesList: CategoryLink[] }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathName = usePathname();
-    const selectedLink = useRef<HTMLElement | null>(null);
     const linkRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const [translateLeft, setTranslateLeft] = useState<number>(0);
+    const [translateLeft, setTranslateLeft] = useState<number | null>(null);
+    const [showSelectArrow, setShowSelectArrow] = useState(false);
+
     const handleLinkClick = (target: HTMLDivElement) => {
-        selectedLink.current = target.parentElement;
-        setSelectionDisplay();
+        if (!showSelectArrow) setShowSelectArrow(true);
+        if (target.parentElement) setSelectionDisplay(target.parentElement);
     };
+
     useEffect(() => {
-        const activeLinkIndex = links.findIndex((link) => pathName.startsWith(link.href));
-        const activeLinkElement = linkRefs.current[activeLinkIndex]?.parentElement;
-        if (!activeLinkElement) return;
-        selectedLink.current = activeLinkElement;
-        setSelectionDisplay();
+        setShowSelectArrow(true);
+        findSelectedLink();
     }, []);
-    const setSelectionDisplay = () => {
-        if (selectedLink.current) {
-            setTranslateLeft(selectedLink.current.offsetLeft + (selectedLink.current.offsetWidth - SELECTED_ICON_SIZE) / 2);
+
+    const setSelectionDisplay = (element: HTMLElement) => {
+        setTranslateLeft(element.offsetLeft + (element.offsetWidth - SELECTED_ICON_SIZE) / 2);
+    };
+    const isCurrentPath = (link: string) => {
+        if (link === "/") {
+            return pathName === "/";
+        }
+        return pathName.toLowerCase().startsWith(link.toLowerCase());
+    };
+    const findSelectedLink = () => {
+        const activeLinkIndex = links.findIndex((link) => isCurrentPath(link.href));
+        const activeLinkElement = linkRefs.current[activeLinkIndex]?.parentElement;
+        if (activeLinkElement) {
+            setSelectionDisplay(activeLinkElement);
         }
     };
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 1024 && !showSelectArrow) {
+                findSelectedLink();
+                setShowSelectArrow(true);
+            } else if (window.innerWidth < 1024 && showSelectArrow) {
+                setShowSelectArrow(false);
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [findSelectedLink]);
+
     return (
         <div className={`fixed top-0 left-0 right-0 z-50 border-b-white/10 border-b-1 bg-nova-darker/50 backdrop-blur-md transition-colors h-[73px]`}>
-            <div className="lg:container mx-auto h-full">
+            <div className="xl:container mx-auto h-full">
                 <Navbar
                     isMenuOpen={isMenuOpen}
                     maxWidth="full"
                     isBlurred={false}
-                    disableAnimation={true}
                     onMenuOpenChange={setIsMenuOpen}
-                    className={`bg-transparent h-full`}>
+                    className={`bg-transparent h-full`}
+                    classNames={{
+                        menuItem: " text-md",
+                        menu: "bg-tg-dark px-3 gap-1 pt-5",
+                    }}>
                     <NavbarContent className="lg:hidden" justify="start">
                         <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
                     </NavbarContent>
 
                     <NavbarContent className="lg:hidden pr-3" justify="center">
                         <NavbarBrand>
-                            <Link
-                                href={links[0].href}>
+                            <Link href={links[0].href}>
                                 <Image src={Logo} alt="Logo" height={55} />
                             </Link>
                         </NavbarBrand>
@@ -152,7 +184,8 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
 
                     <NavbarContent className="hidden lg:flex gap-4" justify="center">
                         <NavbarBrand className="py-2">
-                            <Link href={links[0].href} 
+                            <Link
+                                href={links[0].href}
                                 onClick={() => linkRefs.current && linkRefs.current[0] && handleLinkClick(linkRefs.current[0])}>
                                 <Image src={Logo} alt="Logo" height={50} />
                             </Link>
@@ -164,14 +197,18 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                                         linkRefs.current[index] = link;
                                     }}
                                     onClick={(event) => handleLinkClick(event.currentTarget)}
-                                    className="flex items-center h-full">
+                                    className={`flex items-center h-full ${
+                                        isCurrentPath(link.href) ? "text-violet-50 hover:text-nova-link" : "text-gray-400 hover:text-nova-link"
+                                    }`}>
                                     {link.isCategories ? <TooltipLink {...link} categoriesElements={categoriesList} /> : <DefaultLink {...link} />}
                                 </div>
                             </NavbarItem>
                         ))}
-                        {selectedLink.current && (
+                        {translateLeft && (
                             <IconTriangle
-                                className="absolute left-0 bottom-0 stroke-[#258fe6] transition-transform stroke-[3]"
+                                className={`absolute left-0 bottom-0 stroke-[#258fe6] pointer-events-none transition-[transform,opacity] ${
+                                    showSelectArrow ? "opacity-100" : "opacity-0"
+                                } stroke-[3]`}
                                 size={SELECTED_ICON_SIZE}
                                 style={{ transform: `translate(${translateLeft}px, 9px) scaleY(0.9)` }}
                             />
@@ -179,19 +216,40 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                     </NavbarContent>
 
                     <NavbarContent justify="end">
-                        <NavbarItem className="flex">
+                        <NavbarItem className="flex gap-1">
+                            
                             <Search />
+                            <Button
+                                as={Link}
+                                href="/search"
+                                className="h-[40px] flex items-center px-4 min-w-0 bg-transparent lg:bg-nova-darker-2/50  border-1 border-white/20 "
+                                radius="full"
+                                onClick={() => setShowSelectArrow(false)}>
+                                <IconAdjustmentsSearch className="stroke-1 hidden lg:block" />
+                                <IconSearch className="stroke-1 block lg:hidden" />
+                            </Button>
                         </NavbarItem>
                     </NavbarContent>
 
-                    <NavbarMenu className="bg-nova-darker/70 backdrop-blur-sm">
+                    <NavbarMenu
+                        className="bg-nova-darker/90 backdrop-blur-sm"
+                        motionProps={{
+                            initial: { opacity: 0, transform: "translateY(-50px)" },
+                            animate: { opacity: 1, transform: "translateY(0)" },
+                            exit: { opacity: 0, transform: "translateY(-50px)" },
+                            transition: { type: "easeInOut", duration: 0.2 },
+                        }}>
                         {links.map((link, index) => (
                             <NavbarMenuItem key={`${index}`}>
                                 <Link
-                                    className="w-full transition-colors ease-in-out text-violet-50 hover:text-nova-link"
+                                    className={`py-3 px-4 rounded-lg w-full block transition-colors ease-in-out  ${
+                                        isCurrentPath(link.href)
+                                            ? "bg-nova-button/10 hover:bg-nova-buttonm/20 text-[#258fe6]"
+                                            : "hover:bg-nova-button/5"
+                                    }`}
                                     href={link.href}
                                     onClick={() => setIsMenuOpen(false)}>
-                                    <span className={pathName === link.href ? "text-nova-link font-bold" : ""}>{link.name}</span>
+                                    <span>{link.name}</span>
                                 </Link>
                             </NavbarMenuItem>
                         ))}
