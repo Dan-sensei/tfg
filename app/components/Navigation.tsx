@@ -4,7 +4,20 @@ import Image from "next/image";
 import Logo from "../../public/logo.png";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconAdjustmentsSearch, IconChevronDown, IconChevronRight, IconSearch, IconTriangle } from "@tabler/icons-react";
+import {
+    IconAdjustmentsSearch,
+    IconChevronDown,
+    IconChevronRight,
+    IconSearch,
+    IconTriangle,
+    IconHomeFilled,
+    IconTrendingUp,
+    IconCategoryFilled,
+    IconCalendarUser,
+    IconHeartFilled,
+    IconStarFilled,
+    IconEyeUp,
+} from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/navbar";
@@ -16,6 +29,10 @@ interface LinkProps {
     name: string;
     href: string;
     isCategories?: boolean;
+}
+interface MobileLinkProps extends LinkProps {
+    icon?: JSX.Element;
+    isSubcategory?: boolean;
 }
 
 interface TooltipLinkProps extends LinkProps {
@@ -97,6 +114,8 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
     );
 };
 
+const DEF_ICON_SIZE = 18;
+
 const links: LinkProps[] = [
     { name: "Inicio", href: "/" },
     { name: "Trending", href: "/trending" },
@@ -105,6 +124,22 @@ const links: LinkProps[] = [
     { name: "Favoritos", href: "/favoritos" },
 ];
 
+const mobile_links: MobileLinkProps[] = [
+    { name: "Inicio", href: "/", icon: <IconHomeFilled size={DEF_ICON_SIZE} /> },
+    { name: "Trending", href: "/trending", icon: <IconTrendingUp size={DEF_ICON_SIZE} /> },
+    { name: "Categorias", href: "/categoria", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
+    {
+        name: "Titulaciones",
+        href: "/categoria",
+        isCategories: true,
+        icon: <img src="/Icons/Titulation.png" alt="Titulation icon" className="h-3" />,
+        isSubcategory: true,
+    },
+    { name: "Mejor valorados", href: "/categoria", isCategories: true, icon: <IconStarFilled size={15} />, isSubcategory: true },
+    { name: "Más vistos", href: "/categoria", isCategories: true, icon: <IconEyeUp size={15} />, isSubcategory: true },
+    { name: "Próximas defensas", href: "/defensas", icon: <IconCalendarUser size={15} /> },
+    { name: "Favoritos", href: "/favoritos", icon: <IconHeartFilled size={DEF_ICON_SIZE} /> },
+];
 const SELECTED_ICON_SIZE = 18;
 
 export default function Navigation({ categoriesList }: { categoriesList: CategoryLink[] }) {
@@ -158,7 +193,8 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
     }, [findSelectedLink]);
 
     return (
-        <div className={`fixed top-0 left-0 right-0 z-50 border-b-white/10 border-b-1 bg-nova-darker/50 backdrop-blur-md transition-colors h-[73px]`}>
+        <div
+            className={`fixed top-0 left-0 right-0 z-50 border-b-white/10 border-b-1 bg-nova-darker lg:bg-nova-darker/50 lg:backdrop-blur-md transition-colors h-[73px]`}>
             <div className="xl:container mx-auto h-full">
                 <Navbar
                     isMenuOpen={isMenuOpen}
@@ -210,14 +246,13 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                                     showSelectArrow ? "opacity-100" : "opacity-0"
                                 } stroke-[3]`}
                                 size={SELECTED_ICON_SIZE}
-                                style={{ transform: `translate(${translateLeft}px, 9px) scaleY(0.9)` }}
+                                style={{ transform: `translate(${translateLeft}px, 10px) scaleY(0.9)` }}
                             />
                         )}
                     </NavbarContent>
 
                     <NavbarContent justify="end">
                         <NavbarItem className="flex gap-1">
-                            
                             <Search />
                             <Button
                                 as={Link}
@@ -232,24 +267,25 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                     </NavbarContent>
 
                     <NavbarMenu
-                        className="bg-nova-darker/90 backdrop-blur-sm"
+                        className="bg-nova-darker backdrop-blur-sm"
                         motionProps={{
                             initial: { opacity: 0, transform: "translateY(-50px)" },
                             animate: { opacity: 1, transform: "translateY(0)" },
                             exit: { opacity: 0, transform: "translateY(-50px)" },
                             transition: { type: "easeInOut", duration: 0.2 },
                         }}>
-                        {links.map((link, index) => (
+                        {mobile_links.map((link, index) => (
                             <NavbarMenuItem key={`${index}`}>
                                 <Link
-                                    className={`py-3 px-4 rounded-lg w-full block transition-colors ease-in-out  ${
+                                    className={`rounded-lg w-full transition-colors ease-in-out flex items-center gap-2  ${
                                         isCurrentPath(link.href)
                                             ? "bg-nova-button/10 hover:bg-nova-buttonm/20 text-[#258fe6]"
                                             : "hover:bg-nova-button/5"
-                                    }`}
+                                    } ${link.isSubcategory ? "py-2 pl-7 text-sm" : "py-3 px-4"}`}
                                     href={link.href}
                                     onClick={() => setIsMenuOpen(false)}>
-                                    <span>{link.name}</span>
+                                    {link.icon}
+                                    <span className="uppercase font-semibold">{link.name}</span>
                                 </Link>
                             </NavbarMenuItem>
                         ))}

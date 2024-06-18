@@ -108,7 +108,7 @@ export default function ActiveFilters({ filters, updateFilters, titulations, cat
                         background="bg-violet-500/50 hover:bg-violet-600/50"
                         icon={
                             <div className="h-[70%]">
-                                <img src="/Icons/Titulation.png" alt="Quick Search" className="h-full"></img>
+                                <img src="/Icons/Titulation.png" alt="Titulation icon" className="h-full" />
                             </div>
                         }
                         displayText={titulationFilter}
