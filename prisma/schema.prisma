@@ -19,14 +19,21 @@ model tfg {
   tags         String[]
   views        Int              @default(0)
   score        Float            @default(0)
-  categoryId   Int
-  titulationId      Int
   createdAt    DateTime         @default(now())
   description  String           @default("")
   scoredTimes  Int              @default(0)
   author       String[]
+
+  status       Int           @default(0)
+  reviewMessages ReviewMessage[]
+
+  // Relationships IDs
+  categoryId   Int
   collegeId    Int
   departmentId Int?
+  titulationId      Int
+
+  // Relationships
   DailyTFGView daily_tfg_view[]
   defense      defense?
   category     category         @relation(fields: [categoryId], references: [id], map: "TFG_categoryId_fkey")
@@ -34,9 +41,17 @@ model tfg {
   department   department?      @relation(fields: [departmentId], references: [id], map: "TFG_departmentId_fkey")
   titulation   titulation       @relation(fields: [titulationId], references: [id], map: "TFG_titulationId_fkey")
   voteLogs     votelog[]
-  tutor        tutor[]          @relation("TFGTutor")
+  users  UserTFG[]
 }
-
+model ReviewMessage {
+  id        Int      @id @default(autoincrement())
+  message   String
+  createdAt DateTime @default(now())
+  userId    Int
+  tfgId     Int
+  user      user     @relation(fields: [userId], references: [id])
+  tfg       tfg      @relation(fields: [tfgId], references: [id])
+}
 model department {
   id   Int     @id @default(autoincrement())
   name String
@@ -44,14 +59,17 @@ model department {
   tfgs tfg[]
 }
 
-model tutor {
-  id        Int     @id @default(autoincrement())
+model user {
+  id Int @id @default(autoincrement())
   name      String
   image     String?
-  link      String?
+  email String @unique
+  role Int
+  contactDetails String?
   collegeId Int
-  college   college @relation(fields: [collegeId], references: [id])
-  tfg       tfg[]   @relation("TFGTutor")
+  college college  @relation(fields: [collegeId], references: [id])
+  tfg UserTFG[]
+  reviewMessages ReviewMessage[]
 }
 
 model titulation {
@@ -71,7 +89,17 @@ model college {
   defenseLocations location[]
   tfgs             tfg[]
   titulation      titulation[]
-  tutors           tutor[]
+  user user[]
+}
+
+model UserTFG {
+  userId Int
+  tfgId  Int
+  user   user @relation(fields: [userId], references: [id])
+  tfg    tfg  @relation(fields: [tfgId], references: [id])
+  assignedAt DateTime @default(now())
+  assignedBy String
+  @@id([userId, tfgId])
 }
 
 model category {

@@ -9,38 +9,38 @@ export interface iTFG {
     createdAt?: Date,
 }
 export interface iFullTFG {
-    id: number,
-    thumbnail: string,
-    banner: string,
-    title: string,
-    description: string,
-    author: string[],
-    tutor: tutor[]
-    department?: department,
-    content: string,
-    pages: number,
-    documentLink: string,
-    tags: string[],
-    views: number,
-    score: number,
-    createdAt: Date
-    college: college
+    id: number;
+    thumbnail: string;
+    banner: string;
+    title: string;
+    description: string;
+    author: user[];
+    tutor: user[];
+    department?: department;
+    content: string;
+    pages: number;
+    documentLink: string;
+    tags: string[];
+    views: number;
+    score: number;
+    createdAt: Date;
+    college: college;
 }
 
 type college = {
-    name: string
-    image?: string
+    name: string;
+    image?: string;
 }
 
 type department = {
-    name: string,
-    link?: string
+    name: string;
+    link?: string;
 }
 
-type tutor = {
-    name: string
-    link?: string
-    image?: string
+type user = {
+    name: string;
+    contactDetails?: string;
+    image?: string;
 }
 export interface iHomeTFG {
     id: number,

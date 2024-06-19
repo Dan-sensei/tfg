@@ -1,3 +1,6 @@
+import { Role } from "@/app/lib/enums";
+import { select } from "@nextui-org/theme";
+
 export const tfgFields = {
     id: true,
     thumbnail: true,
@@ -24,18 +27,23 @@ export const tfgFullFields = {
     banner: true,
     title: true,
     description: true,
-    author: true,
-    tutor: {
-        select:{
-            name: true,
-            link: true
-        }
+    users: {
+        select: {
+            user: {
+                select: {
+                    name: true,
+                    contactDetails: true,
+                    image: true,
+                    role: true
+                },
+            },
+        },
     },
     department: {
-        select:{
+        select: {
             name: true,
-            link: true
-        }
+            link: true,
+        },
     },
     content: true,
     pages: true,
@@ -47,7 +55,7 @@ export const tfgFullFields = {
     college: {
         select: {
             name: true,
-            image: true
-        }
-    }
-}
+            image: true,
+        },
+    },
+};

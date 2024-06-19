@@ -21,7 +21,7 @@ export default function Info({ TFG }: { TFG: iFullTFG }) {
                             {TFG.author.map((author, index) => (
                                 <React.Fragment key={index}>
                                     {index != 0 && <Divider className="my-1" />}
-                                    <div>{author}</div>
+                                    <div>{author.name}</div>
                                 </React.Fragment>
                             ))}
                         </div>
@@ -34,10 +34,10 @@ export default function Info({ TFG }: { TFG: iFullTFG }) {
                         </div>
                         <div className="pl-7 font-semibold uppercase text-lg lg:text-xl md:max-w-96">
                             {TFG.tutor.map((tutor, index) =>
-                                tutor.link ? (
+                                tutor.contactDetails ? (
                                     <Link
                                         key={index}
-                                        href={tutor.link || "#"}
+                                        href={tutor.contactDetails || "#"}
                                         target="_blank"
                                         className="transition-colors hover:text-nova-link group w-full block"
                                     >
