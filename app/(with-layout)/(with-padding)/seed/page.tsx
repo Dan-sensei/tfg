@@ -1,6 +1,6 @@
 // seed.ts
 import { PrismaClient } from "@prisma/client";
-import prisma from "../../lib/db";
+import prisma from "../../../lib/db";
 import { Role } from "@/app/lib/enums";
 interface BaseDocument {
     collegeId: number;

@@ -3,7 +3,7 @@
 import { Category, QueryParams, Titulation } from "@/app/types/interfaces";
 import { sameArrays } from "@/app/utils/util";
 import { Button } from "@nextui-org/button";
-import { IconCalendarMonth, IconCategory, IconEye, IconFile, IconStarFilled, IconTag, IconX } from "@tabler/icons-react";
+import { IconCalendarMonth, IconCategory, IconEye, IconFile, IconSchool, IconStarFilled, IconTag, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
 type RemoveButtonProps = {
@@ -106,11 +106,7 @@ export default function ActiveFilters({ filters, updateFilters, titulations, cat
                 {titulationFilter && (
                     <RemoveFilterButton
                         background="bg-violet-500/50 hover:bg-violet-600/50"
-                        icon={
-                            <div className="h-[70%]">
-                                <img src="/Icons/Titulation.png" alt="Titulation icon" className="h-full" />
-                            </div>
-                        }
+                        icon={<IconSchool className="opacity-80" size={14} />}
                         displayText={titulationFilter}
                         update={() => removeFilter("titulation")}
                     />

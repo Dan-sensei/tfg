@@ -1,12 +1,12 @@
 "use client";
 
-import Card from "../../components/home-components/Card";
-import { PAGE_SIZE } from "../../lib/config";
+import Card from "../../../components/home-components/Card";
+import { PAGE_SIZE } from "../../../lib/config";
 import { Pagination } from "@nextui-org/pagination";
 import { useEffect, useState } from "react";
-import { TFGPagination } from "../../types/interfaces";
+import { TFGPagination } from "../../../types/interfaces";
 import { Spinner } from "@nextui-org/spinner";
-import { getApiRouteUrl } from "../../utils/util";
+import { getApiRouteUrl } from "../../../utils/util";
 import { unstable_noStore as noStore } from 'next/cache';
 import { DAY } from "@/app/types/defaultData";
 export default function Trending() {

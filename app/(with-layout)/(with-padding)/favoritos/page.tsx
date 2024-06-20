@@ -3,11 +3,11 @@ import { useFavorites } from "@/app/contexts/FavoritesContext";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { iTFG } from "@/app/types/interfaces";
-import { getFavorites } from "../../lib/actions/favorites";
+import { getFavorites } from "../../../lib/actions/favorites";
 import { Spinner } from "@nextui-org/spinner";
 import { IconCactus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
-import { sanitizeString } from "../../utils/util";
+import { sanitizeString } from "../../../utils/util";
 
 export default function Favoritos() {
     const [isMounted, setIsMounted] = useState(false);

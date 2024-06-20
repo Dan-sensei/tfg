@@ -1,5 +1,5 @@
 import Image from "next/image";
-import TFGDetails from "@/app/page/[...id]/TFGDetails";
+import TFGDetails from "@/app/(with-layout)/page/[...id]/TFGDetails";
 import { increaseTFGViews } from "@/app/lib/actions/tfg";
 import { redirect } from "next/navigation";
 import { iFullTFG } from "@/app/types/interfaces";
@@ -74,7 +74,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     await increaseTFGViews(parseFloat(params.id));
 
     return (
-        <div className="pt-[66px]">
+        <div className="pt-[73px]">
             <div className="aspect-video lg:aspect-wide relative z-0 grid grid-stack max-h-[600px] w-full">
                 <div className="hidden z-40 pl-16 pt-12 pb-8 md:grid grid-cols-6 text-shadow-light-dark/20 lg:container mx-auto">
                     <div className={`${montserrat.className} col-span-4 lg:col-span-3 `}>

@@ -17,23 +17,19 @@ import {
     IconHeartFilled,
     IconStarFilled,
     IconEyeUp,
+    IconSchool,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
-import { CategoryLink } from "../types/interfaces";
+import { CategoryLink, LinkProps, MobileLinkProps } from "../types/interfaces";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/dropdown";
 import Search from "./QuickSearch";
-
-interface LinkProps {
-    name: string;
-    href: string;
-    isCategories?: boolean;
-}
-interface MobileLinkProps extends LinkProps {
-    icon?: JSX.Element;
-    isSubcategory?: boolean;
-}
+import { useSession } from "next-auth/react";
+import { Avatar } from "@nextui-org/avatar";
+import { signOut } from "next-auth/react";
+import { DEF_ICON_SIZE } from "@/app/types/defaultData";
 
 interface TooltipLinkProps extends LinkProps {
     categoriesElements: CategoryLink[];
@@ -114,8 +110,6 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
     );
 };
 
-const DEF_ICON_SIZE = 18;
-
 const links: LinkProps[] = [
     { name: "Inicio", href: "/" },
     { name: "Trending", href: "/trending" },
@@ -132,7 +126,7 @@ const mobile_links: MobileLinkProps[] = [
         name: "Titulaciones",
         href: "/categoria",
         isCategories: true,
-        icon: <img src="/Icons/Titulation.png" alt="Titulation icon" className="h-3" />,
+        icon: <IconSchool size={DEF_ICON_SIZE} />,
         isSubcategory: true,
     },
     { name: "Mejor valorados", href: "/categoria", isCategories: true, icon: <IconStarFilled size={15} />, isSubcategory: true },
@@ -148,6 +142,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
     const linkRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [translateLeft, setTranslateLeft] = useState<number | null>(null);
     const [showSelectArrow, setShowSelectArrow] = useState(false);
+    const { data: session } = useSession();
 
     const handleLinkClick = (target: HTMLDivElement) => {
         if (!showSelectArrow) setShowSelectArrow(true);
@@ -191,6 +186,21 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
             window.removeEventListener("resize", handleResize);
         };
     }, [findSelectedLink]);
+
+    const loggedOptions = [
+        {
+            key: "profile",
+            content: <p className="font-semibold">{session?.user?.name}</p>,
+            className: "h-14 gap-2",
+        },
+        { key: "dashboard", content: "Dashboard", href: "/dashboard" },
+        {
+            key: "logout",
+            content: "Cerrar sesión",
+            color: "danger",
+            onClick: () => signOut({ callbackUrl: "/calentario" }),
+        },
+    ];
 
     return (
         <div
@@ -250,7 +260,6 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                             />
                         )}
                     </NavbarContent>
-
                     <NavbarContent justify="end">
                         <NavbarItem className="flex gap-1">
                             <Search />
@@ -264,6 +273,31 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                                 <IconSearch className="stroke-1 block lg:hidden" />
                             </Button>
                         </NavbarItem>
+                    </NavbarContent>
+                    <NavbarContent className="hidden lg:flex" justify="center">
+                        <div>
+                            {session && (
+                                <Dropdown placement="bottom-end">
+                                    <DropdownTrigger>
+                                        <Avatar
+                                            isBordered
+                                            color="secondary"
+                                            as="button"
+                                            size="md"
+                                            className="transition-transform"
+                                            name={session.user.name?.slice(0, 2)}
+                                        />
+                                    </DropdownTrigger>
+                                    <DropdownMenu aria-label="Profile Actions" variant="flat">
+                                        {loggedOptions.map((item) => (
+                                            <DropdownItem key={item.key} className={item.className} onClick={item.onClick} href={item.href}>
+                                                {item.content}
+                                            </DropdownItem>
+                                        ))}
+                                    </DropdownMenu>
+                                </Dropdown>
+                            )}
+                        </div>
                     </NavbarContent>
 
                     <NavbarMenu
@@ -289,6 +323,20 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                                 </Link>
                             </NavbarMenuItem>
                         ))}
+                        {session?.user.role === "admin" && (
+                            <NavbarMenuItem>
+                                <Link
+                                    className={`rounded-lg w-full transition-colors ease-in-out flex items-center gap-2  ${
+                                        isCurrentPath("/dashboard")
+                                            ? "bg-nova-button/10 hover:bg-nova-buttonm/20 text-[#258fe6]"
+                                            : "hover:bg-nova-button/5"
+                                    } py-3 px-4`}
+                                    href={"/dashboard"}
+                                    onClick={() => setIsMenuOpen(false)}>
+                                    DASHBOARD
+                                </Link>
+                            </NavbarMenuItem>
+                        )}
                     </NavbarMenu>
                 </Navbar>
             </div>

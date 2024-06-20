@@ -1,5 +1,5 @@
-import CarouselRow from "./components/home-components/CarouselRow";
-import HomeCarousel from "./components/home-components/HomeCarousel";
+import CarouselRow from "../../components/home-components/CarouselRow";
+import HomeCarousel from "../../components/home-components/HomeCarousel";
 import prisma from "@/app/lib/db";
 import { DBProperty, TFGRowData, PopularFields } from "@/app/types/interfaces";
 import { tfgFields, tfgTopFields } from "@/app/types/prismaFieldDefs";

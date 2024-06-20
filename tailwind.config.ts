@@ -7,7 +7,7 @@ const config: Config = {
         "./pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./components/**/*.{js,ts,jsx,tsx,mdx}",
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
-        "./node_modules/@nextui-org/theme/dist/components/(button|chip|navbar|pagination|spinner|divider|input|modal|kbd|autocomplete|dropdown|select|calendar|tabs|radio).js",
+        "./node_modules/@nextui-org/theme/dist/components/(button|chip|navbar|pagination|spinner|divider|input|modal|kbd|autocomplete|dropdown|select|calendar|tabs|radio|avatar).js",
     ],
     theme: {
         extend: {
@@ -29,6 +29,9 @@ const config: Config = {
                 glow: "0px 0px 15px #ffffff90",
                 "glow-low": "0px 0px 15px #ffffff25",
                 "glow-medium": "0px 0px 15px #ffffff45",
+            },
+            height: {
+                "1px": "1px"
             },
             boxShadow: {
                 "dark": "3px 5px 10px rgba(0, 0, 0, 0.9)",
@@ -60,6 +63,12 @@ const config: Config = {
                 wide: "3 / 1",
                 "21-9": "21 / 9",
                 file: "9 / 12",
+            },
+            maskImage: {
+                borders: "linear-gradient(to right, transparent, black 50%, transparent)",
+                "borders-10": "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+                left: "linear-gradient(to right, transparent, black 100%)",
+                right: "linear-gradient(to right, black, transparent 100%)",
             }
         },
     },
@@ -75,6 +84,18 @@ const config: Config = {
                 { values: theme("textShadow") }
             );
         }),
+        plugin(function ({ matchUtilities, theme }) {
+            matchUtilities(
+                {
+                    "mask": (value) => ({
+                        maskImage: value,
+                        WebkitMaskImage: value
+                    }),
+                },
+                { values: theme("maskImage") }
+            );
+        }),
+        
         nextui({
             addCommonColors: true,
         }),
