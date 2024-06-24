@@ -15,10 +15,11 @@ type Props = {
     id: string;
     updateForm: (data: Partial<ProjectFormData>, saveToLocalStorage: boolean) => void;
     setFile: Dispatch<SetStateAction<File | null>>;
+    maxSize: number;
     aspectRatio: string;
 };
 
-export default function ImageDrop({ className, label, id, updateForm, setFile, aspectRatio }: Props) {
+export default function ImageDrop({ className, label, id, updateForm, setFile, aspectRatio, maxSize }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [displayImage, setDisplayImage] = useState<string | null>(null);
@@ -79,7 +80,6 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
 
     const handleFile = (file: File) => {
         const fileTypeRegex = /image\/(jpeg|jpg|png)/;
-        const maxSize = 5 * 1024 * 1024;
         if (!fileTypeRegex.test(file.type)) {
             setErrorMessage(`Sólo se permiten archivos JPEG, JPG y PNG`);
             return;
@@ -144,7 +144,9 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
                         <div className="pointer-events-none pb-3">
                             <IconCloudUpload size={65} className="stroke-1 mx-auto" />
                             <div className="font-semibold text-blue-500 text-sm text-center">Selecciona o arrastra una imagen</div>
-                            <div className="text-gray-400 text-tiny text-center">Máximo 5MB, tamaño recomendado 2400x800</div>
+                            <div className="text-gray-400 text-tiny text-center">
+                                Máximo {roundTwoDecimals(maxSize / 1024 / 1024)}MB, tamaño recomendado 2400x800
+                            </div>
                             <div className="text-gray-400 text-[10px] text-center">JPEG, JPG Y PNG</div>
                         </div>
                         {displayImage && (

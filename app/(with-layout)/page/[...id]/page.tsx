@@ -30,16 +30,18 @@ const getTFGData = async (id: number) => {
         author: tfgRaw.users
             .filter((userRelation) => userRelation.user.role === Role.STUDENT)
             .map((userRelation) => ({
+                id: 0,
                 name: userRelation.user.name,
-                contactDetails: userRelation.user.contactDetails ?? undefined,
-                image: userRelation.user.image ?? undefined,
+                contactDetails: userRelation.user.contactDetails,
+                image: userRelation.user.image,
             })),
         tutor: tfgRaw.users
             .filter((userRelation) => userRelation.user.role === Role.TUTOR)
             .map((userRelation) => ({
+                id: 0,
                 name: userRelation.user.name,
-                contactDetails: userRelation.user.contactDetails ?? undefined,
-                image: userRelation.user.image ?? undefined,
+                contactDetails: userRelation.user.contactDetails,
+                image: userRelation.user.image,
             })),
         department: tfgRaw.department
             ? {
@@ -56,8 +58,9 @@ const getTFGData = async (id: number) => {
         score: tfgRaw.score,
         createdAt: tfgRaw.createdAt,
         college: {
+            id: 0,
             name: tfgRaw.college.name,
-            image: tfgRaw.college.image ?? undefined,
+            image: tfgRaw.college.image,
         },
     };
     return tfg;

@@ -39,6 +39,7 @@ type Props = {
 export default function ProjectForm({ college, departments, teachers }: Props) {
     const [isMounted, setIsMounted] = useState(false);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
+    const [thumbnail, setThumbnail] = useState<File | null>(null);
     const [form, setForm] = useState<ProjectFormData>({
         thumbnail: "",
         banner: DEF_BANNER,
@@ -306,9 +307,19 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
                 <ImageDrop
                     className="pt-4"
                     id="banner"
+                    maxSize={5 * 1024 * 1024}
                     aspectRatio="aspect-wide"
                     label="Banner"
                     setFile={setBannerFile}
+                    updateForm={updateForm}
+                />
+                <ImageDrop
+                    className="pt-4"
+                    id="thumbnail"
+                    maxSize={2 * 1024 * 1024}
+                    aspectRatio="aspect-video"
+                    label="Thumbnail"
+                    setFile={setThumbnail}
                     updateForm={updateForm}
                 />
             </div>
