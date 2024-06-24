@@ -1,6 +1,6 @@
 const openDatabase = (): Promise<IDBDatabase> => {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open("myDatabase", 1);
+        const request = indexedDB.open("nova", 1);
         request.onupgradeneeded = () => {
             const db = request.result;
             if (!db.objectStoreNames.contains("images")) {
@@ -66,4 +66,14 @@ export const deleteImageFromIndexedDB = (id: string): Promise<void> => {
                 reject(error);
             });
     });
+};
+
+export const loadImagesFromIndexedDB = async (keys: string[]) => {
+    try {
+        const promises = keys.map((key) => loadImageFromIndexedDB(key));
+        return await Promise.all(promises);
+    } catch (e) {
+        console.error("Failed load images from db");
+        return [];
+    }
 };

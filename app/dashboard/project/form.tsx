@@ -35,6 +35,7 @@ type Props = {
     teachers: user[];
 };
 
+
 export default function ProjectForm({ college, departments, teachers }: Props) {
     const [isMounted, setIsMounted] = useState(false);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -86,11 +87,10 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
 
     useEffect(() => {
         const tfgSavedData = localStorage.getItem("tfg-data");
-        let data: Partial<ProjectFormData> | null = null;
-        let banner: string;
 
-        const loadInitialForm = (data: Partial<ProjectFormData> | null) => {
-            if (data)
+        if (tfgSavedData) {
+            try {
+                const data = JSON.parse(tfgSavedData);
                 setForm((current) => ({
                     ...current,
                     title: data.title ?? "",
@@ -104,31 +104,9 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
                     documentLink: data.documentLink ?? "",
                     tags: data.tags ?? [],
                 }));
-        };
-
-        if (tfgSavedData) {
-            try {
-                data = JSON.parse(tfgSavedData);
             } catch (e) {
                 localStorage.removeItem("tfg-data");
             }
-
-            loadImageFromIndexedDB("banner")
-                .then((blob) => {
-                    if (blob) {
-                        blobToBase64(blob).then((base64) => {
-                            if (!data) data = {};
-                            data.banner = base64;
-                            loadInitialForm(data);
-                        });
-                        setBannerFile(new File([blob], "banner.png", { type: blob.type }));
-                    }
-                })
-                .catch((error) => {
-                    console.error("Failed to load image from IndexedDB:", error);
-                });
-
-            loadInitialForm(data);
         }
         setIsMounted(true);
     }, []);
@@ -332,7 +310,6 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
                     label="Banner"
                     setFile={setBannerFile}
                     updateForm={updateForm}
-                    defImage={form.banner}
                 />
             </div>
             <div className="flex-1 bg-grid">

@@ -6,30 +6,54 @@ import { blobToBase64, isNullOrEmpty, roundTwoDecimals } from "../utils/util";
 import { Button } from "@nextui-org/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/modal";
 import { DEF_BANNER } from "../types/defaultData";
-import { deleteImageFromIndexedDB, saveImageToIndexedDB } from "../lib/indexedDBHelper";
+import { deleteImageFromIndexedDB, loadImagesFromIndexedDB, saveImageToIndexedDB } from "../lib/indexedDBHelper";
 import CropperComponent from "./Cropper";
 
 type Props = {
     className?: string;
-    label: string,
+    label: string;
     id: string;
     updateForm: (data: Partial<ProjectFormData>, saveToLocalStorage: boolean) => void;
     setFile: Dispatch<SetStateAction<File | null>>;
-    defImage: string | null | undefined;
     aspectRatio: string;
 };
 
-export default function ImageDrop({ className, label, id, updateForm, setFile, defImage, aspectRatio }: Props) {
+export default function ImageDrop({ className, label, id, updateForm, setFile, aspectRatio }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [displayImage, setDisplayImage] = useState<string | null | undefined>(defImage == DEF_BANNER ? null : defImage);
+    const [displayImage, setDisplayImage] = useState<string | null>(null);
+    const [uncroppedImage, setUncroppedImage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState("");
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [fileType, setFileType] = useState("");
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        setDisplayImage(defImage == DEF_BANNER ? null : defImage);
-    }, [defImage]);
+        const requestImages = async () => {
+            const keys = [id, `u${id}`];
+            try {
+                const [banner, ubanner] = await loadImagesFromIndexedDB(keys);
+                let original: string | null = null;
+                if (banner) {
+                    original = await blobToBase64(banner);
+                    updateForm({ banner: original }, false);
+                    setDisplayImage(original);
+                    setFile(new File([banner], "banner.png", { type: banner.type }));
+                }
+
+                if (ubanner) {
+                    const ubannerBase64 = await blobToBase64(ubanner);
+                    setUncroppedImage(ubannerBase64);
+                } else {
+                    setUncroppedImage(original);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            setIsMounted(true);
+        };
+        requestImages();
+    }, []);
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -61,22 +85,24 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, d
             return;
         }
         setErrorMessage("");
-        const reader = new FileReader();
-        reader.onloadend = () => {};
         setFileType(file.type);
         blobToBase64(file).then((base64) => {
             updateForm({ banner: base64 }, false);
             setDisplayImage(base64);
+            setUncroppedImage(base64);
         });
         setFile(file);
         saveImageToIndexedDB(id, file);
+        saveImageToIndexedDB("u" + id, file);
     };
 
     const removeImage = () => {
         setDisplayImage(null);
+        setUncroppedImage(null);
         updateForm({ banner: DEF_BANNER }, false);
         setFile(null);
         deleteImageFromIndexedDB(id);
+        localStorage.removeItem(id + "-cropper-data");
     };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -88,6 +114,7 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, d
     const onCrop = (image: string, blob?: Blob) => {
         if (!isNullOrEmpty(image)) {
             updateForm({ banner: image }, false);
+            setDisplayImage(image);
             if (blob) saveImageToIndexedDB(id, blob);
         }
     };
@@ -148,7 +175,9 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, d
                         <>
                             <ModalBody className="  border-2 bg-dark-grid rounded-large overflow-hidden p-0">
                                 <div className=" h-[500px] relative flex justify-center">
-                                    {displayImage && <CropperComponent type={fileType} imageSrc={displayImage} onCrop={onCrop} onClose={onClose} />}
+                                    {uncroppedImage && (
+                                        <CropperComponent id={id} type={fileType} imageSrc={uncroppedImage} onCrop={onCrop} onClose={onClose} />
+                                    )}
                                 </div>
                                 <Button
                                     isIconOnly
