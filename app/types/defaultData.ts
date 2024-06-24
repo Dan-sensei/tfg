@@ -10,3 +10,5 @@ export const ROLE_NAMES = {
     [Role.MANAGER]: "Manager",
     [Role.ADMIN]: "Admin",
 };
+
+export const DEF_BANNER = "/default/def_banner.jpg";

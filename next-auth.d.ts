@@ -1,21 +1,23 @@
 import { DefaultSession, DefaultUser } from "next-auth";
 import { JWT, DefaultJWT } from "next-auth/jwt";
 
+interface College {
+    id: number;
+}
+
+interface UserRole {
+    role: number;
+    college: College;
+}
 
 declare module "next-auth" {
     interface Session {
-        user: {
-            role: int
-        } & DefaultSession["user"]
+        user: UserRole & DefaultSession["user"];
     }
 
-    interface User extends DefaultUser {
-        role: int
-    }
+    interface User extends DefaultUser, UserRole {}
 }
 
 declare module "next-auth/jwt" {
-    interface JWT extends DefaultJWT {
-        role: int
-    }
+    interface JWT extends DefaultJWT, UserRole {}
 }

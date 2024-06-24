@@ -23,6 +23,7 @@ model tfg {
   description  String           @default("")
   scoredTimes  Int              @default(0)
   author       String[]
+  trendingScore Float @default(0)
 
   status       Int           @default(0)
   reviewMessages ReviewMessage[]
@@ -57,6 +58,8 @@ model department {
   name String
   link String?
   tfgs tfg[]
+  collegeId Int
+  college college @relation(fields: [collegeId], references: [id])
 }
 
 model user {
@@ -90,6 +93,7 @@ model college {
   tfgs             tfg[]
   titulation      titulation[]
   user user[]
+  departments department[]
 }
 
 model UserTFG {

@@ -12,7 +12,6 @@ export default function ViewsFilter({ filters, updateFilters }: PopularTagsProps
     const [maxViews, setMaxViews] = useState<string>("");
     const preventNegativeNumbers = (e: React.ChangeEvent<HTMLInputElement>) => {
         let val: string | number = parseInt(e.target.value, 10);
-        console.log(e.target.value)
         if (isNaN(val)) {
             val = "";
         } else if (val < 0) {

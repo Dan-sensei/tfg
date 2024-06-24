@@ -27,20 +27,23 @@ export interface iFullTFG {
     college: college;
 }
 
-type college = {
+export type college = {
+    id: number,
     name: string;
-    image?: string;
+    image: string | null;
 };
 
-type department = {
+export type department = {
+    id: number;
     name: string;
     link?: string;
 };
 
-type user = {
+export type user = {
+    id: number;
     name: string;
-    contactDetails?: string;
-    image?: string;
+    contactDetails: string | null;
+    image: string | null;
 };
 export interface iHomeTFG {
     id: number;
@@ -141,3 +144,29 @@ export interface MobileLinkProps extends LinkProps {
     icon?: JSX.Element;
     isSubcategory?: boolean;
 }
+
+export type MessageError = {
+    thumbnail: string;
+    banner: string;
+    title: string;
+    description: string;
+    departmentName: string;
+    departmentlink: string;
+    content: string;
+    documentLink: string;
+    tags: string;
+};
+
+export type ProjectFormData = {
+    thumbnail: string;
+    banner: string;
+    title: string;
+    description: string;
+    departmentId?: number;
+    departmentName?: string;
+    departmentlink?: string;
+    tutor: user[];
+    content: string;
+    documentLink: string;
+    tags: string[];
+};

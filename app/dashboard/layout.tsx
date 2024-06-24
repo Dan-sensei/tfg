@@ -8,11 +8,13 @@ export const metadata: Metadata = {
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
 
+
+    
     return (
         <main className="lg:flex lg:self-strech p-3 w-full h-full min-h-lvh bg-nova-darker">
             <DashboardNavigation className="block lg:hidden" />
             
-            <div className="lg:flex-1 p-3">{children}</div>
+            <div className="lg:flex-1 pl-3 pt-5 lg:pt-0">{children}</div>
         </main>
     );
 }

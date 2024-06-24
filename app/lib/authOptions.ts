@@ -24,10 +24,21 @@ export const authOptions: AuthOptions = {
                     { id: "4", name: "Admin", username: "admin", password: "admin", role: Role.ADMIN, email: "jsmith@example.com" },
                 ];
 
+                const college = {
+                    id: 1,
+                    name: "Universidad de Alicante",
+                };
+
                 const user = userdb.find((u) => u.username === credentials?.username && u.password === credentials.password);
 
                 if (user) {
-                    return user;
+                    return {
+                        ...user,
+                        college: {
+                            id: college.id,
+                            name: college.name,
+                        },
+                    };
                 } else {
                     return null;
                 }
@@ -42,12 +53,14 @@ export const authOptions: AuthOptions = {
         async jwt({ token, user }) {
             if (user) {
                 token.role = user.role;
+                token.college = user.college
             }
             return token;
         },
         async session({ session, token }) {
             if (token?.role) {
                 session.user.role = token.role;
+                session.user.college = token.college
             }
             return session;
         },

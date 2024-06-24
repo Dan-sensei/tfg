@@ -20,24 +20,14 @@ export const formatViews = (num: number): string => {
 };
 
 export const emblaNoDragLogic = (_: any, event: MouseEvent | TouchEvent) => {
-    if (
-        event.target instanceof Element &&
-        event.target.closest(".embla_nodrag")
-    ) {
+    if (event.target instanceof Element && event.target.closest(".embla_nodrag")) {
         return false;
     }
     return true;
 };
 
 export const convertDateToUTC = (date: Date) => {
-    return new Date(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate(),
-        date.getUTCHours(),
-        date.getUTCMinutes(),
-        date.getUTCSeconds()
-    );
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
 };
 
 export const startOfWeekUTC = (date: Date) => {
@@ -54,9 +44,7 @@ export const startOfMonthUTC = (date: Date) => {
 };
 
 export const endOfMonthUTC = (date: Date) => {
-    let tempDate = new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1)
-    );
+    let tempDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1));
     tempDate.setUTCMilliseconds(-1);
     return tempDate;
 };
@@ -72,17 +60,9 @@ export const endOfWeekUTC = (date: Date) => {
 
 export const eachDayOfIntervalUTC = (start: Date, end: Date) => {
     let daysArray = [];
-    let currentDate = new Date(
-        Date.UTC(
-            start.getUTCFullYear(),
-            start.getUTCMonth(),
-            start.getUTCDate()
-        )
-    );
+    let currentDate = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
 
-    const endDate = new Date(
-        Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate())
-    );
+    const endDate = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
 
     while (currentDate <= endDate) {
         daysArray.push(new Date(currentDate));
@@ -99,20 +79,13 @@ export const convertUTCDateToLocalDateKey = (utcDateString: string) => {
     return `${year}-${month}-${day}`;
 };
 
-const HTTPResponse = (
-    success: boolean,
-    responseData: string,
-    statusCode: number
-) => {
-    return new Response(
-        JSON.stringify({ success: success, response: responseData }),
-        {
-            status: statusCode,
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }
-    );
+const HTTPResponse = (success: boolean, responseData: string, statusCode: number) => {
+    return new Response(JSON.stringify({ success: success, response: responseData }), {
+        status: statusCode,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
 };
 
 export const badResponse = (errorMessage: string, statusCode: number = 400) => {
@@ -123,11 +96,7 @@ export const successResponse = (data: any, statusCode: number = 200) => {
     return HTTPResponse(true, data, statusCode);
 };
 
-export const getValidLimit = (
-    param: string | null,
-    minLimit: number = 1,
-    maxLimit: number = 20
-) => {
+export const getValidLimit = (param: string | null, minLimit: number = 1, maxLimit: number = 20) => {
     const parsedLimit = parseInt(param || "", 10);
 
     if (isNaN(parsedLimit)) {
@@ -137,10 +106,7 @@ export const getValidLimit = (
     return Math.min(Math.max(parsedLimit, minLimit), maxLimit);
 };
 
-export const getApiRouteUrl = (
-    endpoint: string,
-    searchParams?: URLSearchParams | null
-) => {
+export const getApiRouteUrl = (endpoint: string, searchParams?: URLSearchParams | null) => {
     let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/${endpoint}`;
     if (searchParams) {
         url += `?${searchParams.toString()}`;
@@ -160,4 +126,23 @@ export const sameArrays = (a: any[], b: any[]) => {
         }
     }
     return true;
+};
+
+export const isNullOrEmpty = (str: string) => str == null || str.trim() === "";
+
+export const toFirstLetterUppercase = (str: string) => str.charAt(0) + str.substring(1).toLowerCase();
+
+export const roundTwoDecimals = (number: number) => Math.round((number + Number.EPSILON) * 100) / 100;
+export const blobToBase64 = (blob: Blob): Promise<string> => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return new Promise((resolve, reject) => {
+        reader.onloadend = () => {
+            if (reader.result) {
+                resolve(reader.result.toString());
+            } else {
+                reject();
+            }
+        };
+    });
 };

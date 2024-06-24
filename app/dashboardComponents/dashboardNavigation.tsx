@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { MobileLinkProps } from "@/app/types/interfaces";
 import {
+    IconArrowLeft,
     IconBox,
     IconCalendarUser,
     IconCategoryFilled,
@@ -24,24 +25,33 @@ import { Avatar } from "@nextui-org/avatar";
 import { Role } from "../lib/enums";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./SignOutButton";
+import { Button } from "@nextui-org/button";
+import {Tooltip} from "@nextui-org/tooltip";
+import { Divider } from "@nextui-org/divider";
 interface Props {
     className?: string;
 }
 
-const StudentLinks: MobileLinkProps[] = [
-    { name: "Home", href: "/dashboard", icon: <IconHome size={DEF_ICON_SIZE} /> },
-    { name: "Perfil", href: "/dashboard/profile", icon: <IconUserScan size={DEF_ICON_SIZE} /> },
-    { name: "Proyecto", href: "/dashboard/project", icon: <IconBox size={DEF_ICON_SIZE} /> },
+const iconStyles = "w-5 h-5 lg:w-8 lg:h-8 stroke-1 xl:stroke-2 xl:w-5 xl:h-5 lg:mx-auto xl:mx-0";
+
+const CommonLinks: MobileLinkProps[] = [
+    { name: "Home", href: "/dashboard", icon: <IconHome className={iconStyles} /> },
+    { name: "Perfil", href: "/dashboard/profile", icon: <IconUserScan className={iconStyles} /> },
 ];
 
-const TutorLinks: MobileLinkProps[] = [...StudentLinks, { name: "Área tutor", href: "/dashboard/tutor", icon: <IconSchool size={DEF_ICON_SIZE} /> }];
+const StudentLinks: MobileLinkProps[] = [...CommonLinks, { name: "Proyecto", href: "/dashboard/project", icon: <IconBox className={iconStyles} /> }];
+
+const TutorLinks: MobileLinkProps[] = [...CommonLinks, { name: "Área tutor", href: "/dashboard/tutor", icon: <IconSchool className={iconStyles} /> }];
 
 const ManagerLinks: MobileLinkProps[] = [
     ...TutorLinks,
-    { name: "Área gestión", href: "/dashboard/manager", icon: <IconSitemap size={DEF_ICON_SIZE} /> },
+    { name: "Área gestión", href: "/dashboard/manager", icon: <IconSitemap className={iconStyles} /> },
 ];
 
-const AdminLinks: MobileLinkProps[] = [...ManagerLinks, { name: "Admin", href: "/dashboard/admin", icon: <IconPasswordUser size={DEF_ICON_SIZE} /> }];
+const AdminLinks: MobileLinkProps[] = [
+    ...ManagerLinks,
+    { name: "Admin", href: "/dashboard/admin", icon: <IconPasswordUser className={iconStyles} /> },
+];
 
 const LinksByRole = {
     [Role.STUDENT]: StudentLinks,
@@ -68,41 +78,58 @@ export default function DashboardNavigation({ className }: Props) {
     const links = LinksByRole[userRole];
 
     const isCurrentPath = (link: string) => {
-        if (link === "/") {
-            return pathName === "/";
+        if (link === "/dashboard") {
+            return pathName === "/dashboard";
         }
         return pathName.toLowerCase().startsWith(link.toLowerCase());
     };
     return (
         <>
-            <nav className="hidden lg:flex flex-col justify-between w-60  bg-gray-900 self-stretch p-3 rounded-lg">
-                <section className="py-3 flex flex-col items-center justify-center">
-                    <div className="pb-5 font-semibold text-nova">DASHBOARD</div>
-                    <div className="relative flex items-center justify-center w-full pt-5">
-                        <div className="h-1px mask-borders absolute w-full left-0 bg-white"></div>
-                        <Avatar color="primary" as="button" size="lg" className="transition-transform" {...avatarProp} />
-                    </div>
-                    <h1 className="pt-2 text-sm">{session.user.name}</h1>
-                    <h1 className="text-tiny text-gray-400">{ROLE_NAMES[session.user.role as Role]}</h1>
-                </section>
-                <section className="flex flex-col gap-2 py-10">
-                    {links.map((link) => (
-                        <Link
-                            className={`rounded-lg w-full transition-colors ease-in-out flex relative
-                                 items-center gap-2  ${
-                                     isCurrentPath(link.href)
-                                         ? "bg-nova-button/10 hover:bg-nova-buttonm/10 text-[#258fe6] border-l-2 border-l-cyan-600"
-                                         : "hover:bg-nova-button/10"
-                                 } py-3 px-4`}
-                            href={link.href}>
-                            {link.icon}
-                            {link.name}
-                        </Link>
-                    ))}
-                </section>
-                <section className="flex justify-center ">
-                    <SignOutButton />
-                </section>
+            <nav className="hidden lg:flex flex-col transition-width w-24 xl:w-60 self-stretch gap-3">
+                <Button
+                    as={Link}
+                    href="/home"
+                    className="rounded-lg w-full transition-colors ease-in-out flex relative justify-start items-center py-3 px-4 bg-blue-700 p-3 border-1 border-white/5 hover:bg-nova-buttonm/10  border-l-2 ">
+                    <IconArrowLeft size={DEF_ICON_SIZE} />
+                    Volver
+                </Button>
+                <div className=" flex-1 flex flex-col justify-between bg-gray-900 p-3 rounded-lg border-1 border-white/5">
+                    <section className="py-3 flex flex-col items-center justify-center">
+                        <div className="pb-5 font-semibold text-nova hidden xl:block">DASHBOARD</div>
+                        <div className="relative flex items-center justify-center w-full pt-5">
+                            <div className="h-1px mask-borders absolute w-full left-0 bg-white"></div>
+                            <Avatar color="primary" as="button" size="lg" className="transition-transform" {...avatarProp} />
+                        </div>
+                        <h1 className="pt-2 text-sm">{session.user.name}</h1>
+                        <h1 className="text-tiny text-gray-400">{ROLE_NAMES[session.user.role as Role]}</h1>
+                    </section>
+                    <section className="flex flex-col gap-2 py-10">
+                        {links.map((link, index) => (
+                            <Tooltip
+                            key={index}
+                            placement="right"
+                            content={<div className="bg-blue-600 p-3 rounded-lg hidden lg:block xl:hidden uppercase tracking-wider">{link.name}</div>}
+                            closeDelay={100}
+                          >
+                            <Link
+                                
+                                className={`rounded-lg w-full transition-colors ease-in-out flex relative
+                            items-center gap-2  ${
+                                isCurrentPath(link.href)
+                                    ? "bg-nova-button/10 hover:bg-nova-buttonm/10 text-[#258fe6] border-l-2 border-l-cyan-600"
+                                    : "hover:bg-nova-button/10"
+                            } py-3 px-4`}
+                                href={link.href}>
+                                {link.icon}
+                                <span className="hidden xl:inline">{link.name}</span>
+                            </Link>
+                            </Tooltip>
+                        ))}
+                    </section>
+                    <section className="flex justify-center ">
+                        <SignOutButton />
+                    </section>
+                </div>
             </nav>
             <Navbar
                 isMenuOpen={isMenuOpen}
@@ -138,6 +165,18 @@ export default function DashboardNavigation({ className }: Props) {
                         exit: { opacity: 0, transform: "translateY(-50px)" },
                         transition: { type: "easeInOut", duration: 0.2 },
                     }}>
+                    <NavbarMenuItem>
+                        <Link
+                            className={`rounded-lg w-full transition-colors ease-in-out flex items-center gap-2
+                                py-3 px-4
+                            `}
+                            href={"/home"}
+                            onClick={() => setIsMenuOpen(false)}>
+                            <IconArrowLeft size={DEF_ICON_SIZE} />
+                            Volver
+                        </Link>
+                    </NavbarMenuItem>
+                    <Divider />
                     {links.map((link, index) => (
                         <NavbarMenuItem key={`${index}`}>
                             <Link

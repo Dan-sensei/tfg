@@ -11,7 +11,6 @@ export default function Test() {
     };
 
     const handleClose = (event: MouseEvent) => {
-        console.log("wah")
         if (
             selectRef.current &&
             !selectRef.current.contains(event.target as Node)

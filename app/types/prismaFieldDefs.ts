@@ -41,6 +41,7 @@ export const tfgFullFields = {
     },
     department: {
         select: {
+            id: true,
             name: true,
             link: true,
         },

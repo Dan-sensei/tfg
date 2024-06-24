@@ -5,7 +5,7 @@ import { IconChevronRight, IconDownload, IconEye } from "@tabler/icons-react";
 import Link from "next/link";
 import React from "react";
 
-export default function Info({ TFG }: { TFG: iFullTFG }) {
+export default function TFG_BasicInfo({ TFG }: { TFG: iFullTFG }) {
     return (
         <>
             <section className="text-3xl lg:text-5xl text-center md:text-left font-semibold uppercase">
@@ -88,18 +88,18 @@ export default function Info({ TFG }: { TFG: iFullTFG }) {
                 )}
             </section>
 
-            <section className="pt-3 md:pt-7 flex gap-2 justify-center md:justify-start">
+            <section className="pt-3 md:pt-7 flex flex-wrap gap-2 justify-center md:justify-start">
                 <Button
                     radius="sm"
                     className="bg-nova-button text-nova-light font-semibold"
                 >
-                    <IconEye size={20} /> Ver memoria
+                    <IconEye size={20} /> <span className="hidden md:inline">Ver memoria</span>
                 </Button>
                 <Button
                     radius="sm"
                     className="bg-nova-button text-nova-light font-semibold"
                 >
-                    <IconDownload size={20} /> Descargar memoria
+                    <IconDownload size={20} /> <span className="hidden md:inline">Descargar memoria</span>
                 </Button>
             </section>
             <section className="pt-5 flex flex-wrap gap-2 md:max-w-96">
