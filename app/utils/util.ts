@@ -146,3 +146,12 @@ export const blobToBase64 = (blob: Blob): Promise<string> => {
         };
     });
 };
+
+
+export const getFileType = (mimeType: string): string => {
+    const parts = mimeType.split('/');
+    if (parts.length > 1) {
+        return parts[1].toUpperCase();
+    }
+    return mimeType;
+};

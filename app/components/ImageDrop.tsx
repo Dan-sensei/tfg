@@ -2,7 +2,7 @@ import { IconCloudUpload, IconResize, IconTrashXFilled, IconX } from "@tabler/ic
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { MessageError, ProjectFormData } from "../types/interfaces";
 import clsx from "clsx";
-import { blobToBase64, isNullOrEmpty, roundTwoDecimals } from "../utils/util";
+import { blobToBase64, getFileType, isNullOrEmpty, roundTwoDecimals } from "../utils/util";
 import { Button } from "@nextui-org/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/modal";
 import { DEF_BANNER } from "../types/defaultData";
@@ -80,7 +80,11 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
     const handleFile = (file: File) => {
         const fileTypeRegex = /image\/(jpeg|jpg|png)/;
         const maxSize = 5 * 1024 * 1024;
-        if (!fileTypeRegex.test(file.type) || file.size > maxSize) {
+        if (!fileTypeRegex.test(file.type)) {
+            setErrorMessage(`Sólo se permiten archivos JPEG, JPG y PNG`);
+            return;
+        }
+        if (file.size > maxSize) {
             setErrorMessage(`Tu imagen supera los 5MB (${roundTwoDecimals(file.size / 1024 / 1024)}MB)`);
             return;
         }
@@ -138,9 +142,10 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
                             aspectRatio
                         )}>
                         <div className="pointer-events-none pb-3">
-                            <IconCloudUpload size={70} className="stroke-1 mx-auto" />
+                            <IconCloudUpload size={65} className="stroke-1 mx-auto" />
                             <div className="font-semibold text-blue-500 text-sm text-center">Selecciona o arrastra una imagen</div>
                             <div className="text-gray-400 text-tiny text-center">Máximo 5MB, tamaño recomendado 2400x800</div>
+                            <div className="text-gray-400 text-[10px] text-center">JPEG, JPG Y PNG</div>
                         </div>
                         {displayImage && (
                             <img
