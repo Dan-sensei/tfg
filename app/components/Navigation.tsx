@@ -30,6 +30,7 @@ import { useSession } from "next-auth/react";
 import { Avatar } from "@nextui-org/avatar";
 import { signOut } from "next-auth/react";
 import { DEF_ICON_SIZE } from "@/app/types/defaultData";
+import { Role } from "../lib/enums";
 
 interface TooltipLinkProps extends LinkProps {
     categoriesElements: CategoryLink[];
@@ -323,7 +324,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                                 </Link>
                             </NavbarMenuItem>
                         ))}
-                        {session?.user.role === "admin" && (
+                        {session?.user.role === Role.ADMIN && (
                             <NavbarMenuItem>
                                 <Link
                                     className={`rounded-lg w-full transition-colors ease-in-out flex items-center gap-2  ${
