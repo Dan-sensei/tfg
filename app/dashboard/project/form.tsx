@@ -35,7 +35,6 @@ type Props = {
     teachers: user[];
 };
 
-
 export default function ProjectForm({ college, departments, teachers }: Props) {
     const [isMounted, setIsMounted] = useState(false);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -145,7 +144,8 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
         const newData = { ...form, ...data, tutor: data.tutor ? data.tutor.map((t) => ({ ...t })) : form.tutor.map((t) => ({ ...t })) };
         setForm(newData);
         if (saveToLocalStorage) {
-            localStorage.setItem("tfg-data", JSON.stringify(newData));
+            const { thumbnail, banner, ...dataToSave } = newData;
+            localStorage.setItem("tfg-data", JSON.stringify(dataToSave));
         }
     };
 
@@ -308,19 +308,21 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
                     className="pt-4"
                     id="banner"
                     maxSize={5 * 1024 * 1024}
-                    aspectRatio="aspect-wide"
+                    aspectRatio={3 / 1}
                     label="Banner"
+                    maxDimensions={{ width: 2400, height: 800 }}
                     setFile={setBannerFile}
-                    updateForm={updateForm}
+                    onRemove={() => updateForm({ banner: DEF_BANNER }, false)}
+                    updateForm={(img) => updateForm({ banner: img }, false)}
                 />
                 <ImageDrop
                     className="pt-4"
                     id="thumbnail"
                     maxSize={2 * 1024 * 1024}
-                    aspectRatio="aspect-video"
+                    aspectRatio={16 / 9}
                     label="Thumbnail"
+                    maxDimensions={{ width: 400, height: 225 }}
                     setFile={setThumbnail}
-                    updateForm={updateForm}
                 />
             </div>
             <div className="flex-1 bg-grid">

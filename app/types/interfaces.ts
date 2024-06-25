@@ -170,3 +170,9 @@ export type ProjectFormData = {
     documentLink: string;
     tags: string[];
 };
+
+
+export type dimension = {
+    width: number;
+    height: number;
+}

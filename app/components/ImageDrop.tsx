@@ -1,25 +1,27 @@
 import { IconCloudUpload, IconResize, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { MessageError, ProjectFormData } from "../types/interfaces";
+import { MessageError, ProjectFormData, dimension } from "../types/interfaces";
 import clsx from "clsx";
 import { blobToBase64, getFileType, isNullOrEmpty, roundTwoDecimals } from "../utils/util";
 import { Button } from "@nextui-org/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/modal";
 import { DEF_BANNER } from "../types/defaultData";
 import { deleteImageFromIndexedDB, loadImagesFromIndexedDB, saveImageToIndexedDB } from "../lib/indexedDBHelper";
-import CropperComponent from "./Cropper";
+import CropperComponent, { AutoCrop } from "./Cropper";
 
 type Props = {
     className?: string;
     label: string;
     id: string;
-    updateForm: (data: Partial<ProjectFormData>, saveToLocalStorage: boolean) => void;
+    updateForm?: (imageBase64: string) => void;
+    onRemove?: () => void;
     setFile: Dispatch<SetStateAction<File | null>>;
     maxSize: number;
-    aspectRatio: string;
+    maxDimensions: dimension;
+    aspectRatio: number;
 };
 
-export default function ImageDrop({ className, label, id, updateForm, setFile, aspectRatio, maxSize }: Props) {
+export default function ImageDrop({ className, label, id, updateForm, setFile, onRemove, aspectRatio, maxSize, maxDimensions }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [displayImage, setDisplayImage] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
                 let original: string | null = null;
                 if (banner) {
                     original = await blobToBase64(banner);
-                    updateForm({ banner: original }, false);
+                    updateForm?.(original);
                     setDisplayImage(original);
                     setFile(new File([banner], "banner.png", { type: banner.type }));
                 }
@@ -91,10 +93,10 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
         setErrorMessage("");
         setFileType(file.type);
         blobToBase64(file).then((base64) => {
-            updateForm({ banner: base64 }, false);
-            setDisplayImage(base64);
+            AutoCrop({ imageSrc: base64, onCrop: onCrop, type: file.type, maxDimensions: maxDimensions, aspectRatioCropper: aspectRatio });
             setUncroppedImage(base64);
         });
+        localStorage.removeItem(id + "-cropper-data");
         setFile(file);
         saveImageToIndexedDB(id, file);
         saveImageToIndexedDB("u" + id, file);
@@ -103,9 +105,10 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
     const removeImage = () => {
         setDisplayImage(null);
         setUncroppedImage(null);
-        updateForm({ banner: DEF_BANNER }, false);
+        onRemove?.();
         setFile(null);
         deleteImageFromIndexedDB(id);
+        deleteImageFromIndexedDB("u" + id);
         localStorage.removeItem(id + "-cropper-data");
     };
 
@@ -117,7 +120,7 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
 
     const onCrop = (image: string, blob?: Blob) => {
         if (!isNullOrEmpty(image)) {
-            updateForm({ banner: image }, false);
+            updateForm?.(image);
             setDisplayImage(image);
             if (blob) saveImageToIndexedDB(id, blob);
         }
@@ -135,17 +138,18 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
                         onClick={handleClick}
                         onDragEnter={handleDragEnter}
                         onDragLeave={handleDragLeave}
+                        style={{ aspectRatio: aspectRatio }}
                         className={clsx(
                             "hover:cursor-pointer rounded-lg border-2 border-dashed transition-colors border-blue-500/50 relative flex items-center justify-center mt-2 overflow-hidden",
                             isDragging ? "border-blue-500 bg-blue-950" : "border-blue-500/50 bg-nova-darker",
-                            !isNullOrEmpty(errorMessage) ? "border-red-500" : "",
-                            aspectRatio
+                            !isNullOrEmpty(errorMessage) ? "border-red-500" : ""
                         )}>
                         <div className="pointer-events-none pb-3">
                             <IconCloudUpload size={65} className="stroke-1 mx-auto" />
                             <div className="font-semibold text-blue-500 text-sm text-center">Selecciona o arrastra una imagen</div>
                             <div className="text-gray-400 text-tiny text-center">
-                                Máximo {roundTwoDecimals(maxSize / 1024 / 1024)}MB, tamaño recomendado 2400x800
+                                Máximo {roundTwoDecimals(maxSize / 1024 / 1024)}MB, tamaño recomendado{" "}
+                                {`${maxDimensions.width}x${maxDimensions.height}`}
                             </div>
                             <div className="text-gray-400 text-[10px] text-center">JPEG, JPG Y PNG</div>
                         </div>
@@ -183,7 +187,15 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, a
                             <ModalBody className="  border-2 bg-dark-grid rounded-large overflow-hidden p-0">
                                 <div className=" h-[500px] relative flex justify-center">
                                     {uncroppedImage && (
-                                        <CropperComponent id={id} type={fileType} imageSrc={uncroppedImage} onCrop={onCrop} onClose={onClose} />
+                                        <CropperComponent
+                                            id={id}
+                                            aspectRatioCropper={aspectRatio}
+                                            maxDimensions={maxDimensions}
+                                            type={fileType}
+                                            imageSrc={uncroppedImage}
+                                            onCrop={onCrop}
+                                            onClose={onClose}
+                                        />
                                     )}
                                 </div>
                                 <Button

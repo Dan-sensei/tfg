@@ -3,12 +3,23 @@ import { Button } from "@nextui-org/button";
 import { IconX } from "@tabler/icons-react";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { dimension } from "../types/interfaces";
+
+interface AutoCrop {
+    imageSrc: string;
+    onCrop: (image: string, blob?: Blob) => void;
+    type: string;
+    maxDimensions: dimension;
+    aspectRatioCropper: number;
+}
 interface CropperComponentProps {
     imageSrc: string;
     onCrop: (image: string, blob?: Blob) => void;
     onClose: () => void;
     type: string;
+    maxDimensions: dimension;
+    aspectRatioCropper: number;
     id: string;
 }
 const getCropperDataFromLocalStorage = (id: string): { canvasData: Cropper.CanvasData; cropboxData: Cropper.CropBoxData } | null => {
@@ -29,91 +40,168 @@ const getCropperDataFromLocalStorage = (id: string): { canvasData: Cropper.Canva
     }
 };
 
-export default function CropperComponent({ imageSrc, onCrop, onClose, type, id }: CropperComponentProps) {
+const calculateCropboxSize = (
+    maxDimensions: dimension,
+    cropboxSize: dimension,
+    aspectRatioCropper: number,
+    containerWidth: number,
+    containerHeight: number
+): Cropper.CropBoxData => {
+    let height: number, width: number;
+    if (maxDimensions.width > maxDimensions.height) {
+        width = cropboxSize.width;
+        height = width / aspectRatioCropper;
+    } else {
+        height = cropboxSize.height;
+        width = height * aspectRatioCropper;
+    }
+    const left = (containerWidth - width) / 2;
+    const top = (containerHeight - height) / 2;
+
+    return { width, height, left, top };
+};
+
+export function AutoCrop({ imageSrc, onCrop, type, maxDimensions, aspectRatioCropper }: AutoCrop) {
+    console.log("initpre")
+    // Default viewport size
+    const [w, h] = [892, 500];
+    const imageElement = document.createElement("img");
+    imageElement.src = imageSrc;
+    imageElement.classList.add("w-full");
+    const container = document.createElement("div");
+    container.style.width = "892px";
+    container.style.height = "500px";
+    container.style.position = "fixed";
+    container.classList.add("cropper-container", "relative", "w-full", "h-full", "top-0", "-z-50", "invisible", "pointer-events-none");
+    container.appendChild(imageElement);
+    document.body.append(container);
+    const cropboxSize: dimension = {
+        width: maxDimensions.width > w ? w : maxDimensions.width,
+        height: maxDimensions.height > h ? h : maxDimensions.height,
+    };
+    const cropper = initializeCropper(imageElement, aspectRatioCropper, maxDimensions, cropboxSize, w, h, null, () => {
+        crop(cropper, maxDimensions, onCrop, type);
+        cropper.destroy();
+        document.body.removeChild(container);
+    });
+
+}
+
+const initializeCropper = (
+    imageElement: HTMLImageElement,
+    aspectRatioCropper: number,
+    maxDimensions: dimension,
+    cropboxSize: dimension,
+    containerWidth: number,
+    containerHeight: number,
+    cropperData: {
+        canvasData: Cropper.CanvasData;
+        cropboxData: Cropper.CropBoxData;
+    } | null,
+    onReady?: () => void
+) => {
+    const cropper = new Cropper(imageElement, {
+        dragMode: "move",
+        background: false,
+        viewMode: 1,
+        aspectRatio: aspectRatioCropper,
+        rotatable: false,
+        cropBoxMovable: false,
+        cropBoxResizable: false,
+        ready: () => {
+            if (cropperData) {
+                cropper.setCanvasData(cropperData.canvasData);
+                cropper.setCropBoxData(cropperData.cropboxData);
+            } else {
+                console.log("wah")
+                const canvasData = cropper.getCanvasData();
+                if (canvasData) {
+                    const { naturalWidth, naturalHeight } = canvasData;
+                    const cropBox = calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight);
+                    let newWidth: number, newHeight: number, top: number, left: number;
+                    if (cropBox.width / cropBox.height > naturalWidth / naturalHeight) {
+                        newHeight = (cropBox.width * naturalHeight) / naturalWidth;
+                        newWidth = cropBox.width;
+                    } else {
+                        newWidth = (cropBox.height * naturalWidth) / naturalHeight;
+                        newHeight = cropBox.height;
+                    }
+
+                    top = (containerHeight - newHeight) / 2;
+                    left = (containerWidth - newWidth) / 2;
+                    cropper.setCanvasData({ width: newWidth, height: newHeight, left, top });
+                }
+            }
+            cropper.setCropBoxData(calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight));
+            onReady?.();
+        },
+    });
+
+    return cropper;
+};
+
+const crop = (cropper: Cropper, maxDimensions: dimension, onCrop: (image: string, blob?: Blob) => void, type: string, callback?: () => void) => {
+    console.log("cropping")
+    const output = cropper.getData(true);
+    const croppedCanvas = cropper.getCroppedCanvas({
+        width: output.width > maxDimensions.width ? maxDimensions.width : output.width,
+        height: output.height > maxDimensions.height ? maxDimensions.height : output.height,
+        maxWidth: 4096,
+        maxHeight: 4096,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: "high",
+    });
+    croppedCanvas.toBlob(
+        (blob) => {
+            if (blob) {
+                onCrop(croppedCanvas.toDataURL(), blob);
+            } else {
+                onCrop(croppedCanvas.toDataURL());
+            }
+        },
+        type,
+        1
+    );
+    callback?.();
+};
+
+export default function CropperComponent({ imageSrc, onCrop, onClose, type, maxDimensions, aspectRatioCropper, id }: CropperComponentProps) {
     const imageElement = useRef<HTMLImageElement>(null);
     const container = useRef<HTMLImageElement>(null);
     const cropper = useRef<Cropper>();
 
     useEffect(() => {
-        const getContainerData = () => [container.current?.offsetWidth, container.current?.offsetHeight];
+        if (!container.current || !imageElement.current) return;
 
-        const recalculateCanvasSize = () => {
-            const [w, h] = getContainerData();
-            if (w && h) {
-                const newWidth = w * 0.9;
-                const newHeight = newWidth / 3;
-                const left = (w - newWidth) / 2;
-                const top = (h - newHeight) / 2;
-                cropper.current?.setCropBoxData({ left: left, height: newHeight, top: top, width: newWidth });
-            }
+        const [w, h] = [container.current.offsetWidth, container.current.offsetHeight];
+
+        const cropboxSize: dimension = {
+            width: maxDimensions.width > w ? w * 0.9 : maxDimensions.width,
+            height: maxDimensions.height > h ? h * 0.9 : maxDimensions.height,
         };
 
-        if (imageElement.current) {
-            cropper.current = new Cropper(imageElement.current, {
-                dragMode: "move",
-                background: false,
-                aspectRatio: 3 / 1,
-                autoCropArea: 0.8,
-                viewMode: 1,
-                rotatable: false,
-                cropBoxMovable: false,
-                cropBoxResizable: false,
-            });
-            imageElement.current.addEventListener("ready", function () {
-                const data = getCropperDataFromLocalStorage(id);
-                if (data) {
-                    cropper.current?.setCanvasData(data.canvasData);
-                    cropper.current?.setCropBoxData(data.cropboxData);
-                } else {
-                    const [containerWidth, containerHeight] = getContainerData();
-                    const canvasData = cropper.current?.getCanvasData();
-                    if (containerWidth && containerHeight && canvasData) {
-                        const { naturalWidth, naturalHeight } = canvasData;
-                        let newWidth: number, newHeight: number, top: number, left: number;
+        const recalculateCropboxSize = () => {
+            cropper.current?.setCropBoxData(calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, w, h));
+        };
 
-                        if (containerWidth / containerHeight > naturalWidth / naturalHeight) {
-                            newHeight = (containerWidth * naturalHeight) / naturalWidth;
-                            newWidth = containerWidth;
-                            top = (containerHeight - newHeight) / 2;
-                            left = 0;
-                        } else {
-                            newWidth = (containerHeight * naturalWidth) / naturalHeight;
-                            newHeight = containerHeight;
-                            top = 0;
-                            left = (containerWidth - newWidth) / 2;
-                        }
-
-                        cropper.current?.setCanvasData({ width: newWidth, height: newHeight, top, left });
-
-                        recalculateCanvasSize();
-                    }
-                }
-            });
-        }
-
-        window.addEventListener("resize", recalculateCanvasSize);
-
+        const savedCropperData = getCropperDataFromLocalStorage(id);
+        cropper.current = initializeCropper(imageElement.current, aspectRatioCropper, maxDimensions, cropboxSize, w, h, savedCropperData);
+        window.addEventListener("resize", recalculateCropboxSize);
         return () => {
             cropper.current?.destroy();
-            window.removeEventListener("resize", recalculateCanvasSize);
+            window.removeEventListener("resize", recalculateCropboxSize);
         };
     }, [imageSrc]);
 
     const handleCrop = () => {
         if (cropper.current) {
-            const croppedCanvas = cropper.current.getCroppedCanvas({ maxWidth: 2400, maxHeight: 800 });
-            croppedCanvas.toBlob((blob) => {
-                if (blob) {
-                    onCrop(croppedCanvas.toDataURL(), blob);
-                } else {
-                    onCrop(croppedCanvas.toDataURL());
+            crop(cropper.current, maxDimensions, onCrop, type, () => {
+                const canvasData = cropper.current?.getCanvasData();
+                const cropboxData = cropper.current?.getCropBoxData();
+                if (canvasData && cropboxData) {
+                    localStorage.setItem(id + "-cropper-data", JSON.stringify({ canvasData: canvasData, cropboxData: cropboxData }));
                 }
-            }, type);
-        }
-        const canvasData = cropper.current?.getCanvasData();
-        const cropboxData = cropper.current?.getCropBoxData();
-        if (canvasData && cropboxData) {
-            localStorage.setItem(id + "-cropper-data", JSON.stringify({ canvasData: canvasData, cropboxData: cropboxData }));
+            });
         }
     };
 
@@ -125,8 +213,8 @@ export default function CropperComponent({ imageSrc, onCrop, onClose, type, id }
             <Button
                 className="absolute bottom-5 z-10 mx-auto"
                 onClick={() => {
-                    onClose();
                     handleCrop();
+                    onClose();
                 }}>
                 Recortar
             </Button>
