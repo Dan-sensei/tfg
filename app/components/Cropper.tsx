@@ -62,7 +62,6 @@ const calculateCropboxSize = (
 };
 
 export function AutoCrop({ imageSrc, onCrop, type, maxDimensions, aspectRatioCropper }: AutoCrop) {
-    console.log("initpre")
     // Default viewport size
     const [w, h] = [892, 500];
     const imageElement = document.createElement("img");
@@ -84,7 +83,6 @@ export function AutoCrop({ imageSrc, onCrop, type, maxDimensions, aspectRatioCro
         cropper.destroy();
         document.body.removeChild(container);
     });
-
 }
 
 const initializeCropper = (
@@ -104,25 +102,26 @@ const initializeCropper = (
         dragMode: "move",
         background: false,
         viewMode: 1,
-        aspectRatio: aspectRatioCropper,
         rotatable: false,
         cropBoxMovable: false,
         cropBoxResizable: false,
         ready: () => {
             if (cropperData) {
-                cropper.setCanvasData(cropperData.canvasData);
                 cropper.setCropBoxData(cropperData.cropboxData);
+                cropper.setCanvasData(cropperData.canvasData);
             } else {
-                console.log("wah")
+                cropper.setCropBoxData(calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight));
                 const canvasData = cropper.getCanvasData();
                 if (canvasData) {
                     const { naturalWidth, naturalHeight } = canvasData;
                     const cropBox = calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight);
                     let newWidth: number, newHeight: number, top: number, left: number;
                     if (cropBox.width / cropBox.height > naturalWidth / naturalHeight) {
+                        console.log("width", cropBox.width);
                         newHeight = (cropBox.width * naturalHeight) / naturalWidth;
                         newWidth = cropBox.width;
                     } else {
+                        console.log("height", cropBox.height);
                         newWidth = (cropBox.height * naturalWidth) / naturalHeight;
                         newHeight = cropBox.height;
                     }
@@ -132,7 +131,6 @@ const initializeCropper = (
                     cropper.setCanvasData({ width: newWidth, height: newHeight, left, top });
                 }
             }
-            cropper.setCropBoxData(calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight));
             onReady?.();
         },
     });
@@ -141,7 +139,6 @@ const initializeCropper = (
 };
 
 const crop = (cropper: Cropper, maxDimensions: dimension, onCrop: (image: string, blob?: Blob) => void, type: string, callback?: () => void) => {
-    console.log("cropping")
     const output = cropper.getData(true);
     const croppedCanvas = cropper.getCroppedCanvas({
         width: output.width > maxDimensions.width ? maxDimensions.width : output.width,
