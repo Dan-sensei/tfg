@@ -26,6 +26,10 @@ body {
         @apply bg-nova-darker bg-grid
     }
 
+    .bg-nova-gradient {
+        @apply bg-gradient-to-bl from-nova-dark via-nova-darker to-nova-darker
+    }
+
     .grid-stack {
         grid-template-areas: "stack";
     }

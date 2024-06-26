@@ -28,11 +28,12 @@ import SignOutButton from "./SignOutButton";
 import { Button } from "@nextui-org/button";
 import {Tooltip} from "@nextui-org/tooltip";
 import { Divider } from "@nextui-org/divider";
+import clsx from "clsx";
 interface Props {
     className?: string;
 }
 
-const iconStyles = "w-5 h-5 lg:w-8 lg:h-8 stroke-1 xl:stroke-2 xl:w-5 xl:h-5 lg:mx-auto xl:mx-0";
+const iconStyles = "stroke-2 w-5 h-5 mx-0";
 
 const CommonLinks: MobileLinkProps[] = [
     { name: "Home", href: "/dashboard", icon: <IconHome className={iconStyles} /> },
@@ -85,7 +86,7 @@ export default function DashboardNavigation({ className }: Props) {
     };
     return (
         <>
-            <nav className="hidden lg:flex flex-col transition-width w-24 xl:w-60 self-stretch gap-3">
+            <nav className="hidden xl:flex flex-col transition-width w-60 self-stretch gap-3">
                 <Button
                     as={Link}
                     href="/home"
@@ -95,7 +96,7 @@ export default function DashboardNavigation({ className }: Props) {
                 </Button>
                 <div className=" flex-1 flex flex-col justify-between bg-gray-900 p-3 rounded-lg border-1 border-white/5">
                     <section className="py-3 flex flex-col items-center justify-center">
-                        <div className="pb-5 font-semibold text-nova hidden xl:block">DASHBOARD</div>
+                        <div className="pb-5 font-semibold text-nova block">DASHBOARD</div>
                         <div className="relative flex items-center justify-center w-full pt-5">
                             <div className="h-1px mask-borders absolute w-full left-0 bg-white"></div>
                             <Avatar color="primary" as="button" size="lg" className="transition-transform" {...avatarProp} />
@@ -105,12 +106,7 @@ export default function DashboardNavigation({ className }: Props) {
                     </section>
                     <section className="flex flex-col gap-2 py-10">
                         {links.map((link, index) => (
-                            <Tooltip
-                            key={index}
-                            placement="right"
-                            content={<div className="bg-blue-600 p-3 rounded-lg hidden lg:block xl:hidden uppercase tracking-wider">{link.name}</div>}
-                            closeDelay={100}
-                          >
+                           
                             <Link
                                 
                                 className={`rounded-lg w-full transition-colors ease-in-out flex relative
@@ -121,9 +117,8 @@ export default function DashboardNavigation({ className }: Props) {
                             } py-3 px-4`}
                                 href={link.href}>
                                 {link.icon}
-                                <span className="hidden xl:inline">{link.name}</span>
+                                {link.name}
                             </Link>
-                            </Tooltip>
                         ))}
                     </section>
                     <section className="flex justify-center ">
@@ -138,16 +133,16 @@ export default function DashboardNavigation({ className }: Props) {
                 onMenuOpenChange={setIsMenuOpen}
                 className={`bg-transparent h-full`}
                 classNames={{
-                    base: `${className ?? ""}`,
+                    base: `${clsx(className)}`,
                     wrapper: "bg-nova-darker border-b-1 border-white/10",
                     menuItem: " text-md",
                     menu: "bg-tg-dark px-3 gap-1 pt-5",
                 }}>
-                <NavbarContent className="lg:hidden" justify="start">
+                <NavbarContent className="xl:hidden" justify="start">
                     <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
                 </NavbarContent>
 
-                <NavbarContent className="lg:hidden pr-3" justify="center">
+                <NavbarContent className="xl:hidden pr-3" justify="center">
                     <NavbarBrand>
                         <Link href={links[0].href}>
                             <picture>

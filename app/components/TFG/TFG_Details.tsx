@@ -2,9 +2,10 @@ import { montserrat } from "../../lib/fonts";
 import { iFullTFG } from "../../types/interfaces";
 import TFG_BasicInfo from "./BasicInfo";
 import Image from "next/image";
-import InfoBlocks, { TFG_BLockElement } from "./InfoBlocks";
+import InfoBlocks from "./InfoBlocks";
 import { isNullOrEmpty } from "@/app/utils/util";
 import { DEF_BANNER } from "@/app/types/defaultData";
+import { TFG_BLockElement } from "@/app/lib/BlockTypes";
 
 type Props = {
     TFG: iFullTFG;

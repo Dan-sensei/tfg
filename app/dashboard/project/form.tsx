@@ -11,13 +11,16 @@ import { Select, SelectItem, SelectedItems } from "@nextui-org/select";
 import BasicInfo from "@/app/components/TFG/BasicInfo";
 import TFG_Details from "@/app/components/TFG/TFG_Details";
 import { Autocomplete, AutocompleteSection, AutocompleteItem } from "@nextui-org/autocomplete";
-import { Button, Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions, Field, Label } from "@headlessui/react";
-import { IconCheck, IconChevronDown, IconCloudUpload, IconUpload, IconX } from "@tabler/icons-react";
+import { IconCheck, IconChevronDown, IconCloudUpload, IconEye, IconEyeX, IconSlideshow, IconUpload, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 import ImageDrop from "@/app/components/ImageDrop";
 import { Spinner } from "@nextui-org/spinner";
 import { DEF_BANNER } from "@/app/types/defaultData";
 import { loadImageFromIndexedDB, saveImageToIndexedDB } from "@/app/lib/indexedDBHelper";
+import { Divider } from "@nextui-org/divider";
+import BlockBuilder from "@/app/components/BlockBuilder";
+import { Button, Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions, Field, Label } from "@headlessui/react";
+import { Button as NextUIButton } from "@nextui-org/button";
 
 const defaultErrorMessages = {
     thumbnail: "",
@@ -39,6 +42,7 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
     const [isMounted, setIsMounted] = useState(false);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [thumbnail, setThumbnail] = useState<File | null>(null);
+    const [showPreview, setShowPreview] = useState(false);
     const [form, setForm] = useState<ProjectFormData>({
         thumbnail: "",
         banner: DEF_BANNER,
@@ -167,8 +171,8 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
     }
 
     return (
-        <div className="flex ">
-            <div className="p-3 bg-gray-900 rounded-l-xl border-1 border-white/5 md:w-[350px] xl:w-[450px]">
+        <div className="flex relative overflow-hidden">
+            <div className="p-3 bg-gray-900 rounded-l-xl border-1 border-white/5 w-full md:w-[50%] lg:w-[450px]">
                 <div className="leading-4">
                     <span className="text-tiny text-gray-400">
                         Tus cambios se guardarán en este navegador <span className="font-bold">hasta que los envíes</span>. Si cambias de navegador o
@@ -324,10 +328,36 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
                     maxDimensions={{ width: 400, height: 225 }}
                     setFile={setThumbnail}
                 />
+
+                <Divider className="my-2" />
+                <BlockBuilder className="pt-3" />
             </div>
-            <div className="flex-1 bg-grid">
-                <TFG_Details TFG={TFG} />
+            <div
+                className={clsx(
+                    "flex-1 absolute md:relative border-1 border-l-0 border-white/10 w-full left-0 top-0 transition-transform rounded-large md:rounded-r-xl md:rounded-l-none md:translate-x-0 shadow-dark overflow-hidden",
+                    showPreview ? "translate-x-0 " : "translate-x-[105%]",
+                    "z-20"
+                )}>
+                <div className="w-full bg-grid">
+                    <TFG_Details TFG={TFG} />
+                </div>
             </div>
+            <NextUIButton
+                onClick={() => setShowPreview((preview) => !preview)}
+                className={clsx(
+                    "fixed  md:hidden top-32 shadow-light-dark -right-3 flex gap-3 rounded-l-full px-7 py-3 z-50",
+                    showPreview ? "bg-red-500" : "bg-blue-500 "
+                )}>
+                {showPreview ? (
+                    <>
+                        <IconEyeX /> Ocultar preview
+                    </>
+                ) : (
+                    <>
+                        <IconEye /> Ver preview
+                    </>
+                )}
+            </NextUIButton>
         </div>
     );
 }

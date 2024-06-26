@@ -116,21 +116,18 @@ const initializeCropper = (
                 const cropBox = calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight);
                 let newWidth: number, newHeight: number, top: number, left: number;
                 if (cropBox.width / cropBox.height > naturalWidth / naturalHeight) {
-                    console.log("width", cropBox.width);
                     newHeight = (cropBox.width * naturalHeight) / naturalWidth;
                     newWidth = cropBox.width;
                 } else {
-                    console.log("height", cropBox.height);
                     newWidth = (cropBox.height * naturalWidth) / naturalHeight;
                     newHeight = cropBox.height;
                 }
 
                 top = (containerHeight - newHeight) / 2;
                 left = (containerWidth - newWidth) / 2;
-                const cropbox = calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight);
-                cropper.setCropBoxData(cropbox);
+                cropper.setCropBoxData(cropBox);
                 cropper.setCanvasData({ width: newWidth, height: newHeight, left, top });
-                cropper.setCropBoxData(cropbox);
+                cropper.setCropBoxData(cropBox);
             }
             onReady?.();
         },
