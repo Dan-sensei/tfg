@@ -7,7 +7,7 @@ const config: Config = {
         "./pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./components/**/*.{js,ts,jsx,tsx,mdx}",
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
-        "./node_modules/@nextui-org/theme/dist/components/(button|chip|navbar|pagination|spinner|divider|input|modal|kbd|autocomplete|dropdown|select|calendar|tabs|radio|avatar|tooltip|autocomplete).js",
+        "./node_modules/@nextui-org/theme/dist/components/(button|chip|navbar|pagination|spinner|divider|input|modal|kbd|autocomplete|dropdown|select|calendar|tabs|radio|avatar|tooltip|autocomplete|slider|checkbox).js",
     ],
     theme: {
         extend: {
@@ -31,10 +31,10 @@ const config: Config = {
                 "glow-medium": "0px 0px 15px #ffffff45",
             },
             height: {
-                "1px": "1px"
+                "1px": "1px",
             },
             boxShadow: {
-                "dark": "3px 5px 10px rgba(0, 0, 0, 0.9)",
+                dark: "3px 5px 10px rgba(0, 0, 0, 0.9)",
                 "light-dark": "3px 5px 10px rgba(0, 0, 0, 0.6)",
                 "sm-light-dark": "2px 3px 5px rgba(0, 0, 0, 0.4)",
             },
@@ -50,7 +50,7 @@ const config: Config = {
                 "nova-light": "#e3e6ee",
                 "nova-light2": "#8091a3",
                 "nova-button": "#05689c",
-                "nova-gray": "#bfbfbf"
+                "nova-gray": "#bfbfbf",
             },
             flex: {
                 "1c": "0 0 100%",
@@ -70,8 +70,11 @@ const config: Config = {
                 "borders-10": "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
                 left: "linear-gradient(to right, transparent, black 100%)",
                 right: "linear-gradient(to right, black, transparent 100%)",
-                "bottom-10": "linear-gradient(to bottom, black 80%, transparent 100%)"
-            }
+                "bottom-10": "linear-gradient(to bottom, black 80%, transparent 100%)",
+            },
+            backgroundImage: {
+                sketch: "repeating-linear-gradient(-45deg, rgba(0, 111, 238, 0.5), rgba(0, 111, 238, 0.5) 2px, transparent 2px, transparent 15px)",
+            },
         },
     },
     darkMode: "class",
@@ -89,15 +92,15 @@ const config: Config = {
         plugin(function ({ matchUtilities, theme }) {
             matchUtilities(
                 {
-                    "mask": (value) => ({
+                    mask: (value) => ({
                         maskImage: value,
-                        WebkitMaskImage: value
+                        WebkitMaskImage: value,
                     }),
                 },
                 { values: theme("maskImage") }
             );
         }),
-        
+
         nextui({
             addCommonColors: true,
         }),

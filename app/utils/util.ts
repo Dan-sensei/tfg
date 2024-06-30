@@ -147,11 +147,21 @@ export const blobToBase64 = (blob: Blob): Promise<string> => {
     });
 };
 
-
 export const getFileType = (mimeType: string): string => {
-    const parts = mimeType.split('/');
+    const parts = mimeType.split("/");
     if (parts.length > 1) {
         return parts[1].toUpperCase();
     }
     return mimeType;
+};
+
+export const getYoutubeVideoId = (url: string) => {
+    const regex =
+        /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/(?:[^\/\n\s]+\/|)|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^#&?\/\n\s]{11})/;
+    const match = url.match(regex);
+    if (match) {
+        return match[1];
+    } else {
+        return null;
+    }
 };

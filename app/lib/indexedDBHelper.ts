@@ -68,6 +68,70 @@ export const deleteImageFromIndexedDB = (id: string): Promise<void> => {
     });
 };
 
+const startsWithAnyPrefix = (key: string, prefixes: string[]) => {
+    return prefixes.some(prefix => key.startsWith(prefix));
+};
+export const deleteNonExistentImagesFromIndexedDB = (ids: string[]): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        openDatabase()
+            .then((db) => {
+                const transaction = db.transaction(["images"], "readwrite");
+                const store = transaction.objectStore("images");
+                const request = store.openCursor();
+
+                request.onsuccess = function (event) {
+                    const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+                    if (cursor) {
+                        const key = cursor.key as string;
+                        if (!startsWithAnyPrefix(key, ids)) {
+                            store.delete(key);
+                        }
+                        cursor.continue();
+                    } else {
+                        resolve();
+                    }
+                };
+
+                request.onerror = function () {
+                    reject(request.error);
+                };
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+};
+export const deleteImagesWithPrefix = (prefix: string[]): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        openDatabase()
+            .then((db) => {
+                const transaction = db.transaction(["images"], "readwrite");
+                const store = transaction.objectStore("images");
+                const request = store.openCursor();
+
+                request.onsuccess = function (event) {
+                    const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+                    if (cursor) {
+                        const key = cursor.key as string;
+                        if (startsWithAnyPrefix(key, prefix)) {
+                            store.delete(key);
+                        }
+                        cursor.continue();
+                    } else {
+                        resolve();
+                    }
+                };
+
+                request.onerror = function () {
+                    reject(request.error);
+                };
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+};
+
 export const loadImagesFromIndexedDB = async (keys: string[]) => {
     try {
         const promises = keys.map((key) => loadImageFromIndexedDB(key));

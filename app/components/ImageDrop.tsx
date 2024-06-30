@@ -1,27 +1,27 @@
 import { IconCloudUpload, IconResize, IconTrashXFilled, IconX } from "@tabler/icons-react";
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { MessageError, ProjectFormData, dimension } from "../types/interfaces";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { blobToBase64, getFileType, isNullOrEmpty, roundTwoDecimals } from "../utils/util";
 import { Button } from "@nextui-org/button";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/modal";
-import { DEF_BANNER } from "../types/defaultData";
+import { Modal, ModalContent, ModalBody, useDisclosure } from "@nextui-org/modal";
 import { deleteImageFromIndexedDB, loadImagesFromIndexedDB, saveImageToIndexedDB } from "../lib/indexedDBHelper";
 import CropperComponent, { AutoCrop } from "./Cropper";
+import { dimension } from "../types/interfaces";
 
 type Props = {
     className?: string;
+    autocrop: boolean;
     label: string;
     id: string;
-    updateForm?: (imageBase64: string) => void;
+    onUpdate?: (newImage: string, file: File | null) => void;
     onRemove?: () => void;
-    setFile: Dispatch<SetStateAction<File | null>>;
     maxSize: number;
     maxDimensions: dimension;
-    aspectRatio: number;
+    aspectRatio?: number;
+    isDisabled?: boolean;
 };
 
-export default function ImageDrop({ className, label, id, updateForm, setFile, onRemove, aspectRatio, maxSize, maxDimensions }: Props) {
+export default function ImageDrop({ className, label, id, onUpdate, onRemove, aspectRatio, maxSize, maxDimensions, isDisabled = false, autocrop }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [displayImage, setDisplayImage] = useState<string | null>(null);
@@ -32,20 +32,20 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, o
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        let ignore = false;
         const requestImages = async () => {
             const keys = [id, `u${id}`];
             try {
-                const [banner, ubanner] = await loadImagesFromIndexedDB(keys);
+                const [cropped, uncropped] = await loadImagesFromIndexedDB(keys);
+                if (ignore) return;
                 let original: string | null = null;
-                if (banner) {
-                    original = await blobToBase64(banner);
-                    updateForm?.(original);
-                    setDisplayImage(original);
-                    setFile(new File([banner], "banner.png", { type: banner.type }));
+                if (cropped) {
+                    original = await blobToBase64(cropped);
+                    updateImages(original, cropped);
                 }
 
-                if (ubanner) {
-                    const ubannerBase64 = await blobToBase64(ubanner);
+                if (uncropped) {
+                    const ubannerBase64 = await blobToBase64(uncropped);
                     setUncroppedImage(ubannerBase64);
                 } else {
                     setUncroppedImage(original);
@@ -56,19 +56,30 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, o
             setIsMounted(true);
         };
         requestImages();
+        return () => {
+            ignore = true;
+        };
     }, []);
+
+    const blobToFile = (blob: Blob, name: string) => {
+        const filename = name + getFileType(blob.type);
+        return new File([blob], filename, { type: blob.type });
+    };
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
+        if (isDisabled) return;
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
         handleFile(file);
     };
     const handleDragEnter = () => {
+        if (isDisabled) return;
         setIsDragging(true);
     };
 
     const handleDragLeave = () => {
+        if (isDisabled) return;
         setIsDragging(false);
     };
 
@@ -77,28 +88,38 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, o
     };
 
     const handleClick = () => {
+        if(isDisabled) return;
         fileInputRef.current?.click();
     };
 
     const handleFile = (file: File) => {
         const fileTypeRegex = /image\/(jpeg|jpg|png)/;
-        if (!fileTypeRegex.test(file.type)) {
+        if (!file.type || !fileTypeRegex.test(file.type)) {
             setErrorMessage(`Sólo se permiten archivos JPEG, JPG y PNG`);
             return;
         }
         if (file.size > maxSize) {
-            setErrorMessage(`Tu imagen supera los 5MB (${roundTwoDecimals(file.size / 1024 / 1024)}MB)`);
+            setErrorMessage(`Tu imagen supera los ${roundTwoDecimals(maxSize / 1024 / 1024)}MB (${roundTwoDecimals(file.size / 1024 / 1024)}MB)`);
             return;
         }
         setErrorMessage("");
         setFileType(file.type);
+        onRemove?.();
         blobToBase64(file).then((base64) => {
-            AutoCrop({ imageSrc: base64, onCrop: onCrop, type: file.type, maxDimensions: maxDimensions, aspectRatioCropper: aspectRatio });
+            if (autocrop && aspectRatio) {
+                AutoCrop({
+                    imageSrc: base64,
+                    onCrop: updateAndSaveToDB,
+                    type: file.type,
+                    maxDimensions: maxDimensions,
+                    aspectRatioCropper: aspectRatio,
+                });
+            } else {
+                updateAndSaveToDB(base64, file);
+            }
             setUncroppedImage(base64);
         });
         localStorage.removeItem(id + "-cropper-data");
-        setFile(file);
-        saveImageToIndexedDB(id, file);
         saveImageToIndexedDB("u" + id, file);
     };
 
@@ -106,29 +127,33 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, o
         setDisplayImage(null);
         setUncroppedImage(null);
         onRemove?.();
-        setFile(null);
         deleteImageFromIndexedDB(id);
         deleteImageFromIndexedDB("u" + id);
         localStorage.removeItem(id + "-cropper-data");
     };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files) {
+        if (event.target.files && event.target.files.length > 0) {
             handleFile(event.target.files[0]);
         }
     };
 
-    const onCrop = (image: string, blob?: Blob) => {
+    const updateImages = (image: string, blob?: Blob) => {
         if (!isNullOrEmpty(image)) {
-            updateForm?.(image);
+            const file = blob ? blobToFile(blob, id) : null;
+            onUpdate?.(image, file);
             setDisplayImage(image);
-            if (blob) saveImageToIndexedDB(id, blob);
         }
+    };
+
+    const updateAndSaveToDB = (image: string, blob?: Blob) => {
+        updateImages(image, blob);
+        if (blob) saveImageToIndexedDB(id, blob);
     };
 
     return (
         <>
-            <div className={clsx(className, "relative")}>
+            <div className={clsx(className, "relative", isDisabled ? "opacity-50" : "")}>
                 <div className="text-sm">{label}</div>
 
                 <div className="relative">
@@ -138,28 +163,32 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, o
                         onClick={handleClick}
                         onDragEnter={handleDragEnter}
                         onDragLeave={handleDragLeave}
-                        style={{ aspectRatio: aspectRatio }}
+                        style={{ aspectRatio: aspectRatio ? aspectRatio : "3/2" }}
                         className={clsx(
-                            "hover:cursor-pointer rounded-lg border-2 border-dashed transition-colors border-blue-500/50 relative flex items-center justify-center mt-2 overflow-hidden",
+                            "rounded-lg border-2 border-dashed transition-colors border-blue-500/50 relative flex items-center justify-center mt-2 overflow-hidden",
                             isDragging ? "border-blue-500 bg-blue-950" : "border-blue-500/50 bg-nova-darker",
-                            !isNullOrEmpty(errorMessage) ? "border-red-500" : ""
+                            !isNullOrEmpty(errorMessage) ? "border-red-500" : "",
+                            isDisabled ? "" : "hover:cursor-pointer"
                         )}>
-                        <div className="pointer-events-none pb-3">
-                            <IconCloudUpload size={65} className="stroke-1 mx-auto" />
-                            <div className="font-semibold text-blue-500 text-sm text-center">Selecciona o arrastra una imagen</div>
-                            <div className="text-gray-400 text-tiny text-center">
-                                Máximo {roundTwoDecimals(maxSize / 1024 / 1024)}MB, tamaño recomendado{" "}
-                                {`${maxDimensions.width}x${maxDimensions.height}`}
+                        {(isDragging || !displayImage) && (
+                            <div className="pointer-events-none pb-3 text-white">
+                                <IconCloudUpload size={65} className="stroke-1 mx-auto" />
+                                <div className="font-semibold text-blue-500 text-sm text-center">Selecciona o arrastra una imagen</div>
+                                <div className="text-gray-400 text-tiny text-center">
+                                    Máximo {roundTwoDecimals(maxSize / 1024 / 1024)}MB, tamaño recomendado{" "}
+                                    {`${maxDimensions.width}x${maxDimensions.height}`}
+                                </div>
+                                <div className="text-gray-400 text-[10px] text-center">JPEG, JPG o PNG</div>
                             </div>
-                            <div className="text-gray-400 text-[10px] text-center">JPEG, JPG Y PNG</div>
-                        </div>
+                        )}
                         {displayImage && (
                             <img
                                 alt="Banner"
                                 src={displayImage}
                                 className={clsx(
-                                    "pointer-events-none object-cover w-full h-full absolute rounded-lg transition-opacity",
-                                    isDragging ? "opacity-55" : ""
+                                    "pointer-events-none w-full h-full absolute transition-opacity",
+                                    isDragging ? "opacity-55" : "",
+                                    aspectRatio ? "object-fill" : "object-contain"
                                 )}
                             />
                         )}
@@ -189,11 +218,11 @@ export default function ImageDrop({ className, label, id, updateForm, setFile, o
                                     {uncroppedImage && (
                                         <CropperComponent
                                             id={id}
-                                            aspectRatioCropper={aspectRatio}
+                                            aspectRatioCropper={aspectRatio ?? null}
                                             maxDimensions={maxDimensions}
                                             type={fileType}
                                             imageSrc={uncroppedImage}
-                                            onCrop={onCrop}
+                                            onCrop={updateAndSaveToDB}
                                             onClose={onClose}
                                         />
                                     )}

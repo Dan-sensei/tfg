@@ -23,7 +23,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
-import { CategoryLink, LinkProps, MobileLinkProps } from "../types/interfaces";
+import { CategoryLink, LinkProps, MobileLinkProps } from "@/app/types/interfaces"
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/dropdown";
 import Search from "./QuickSearch";
 import { useSession } from "next-auth/react";

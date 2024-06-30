@@ -1,3 +1,5 @@
+import { BlockInfo } from "../lib/BlockTypes";
+
 export interface iTFG {
     title: string;
     id: number;
@@ -157,6 +159,7 @@ export type MessageError = {
     tags: string;
 };
 
+
 export type ProjectFormData = {
     thumbnail: string;
     banner: string;
@@ -166,7 +169,7 @@ export type ProjectFormData = {
     departmentName?: string;
     departmentlink?: string;
     tutor: user[];
-    content: string;
+    content: BlockInfo[];
     documentLink: string;
     tags: string[];
 };

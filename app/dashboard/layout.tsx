@@ -11,10 +11,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
     
     return (
-        <main className="xl:flex p-0 xl:p-3 xl:self-strech w-full h-full min-h-lvh bg-nova-darker">
-            <DashboardNavigation className="block xl:hidden" />
+        <main className="flex flex-col xl:flex-row p-0 xl:p-3 self-strech w-full h-full min-h-lvh bg-nova-darker xl:pl-60">
             
-            <div className="xl:flex-1 p-3 xl:pt-0">{children}</div>
+                <DashboardNavigation className="block xl:hidden left-0" />
+            
+            <div className="flex-1 flex items-stretch pl-3 p-3 xl:pt-0 xl:pl-3 xl:p-0">{children}</div>
         </main>
     );
 }

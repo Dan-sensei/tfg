@@ -5,6 +5,7 @@ import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
 import { useEffect, useRef, useState } from "react";
 import { dimension } from "../types/interfaces";
+import { DEF_CROPBOX_SIZE } from "../types/defaultData";
 
 interface AutoCrop {
     imageSrc: string;
@@ -19,9 +20,15 @@ interface CropperComponentProps {
     onClose: () => void;
     type: string;
     maxDimensions: dimension;
-    aspectRatioCropper: number;
+    aspectRatioCropper: number | null;
     id: string;
 }
+
+interface FixedCropData {
+    aspectRatio: number;
+    cropboxSize: dimension;
+}
+
 const getCropperDataFromLocalStorage = (id: string): { canvasData: Cropper.CanvasData; cropboxData: Cropper.CropBoxData } | null => {
     const data = localStorage.getItem(id + "-cropper-data");
     if (!data) {
@@ -78,25 +85,35 @@ export function AutoCrop({ imageSrc, onCrop, type, maxDimensions, aspectRatioCro
         width: maxDimensions.width > w ? w : maxDimensions.width,
         height: maxDimensions.height > h ? h : maxDimensions.height,
     };
-    const cropper = initializeCropper(imageElement, aspectRatioCropper, maxDimensions, cropboxSize, w, h, null, () => {
-        crop(cropper, maxDimensions, onCrop, type);
-        cropper.destroy();
-        document.body.removeChild(container);
-    });
+    const cropper = initializeCropper(
+        imageElement,
+        maxDimensions,
+        w,
+        h,
+        null,
+        () => {
+            crop(cropper, maxDimensions, onCrop, type);
+            cropper.destroy();
+            document.body.removeChild(container);
+        },
+        {
+            cropboxSize: cropboxSize,
+            aspectRatio: aspectRatioCropper,
+        }
+    );
 }
 
 const initializeCropper = (
     imageElement: HTMLImageElement,
-    aspectRatioCropper: number,
     maxDimensions: dimension,
-    cropboxSize: dimension,
     containerWidth: number,
     containerHeight: number,
     cropperData: {
         canvasData: Cropper.CanvasData;
         cropboxData: Cropper.CropBoxData;
     } | null,
-    onReady?: () => void
+    onReady: (() => void) | null,
+    fixedCropData?: FixedCropData
 ) => {
     const cropper = new Cropper(imageElement, {
         dragMode: "move",
@@ -104,7 +121,7 @@ const initializeCropper = (
         viewMode: 1,
         rotatable: false,
         cropBoxMovable: false,
-        cropBoxResizable: false,
+        cropBoxResizable: fixedCropData ? false : true,
         ready: () => {
             if (cropperData) {
                 cropper.setCropBoxData(cropperData.cropboxData);
@@ -113,7 +130,24 @@ const initializeCropper = (
             } else {
                 const canvasData = cropper.getCanvasData();
                 const { naturalWidth, naturalHeight } = canvasData;
-                const cropBox = calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, containerWidth, containerHeight);
+
+                const defCropWidth = DEF_CROPBOX_SIZE > containerWidth ? containerWidth : DEF_CROPBOX_SIZE;
+                const defCropHeight = DEF_CROPBOX_SIZE > containerHeight ? containerHeight : DEF_CROPBOX_SIZE;
+                let cropBox: Cropper.CropBoxData = {
+                    width: defCropWidth,
+                    height: defCropHeight,
+                    left: (containerWidth - defCropWidth) / 2,
+                    top: (containerHeight - defCropHeight) / 2,
+                };
+                if (fixedCropData) {
+                    cropBox = calculateCropboxSize(
+                        maxDimensions,
+                        fixedCropData.cropboxSize,
+                        fixedCropData.aspectRatio,
+                        containerWidth,
+                        containerHeight
+                    );
+                }
                 let newWidth: number, newHeight: number, top: number, left: number;
                 if (cropBox.width / cropBox.height > naturalWidth / naturalHeight) {
                     newHeight = (cropBox.width * naturalHeight) / naturalWidth;
@@ -175,12 +209,40 @@ export default function CropperComponent({ imageSrc, onCrop, onClose, type, maxD
             height: maxDimensions.height > h ? h * 0.9 : maxDimensions.height,
         };
 
-        const recalculateCropboxSize = () => {
-            cropper.current?.setCropBoxData(calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, w, h));
-        };
+        let recalculateCropboxSize: () => void;
+        if (aspectRatioCropper) {
+            recalculateCropboxSize = () => {
+                cropper.current?.setCropBoxData(calculateCropboxSize(maxDimensions, cropboxSize, aspectRatioCropper, w, h));
+            };
+        } else {
+            recalculateCropboxSize = () => {
+                const defCropWidth = DEF_CROPBOX_SIZE > w ? w : DEF_CROPBOX_SIZE;
+                const defCropHeight = DEF_CROPBOX_SIZE > h ? h : DEF_CROPBOX_SIZE;
+                let cropBox: Cropper.CropBoxData = {
+                    width: defCropWidth,
+                    height: defCropHeight,
+                    left: (w - defCropWidth) / 2,
+                    top: (h - defCropHeight) / 2,
+                };
+                cropper.current?.setCropBoxData(cropBox);
+            };
+        }
 
         const savedCropperData = getCropperDataFromLocalStorage(id);
-        cropper.current = initializeCropper(imageElement.current, aspectRatioCropper, maxDimensions, cropboxSize, w, h, savedCropperData);
+        cropper.current = initializeCropper(
+            imageElement.current,
+            maxDimensions,
+            w,
+            h,
+            savedCropperData,
+            null,
+            aspectRatioCropper
+                ? {
+                      aspectRatio: aspectRatioCropper,
+                      cropboxSize: cropboxSize,
+                  }
+                : undefined
+        );
         window.addEventListener("resize", recalculateCropboxSize);
         return () => {
             cropper.current?.destroy();

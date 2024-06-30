@@ -26,9 +26,13 @@ import { Role } from "../lib/enums";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./SignOutButton";
 import { Button } from "@nextui-org/button";
-import {Tooltip} from "@nextui-org/tooltip";
+import { Tooltip } from "@nextui-org/tooltip";
 import { Divider } from "@nextui-org/divider";
 import clsx from "clsx";
+
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
+
 interface Props {
     className?: string;
 }
@@ -86,46 +90,47 @@ export default function DashboardNavigation({ className }: Props) {
     };
     return (
         <>
-            <nav className="hidden xl:flex flex-col transition-width w-60 self-stretch gap-3">
-                <Button
-                    as={Link}
-                    href="/home"
-                    className="rounded-lg w-full transition-colors ease-in-out flex relative justify-start items-center py-3 px-4 bg-blue-700 p-3 border-1 border-white/5 hover:bg-nova-buttonm/10  border-l-2 ">
-                    <IconArrowLeft size={DEF_ICON_SIZE} />
-                    Volver
-                </Button>
-                <div className=" flex-1 flex flex-col justify-between bg-gray-900 p-3 rounded-lg border-1 border-white/5">
-                    <section className="py-3 flex flex-col items-center justify-center">
-                        <div className="pb-5 font-semibold text-nova block">DASHBOARD</div>
-                        <div className="relative flex items-center justify-center w-full pt-5">
-                            <div className="h-1px mask-borders absolute w-full left-0 bg-white"></div>
-                            <Avatar color="primary" as="button" size="lg" className="transition-transform" {...avatarProp} />
-                        </div>
-                        <h1 className="pt-2 text-sm">{session.user.name}</h1>
-                        <h1 className="text-tiny text-gray-400">{ROLE_NAMES[session.user.role as Role]}</h1>
-                    </section>
-                    <section className="flex flex-col gap-2 py-10">
-                        {links.map((link, index) => (
-                           
-                            <Link
-                                
-                                className={`rounded-lg w-full transition-colors ease-in-out flex relative
-                            items-center gap-2  ${
-                                isCurrentPath(link.href)
-                                    ? "bg-nova-button/10 hover:bg-nova-buttonm/10 text-[#258fe6] border-l-2 border-l-cyan-600"
-                                    : "hover:bg-nova-button/10"
-                            } py-3 px-4`}
-                                href={link.href}>
-                                {link.icon}
-                                {link.name}
-                            </Link>
-                        ))}
-                    </section>
-                    <section className="flex justify-center ">
-                        <SignOutButton />
-                    </section>
-                </div>
-            </nav>
+            <div className="hidden xl:block fixed left-0 top-0 h-full w-60 pt-3 pl-3 pb-3">
+                <nav className="flex flex-col transition-width w-full h-full self-stretch gap-3 left-0">
+                    <Button
+                        as={Link}
+                        href="/home"
+                        className="rounded-lg w-full transition-colors ease-in-out flex relative justify-start items-center py-3 px-4 bg-blue-700 p-3 border-1 border-white/5 hover:bg-nova-buttonm/10  border-l-2 ">
+                        <IconArrowLeft size={DEF_ICON_SIZE} />
+                        Volver
+                    </Button>
+                    <div className="flex-1 flex flex-col relative justify-between bg-gray-900 p-3 rounded-lg border-1 border-white/5">
+                        <section className="py-3 flex flex-col items-center justify-center">
+                            <div className="pb-5 font-semibold text-nova block">DASHBOARD</div>
+                            <div className="relative flex items-center justify-center w-full pt-5">
+                                <div className="h-1px mask-borders absolute w-full left-0 bg-white"></div>
+                                <Avatar color="primary" as="button" size="lg" className="transition-transform" {...avatarProp} />
+                            </div>
+                            <h1 className="pt-2 text-sm">{session.user.name}</h1>
+                            <h1 className="text-tiny text-gray-400">{ROLE_NAMES[session.user.role as Role]}</h1>
+                        </section>
+                        <section className="flex flex-col gap-2 py-10">
+                            {links.map((link, index) => (
+                                <Link
+                                    key={index}
+                                    className={`rounded-lg w-full transition-colors ease-in-out flex relative
+                                    items-center gap-2  ${
+                                        isCurrentPath(link.href)
+                                            ? "bg-nova-button/10 hover:bg-nova-buttonm/10 text-[#258fe6] border-l-2 border-l-cyan-600"
+                                            : "hover:bg-nova-button/10"
+                                    } py-3 px-4`}
+                                    href={link.href}>
+                                    {link.icon}
+                                    {link.name}
+                                </Link>
+                            ))}
+                        </section>
+                        <section className="flex justify-center ">
+                            <SignOutButton />
+                        </section>
+                    </div>
+                </nav>
+            </div>
             <Navbar
                 isMenuOpen={isMenuOpen}
                 maxWidth="full"

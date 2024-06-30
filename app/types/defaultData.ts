@@ -12,3 +12,5 @@ export const ROLE_NAMES = {
 };
 
 export const DEF_BANNER = "/default/def_banner.jpg";
+export const DEF_CROPBOX_SIZE = 350;
+export const MAX_IMAGE_BLOCK_HEIGHT = 500;
