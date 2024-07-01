@@ -1,4 +1,4 @@
-import { BlockInfo } from "../lib/BlockTypes";
+import { BlockInfo } from "../components/TFG_BlockDefinitions/BlockDefs";
 
 export interface iTFG {
     title: string;

@@ -1,3 +1,4 @@
+"use client";
 import { IconCloudUpload, IconResize, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
@@ -21,7 +22,18 @@ type Props = {
     isDisabled?: boolean;
 };
 
-export default function ImageDrop({ className, label, id, onUpdate, onRemove, aspectRatio, maxSize, maxDimensions, isDisabled = false, autocrop }: Props) {
+export default function ImageDrop({
+    className,
+    label,
+    id,
+    onUpdate,
+    onRemove,
+    aspectRatio,
+    maxSize,
+    maxDimensions,
+    isDisabled = false,
+    autocrop,
+}: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [displayImage, setDisplayImage] = useState<string | null>(null);
@@ -88,7 +100,7 @@ export default function ImageDrop({ className, label, id, onUpdate, onRemove, as
     };
 
     const handleClick = () => {
-        if(isDisabled) return;
+        if (isDisabled) return;
         fileInputRef.current?.click();
     };
 

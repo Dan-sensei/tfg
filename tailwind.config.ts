@@ -25,7 +25,7 @@ const config: Config = {
                 fav: "0 0 3px rgba(255, 0, 0, 0.9)",
                 dark: "7px 5px 7px rgba(0, 0, 0, 0.9)",
                 "light-gray": "7px 5px 7px rgba(0, 0, 0, 0.3)",
-                "light-dark": "7px 5px 7px rgba(0, 0, 0, 0.6)",
+                "light-dark": "3px 5px 10px rgba(0, 0, 0, 0.6)",
                 glow: "0px 0px 15px #ffffff90",
                 "glow-low": "0px 0px 15px #ffffff25",
                 "glow-medium": "0px 0px 15px #ffffff45",
@@ -64,6 +64,7 @@ const config: Config = {
                 wide: "3 / 1",
                 "21-9": "21 / 9",
                 file: "9 / 12",
+                short: "9/16"
             },
             maskImage: {
                 borders: "linear-gradient(to right, transparent, black 50%, transparent)",

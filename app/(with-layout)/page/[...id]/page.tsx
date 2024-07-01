@@ -9,7 +9,7 @@ import { montserrat } from "@/app/lib/fonts";
 import Info from "../../../components/TFG/BasicInfo";
 import { Role } from "@/app/lib/enums";
 import TFG_Details from "@/app/components/TFG/TFG_Details";
-import { BLOCKTYPE, TFG_BLockElement } from "@/app/lib/BlockTypes";
+import { BLOCKTYPE, TFG_BLockElement } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
 
 const getTFGData = async (id: number) => {
     const tfgRaw = await prisma.tfg.findUnique({

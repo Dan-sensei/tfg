@@ -1,4 +1,4 @@
-import { DetailsProps, BLOCKDATA } from "@/app/lib/BlockTypes";
+import { BLOCKDATA, DetailsProps } from "../TFG_BlockDefinitions/BlockDefs";
 
 export default function InfoBlocks({ blocks }: DetailsProps) {
     return (

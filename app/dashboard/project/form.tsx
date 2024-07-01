@@ -1,30 +1,25 @@
 "use client";
 
-import { montserrat } from "@/app/lib/fonts";
 import { MessageError, ProjectFormData, college, department, iFullTFG, user } from "@/app/types/interfaces";
-import { blobToBase64, isNullOrEmpty, toFirstLetterUppercase } from "@/app/utils/util";
-import { Input } from "@nextui-org/input";
-import Image from "next/image";
-import { ChangeEvent, useEffect, useState } from "react";
+import { isNullOrEmpty, toFirstLetterUppercase } from "@/app/utils/util";
+import { useEffect, useState } from "react";
 import { Textarea } from "@nextui-org/input";
-import { Select, SelectItem, SelectedItems } from "@nextui-org/select";
-import BasicInfo from "@/app/components/TFG/BasicInfo";
+import { Select, SelectItem } from "@nextui-org/select";
 import TFG_Details from "@/app/components/TFG/TFG_Details";
-import { Autocomplete, AutocompleteSection, AutocompleteItem } from "@nextui-org/autocomplete";
-import { IconCheck, IconChevronDown, IconCloudUpload, IconEye, IconEyeX, IconSlideshow, IconUpload, IconX } from "@tabler/icons-react";
+import { IconCheck, IconChevronDown, IconEye, IconEyeX, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 import ImageDrop from "@/app/components/ImageDrop";
 import { Spinner } from "@nextui-org/spinner";
 import { DEF_BANNER } from "@/app/types/defaultData";
-import { deleteNonExistentImagesFromIndexedDB, loadImageFromIndexedDB, saveImageToIndexedDB } from "@/app/lib/indexedDBHelper";
+import { deleteNonExistentImagesFromIndexedDB } from "@/app/lib/indexedDBHelper";
 import { Divider } from "@nextui-org/divider";
 import BlockBuilder from "@/app/components/BlockBuilder";
 import { Button, Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions, Field, Label } from "@headlessui/react";
 import { Button as NextUIButton } from "@nextui-org/button";
 import { produce } from "immer";
-import { BLOCKDATA, BlockInfo, iFile, savedImageInfoType } from "@/app/lib/BlockTypes";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+import { BLOCKDATA, BlockInfo, iFile } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
 const defaultErrorMessages = {
     thumbnail: "",
     banner: "",
@@ -46,7 +41,6 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [thumbnail, setThumbnail] = useState<File | null>(null);
     const [showPreview, setShowPreview] = useState(false);
-    const [savedImageInfo, setSavedImageInfo] = useState<savedImageInfoType | null>(null);
     const [form, setForm] = useState<ProjectFormData>({
         thumbnail: "",
         banner: DEF_BANNER,
@@ -211,7 +205,7 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
             const content = block.content.map((c, i) => {
                 const skipRule = blockData.SKIP_LOCAL_SAVE_UNLESS.find((rule) => rule.skip === i);
                 if (skipRule) {
-                    const shouldKeep = skipRule.unless.some((unlessIndex) => !isNullOrEmpty(block.content[unlessIndex]));
+                    const shouldKeep = skipRule.unless(block.content);
                     if (!shouldKeep) {
                         return "";
                     }
@@ -366,7 +360,7 @@ export default function ProjectForm({ college, departments, teachers }: Props) {
                                                 anchor="bottom"
                                                 transition
                                                 className={clsx(
-                                                    "w-[var(--input-width)] rounded-xl border border-white/5 bg-black/35  backdrop-blur-md p-1 [--anchor-gap:var(--spacing-1)] empty:invisible",
+                                                    "w-[var(--input-width)] rounded-xl border border-white/5 bg-black/85  backdrop-blur-md p-1 [--anchor-gap:var(--spacing-1)] empty:invisible",
                                                     "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
                                                 )}>
                                                 {filteredPeople.map((person) => (

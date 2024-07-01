@@ -5,7 +5,7 @@ import Image from "next/image";
 import InfoBlocks from "./InfoBlocks";
 import { isNullOrEmpty } from "@/app/utils/util";
 import { DEF_BANNER } from "@/app/types/defaultData";
-import { TFG_BLockElement } from "@/app/lib/BlockTypes";
+import { TFG_BLockElement } from "../TFG_BlockDefinitions/BlockDefs";
 
 type Props = {
     TFG: iFullTFG;

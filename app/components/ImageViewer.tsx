@@ -9,7 +9,7 @@ type Props = {
     src: string;
     alt: string;
     imagePosition: string;
-    maxHeight: string;
+    maxHeight: number;
 };
 export default function ImageViewer({ src, alt, imagePosition, maxHeight }: Props) {
     const img = useRef<HTMLImageElement | null>(null);
