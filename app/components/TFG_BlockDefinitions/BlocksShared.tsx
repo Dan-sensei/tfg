@@ -3,16 +3,19 @@ import clsx from "clsx";
 import ImageDrop from "../ImageDrop";
 import { Checkbox } from "@nextui-org/checkbox";
 import { Slider } from "@nextui-org/slider";
-import { MAX_IMAGE_BLOCK_WIDTH, MAX_IMAGE_BLOCK_HEIGHT } from "@/app/types/defaultData";
+import { MAX_IMAGE_BLOCK_WIDTH, MAX_IMAGE_BLOCK_HEIGHT, MAX_BLOCK_DESCRIPTION_LENGTH, MAX_BLOCK_TITLE_LENGTH } from "@/app/types/defaultData";
 import { getYoutubeVideoId, isNullOrEmpty } from "@/app/utils/util";
 import { Description, Field, Input, Label, Radio, RadioGroup, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from "@headlessui/react";
 import ImageViewer from "../ImageViewer";
 import { iFile } from "./BlockDefs";
+import { CharacterCounter } from "../BasicComponentes";
+import { HeadlessComplete } from "@/app/lib/headlessUIStyle";
 
 export type PropsToBlocks = {
     id: number;
     removeFile: (blockid: number, fileIdToRemove: number, imageSrcSlot: number) => void;
     updateBlock: (blockid: number, slotIndex: number, content: string, file: iFile | null) => void;
+    validateBlock: (blockId: number) => void;
     values: string[];
 };
 
@@ -48,7 +51,7 @@ type MediaFormPartProps = {
 };
 
 export const MediaFormPart = ({
-    blockProps: { id, updateBlock, removeFile, values },
+    blockProps: { id, updateBlock, removeFile, validateBlock, values },
     MEDIA_POSITION,
     IMG_SRC_LINK,
     MEDIA_SRC,
@@ -94,13 +97,13 @@ export const MediaFormPart = ({
                                 <div className="px-3 ">
                                     <IconPhotoScan />
                                 </div>
-
                                 <Input
                                     defaultValue={values[IMG_SRC_LINK]}
                                     onChange={(e) => {
                                         updateBlock(id, MEDIA_SRC, e.target.value, null);
                                         updateBlock(id, IMG_SRC_LINK, e.target.value, null);
                                         updateBlock(id, IMG_MODAL_CLICK, "true", null);
+                                        validateBlock(id);
                                     }}
                                     className={clsx(
                                         "block w-full rounded-lg border-none bg-white/5  py-1.5 px-3 text-sm/6 text-white",
@@ -117,11 +120,12 @@ export const MediaFormPart = ({
                             label=""
                             maxDimensions={{ width: MAX_IMAGE_BLOCK_WIDTH, height: MAX_IMAGE_BLOCK_HEIGHT }}
                             maxSize={3 * 1024 * 1024}
-                            onUpdate={(image: string, file: File | null) => {
-                                const imageFile = file ? { id: IMAGE_DROP_INDEX, file: file } : null;
+                            onUpdate={(image: string, blob: Blob | null) => {
+                                const imageFile = blob ? { id: IMAGE_DROP_INDEX, blob: blob } : null;
                                 updateBlock(id, MEDIA_SRC, image, imageFile);
                                 updateBlock(id, IMG_SRC_LINK, "", null);
                                 updateBlock(id, IMG_MODAL_CLICK, "", null);
+                                validateBlock(id);
                             }}
                             autocrop={true}
                             onRemove={() => {
@@ -152,11 +156,13 @@ export const MediaFormPart = ({
                                         updateBlock(id, MEDIA_SRC, e.target.value, null);
                                         updateBlock(id, VID_SRC_LINK, e.target.value, null);
                                         updateBlock(id, IMG_MODAL_CLICK, "", null);
+                                        validateBlock(id);
                                     }}
                                     defaultValue={values[VID_SRC_LINK]}
                                     className={clsx(
                                         "block w-full rounded-lg border-none bg-white/5  py-1.5 px-3 text-sm/6 text-white",
-                                        "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                                        "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
+                                        "data-[invalid]:outline-2 data-[invalid]:outline data-[invalid]:-outline-offset-2 data-[invalid]:outline-nova-error/75"
                                     )}
                                     placeholder="https://youtu.be/dQw4w9WgXcQ"
                                 />
@@ -202,7 +208,7 @@ export const MediaFormPart = ({
 };
 
 interface MediaDisplayProps {
-    content: string[];
+    params: string[];
     MEDIA_MAX_HEIGHT: number;
     MEDIA_POSITION: number;
     MEDIA_SRC: number;
@@ -212,7 +218,7 @@ interface MediaDisplayProps {
 }
 
 export const Media = ({
-    content,
+    params,
     MEDIA_MAX_HEIGHT,
     MEDIA_POSITION,
     MEDIA_SRC,
@@ -220,13 +226,13 @@ export const Media = ({
     IMG_MODAL_CLICK,
     MEDIA_TYPE,
 }: MediaDisplayProps) => {
-    const maxHeight = parseInt(content[MEDIA_MAX_HEIGHT]);
-    const imagePosition = content[MEDIA_POSITION];
-    const imageLink = content[MEDIA_SRC];
-    const hasTransparency = content[IMG_HAS_TRANSPARENCY] === "true";
-    const modalImage = content[IMG_MODAL_CLICK];
+    const maxHeight = parseInt(params[MEDIA_MAX_HEIGHT]);
+    const imagePosition = params[MEDIA_POSITION];
+    const imageLink = params[MEDIA_SRC];
+    const hasTransparency = params[IMG_HAS_TRANSPARENCY] === "true";
+    const modalImage = params[IMG_MODAL_CLICK];
 
-    const type = content[MEDIA_TYPE];
+    const type = params[MEDIA_TYPE];
     let display: JSX.Element = <></>;
     const videoId = getYoutubeVideoId(imageLink);
 
@@ -259,22 +265,24 @@ export const Media = ({
 };
 
 interface TextProps {
-    content: string[];
+    params: string[];
     TEXT_TITLE: number;
     TEXT_POSITION?: number;
     TEXT: number;
     TEXT_ALIGN: number;
 }
 
-export const Text = ({ content, TEXT_TITLE, TEXT_POSITION, TEXT, TEXT_ALIGN }: TextProps) => {
-    const text = content[TEXT];
-    const textAlign = content[TEXT_ALIGN];
-    const title = content[TEXT_TITLE];
+export const Text = ({ params, TEXT_TITLE, TEXT_POSITION, TEXT, TEXT_ALIGN }: TextProps) => {
+    const text = params[TEXT];
+    const textAlign = params[TEXT_ALIGN];
+    const title = params[TEXT_TITLE];
 
     return (
-        <div className={clsx(`text-center whitespace-pre-wrap w-full`, TEXT_POSITION ? content[TEXT_POSITION] : "", textAlign)}>
-            <h3 className="font-semibold text-lg">{title}</h3>
-            <section className="pt-1">{text}</section>
+        <div className={clsx(`text-center whitespace-pre-wrap flex flex-wrap w-full`, TEXT_POSITION ? params[TEXT_POSITION] : "", textAlign)}>
+            <div className="w-full">
+                <h3 className="font-semibold text-lg w-full">{title}</h3>
+                <section className="pt-1 w-full">{text}</section>
+            </div>
         </div>
     );
 };
@@ -326,7 +334,7 @@ type TextFormPartProps = {
     TextName?: string;
 };
 export const TextFormPart = ({
-    blockProps: { id, removeFile, updateBlock, values },
+    blockProps: { id, removeFile, updateBlock, validateBlock, values },
     TEXT_TITLE,
     TEXT_POSITION,
     TEXT_ALIGN,
@@ -348,31 +356,41 @@ export const TextFormPart = ({
             </Description>
             <div className="flex mt-2 gap-1">
                 <div className="flex-1 flex flex-col gap-1">
-                    <Input
-                        defaultValue={values[TEXT_TITLE]}
-                        onChange={(e) => {
-                            updateBlock(id, TEXT_TITLE, e.target.value, null);
-                        }}
-                        className={clsx(
-                            "block w-full rounded-lg border-none bg-white/5  py-1.5 px-3 text-sm/6 text-white",
-                            "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                        )}
-                        placeholder="Título (opcional)"
-                    />
-                    <Textarea
-                        value={values[TEXT]}
-                        onChange={(e) => {
-                            updateBlock(id, TEXT, e.target.value, null);
-                        }}
-                        placeholder="Contenido"
-                        className={clsx(
-                            "flex-1 block w-full resize-none rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
-                            "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                        )}
-                        rows={5}
-                    />
+                    <Field className={"relative"}>
+                        <div className={clsx("absolute h-full flex items-center right-1 pointer-events-none text-right text-tiny px-1")}>
+                            <CharacterCounter currentLength={values[TEXT_TITLE].length} max={MAX_BLOCK_TITLE_LENGTH} compact />
+                        </div>
+                        <Input
+                            defaultValue={values[TEXT_TITLE]}
+                            onChange={(e) => {
+                                updateBlock(id, TEXT_TITLE, e.target.value, null);
+                                validateBlock(id);
+                            }}
+                            invalid={values[TEXT_TITLE].length > MAX_BLOCK_TITLE_LENGTH}
+                            className={clsx("pr-14", HeadlessComplete)}
+                            placeholder="Título (opcional)"
+                        />
+                    </Field>
+                    <Field className="relative flex-1 flex flex-col">
+                        <div className={clsx("absolute top-[5px] right-1 pointer-events-none text-right text-tiny px-1")}>
+                            <CharacterCounter currentLength={values[TEXT].length} max={MAX_BLOCK_DESCRIPTION_LENGTH} compact />
+                        </div>
+                        <Textarea
+                            value={values[TEXT]}
+                            onChange={(e) => {
+                                updateBlock(id, TEXT, e.target.value, null);
+                                validateBlock(id);
+                            }}
+                            invalid={isNullOrEmpty(values[TEXT]) || values[TEXT].length > MAX_BLOCK_DESCRIPTION_LENGTH}
+                            placeholder="Contenido"
+                            className={clsx("flex-1 pt-5 resize-none", HeadlessComplete)}
+                            rows={5}
+                        />
+                    </Field>
                 </div>
-                {TEXT_POSITION && <TextVerticalAlignControls blockProps={{ id, removeFile, updateBlock, values }} TEXT_POSITION={TEXT_POSITION} />}
+                {TEXT_POSITION && (
+                    <TextVerticalAlignControls blockProps={{ id, removeFile, updateBlock, validateBlock, values }} TEXT_POSITION={TEXT_POSITION} />
+                )}
             </div>
             <RadioGroup
                 defaultValue={defaultTextAlign.value}

@@ -1,4 +1,5 @@
 import { BlockInfo } from "../components/TFG_BlockDefinitions/BlockDefs";
+import { Role } from "../lib/enums";
 
 export interface iTFG {
     title: string;
@@ -16,37 +17,60 @@ export interface iFullTFG {
     banner: string;
     title: string;
     description: string;
-    author: user[];
-    tutor: user[];
-    department?: department;
-    content: string;
+    author: User[];
+    tutor: User[];
+    department: Department | null;
+    contentBlocks: string;
     pages: number;
     documentLink: string;
     tags: string[];
     views: number;
     score: number;
     createdAt: Date;
-    college: college;
+    college: College;
 }
-
-export type college = {
-    id: number,
+export type ProjectFormData = {
+    id: number;
+    thumbnail: string;
+    banner: string;
+    title: string;
+    description: string;
+    tutor: FullUser[];
+    department: FullDepartment | null;
+    category: Category | null;
+    titulation: Titulation | null;
+    pages: number;
+    contentBlocks: BlockInfo[];
+    documentLink: string;
+    tags: string[];
+};
+export interface College {
     name: string;
     image: string | null;
-};
+}
 
-export type department = {
+export interface FullCollege extends College {
     id: number;
+}
+
+export interface Department {
     name: string;
-    link?: string;
-};
-
-export type user = {
+    link: string | null;
+}
+export interface FullDepartment extends Department {
     id: number;
+}
+
+export interface User {
     name: string;
     contactDetails: string | null;
     image: string | null;
-};
+}
+
+export interface FullUser extends User {
+    id: number;
+}
+
 export interface iHomeTFG {
     id: number;
     banner: string;
@@ -152,30 +176,16 @@ export type MessageError = {
     banner: string;
     title: string;
     description: string;
-    departmentName: string;
-    departmentlink: string;
-    content: string;
+    contentBlocks: string;
     documentLink: string;
+    pages: string;
     tags: string;
+    tutor: string;
 };
 
-
-export type ProjectFormData = {
-    thumbnail: string;
-    banner: string;
-    title: string;
-    description: string;
-    departmentId?: number;
-    departmentName?: string;
-    departmentlink?: string;
-    tutor: user[];
-    content: BlockInfo[];
-    documentLink: string;
-    tags: string[];
-};
 
 
 export type dimension = {
     width: number;
     height: number;
-}
+};

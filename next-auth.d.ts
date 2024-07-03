@@ -1,13 +1,10 @@
 import { DefaultSession, DefaultUser } from "next-auth";
 import { JWT, DefaultJWT } from "next-auth/jwt";
 
-interface College {
-    id: number;
-}
-
 interface UserRole {
+    uid: number;
     role: number;
-    college: College;
+    collegeId: number;
 }
 
 declare module "next-auth" {

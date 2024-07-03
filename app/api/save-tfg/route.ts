@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { writeFile, unlink, stat } from "fs/promises";
 import sharp from 'sharp';
+import prisma from "@/app/lib/db";
 
 const removePreviousFile = async (filePath: string) => {
     try {
@@ -9,7 +10,7 @@ const removePreviousFile = async (filePath: string) => {
         await unlink(filePath);
         return true;
     } catch (err) {
-        return false
+        return false;
     }
 }
 
@@ -51,15 +52,50 @@ const saveFile = async(file: File) => {
 
 export async function POST(request: NextRequest) {
     const data = await request.formData();
-    const file = data.get("file") as File | null;
-    if (!file) {
+    const banner = data.get("banner") as File | null;
+    const thumbnail = data.get("thumbnail") as File | null;
+    const tfgDataRaw = data.get("tfgData") as string | null;
+    if (!banner || !thumbnail || !tfgDataRaw) {
         return NextResponse.json({ error: "No files received." }, { status: 400 });
     }
     
-    const isFileSaved = saveFile(file);
+    let tfgData;
+    try{
+        tfgData = JSON.parse(tfgDataRaw);
+    }catch(e) {
+        console.log(e)
+        return NextResponse.json({ error: "Error parseando datos" }, { status: 500 });
+    }
+    
+    console.log(tfgData)
+    const newTfg = {}
 
-    if(!isFileSaved)
-        return NextResponse.json({ error: "Error saving file" }, { status: 400 });
+/*
+    await prisma.tfg.create({data: {
+        thumbnail: "",
+        banner: "",
+        title: "",
+        description: "0",
+        content: "",
+        pages: 0,
+        documentLink: "",
+        tags: [],
+        views: 0,
+        score: 0,
+        scoredTimes: 0,
+
+        departmentId: 0,
+        categoryId: 0,
+        titulationId: 0,
+        collegeId: 0,
+    }})
+*/
+    return NextResponse.json(true);
+
+    //const isFileSaved = await saveFile(file);
+
+    //if(!isFileSaved)
+        //return NextResponse.json({ error: "Error saving file" }, { status: 400 });
 
     return NextResponse.json(true);
 

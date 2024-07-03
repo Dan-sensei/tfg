@@ -8,18 +8,24 @@ import { Modal, ModalContent, ModalBody, useDisclosure } from "@nextui-org/modal
 import { deleteImageFromIndexedDB, loadImagesFromIndexedDB, saveImageToIndexedDB } from "../lib/indexedDBHelper";
 import CropperComponent, { AutoCrop } from "./Cropper";
 import { dimension } from "../types/interfaces";
+import { Required } from "./BasicComponentes";
 
 type Props = {
     className?: string;
     autocrop: boolean;
     label: string;
+    defaultImage?: string;
     id: string;
-    onUpdate?: (newImage: string, file: File | null) => void;
+    onUpdate?: (newImage: string, blob: Blob | null) => void;
     onRemove?: () => void;
     maxSize: number;
     maxDimensions: dimension;
     aspectRatio?: number;
     isDisabled?: boolean;
+    isRequired?: boolean;
+    _errorMessage?: string;
+    invalid?: boolean;
+    refresh?: boolean;
 };
 
 export default function ImageDrop({
@@ -33,17 +39,25 @@ export default function ImageDrop({
     maxDimensions,
     isDisabled = false,
     autocrop,
+    defaultImage,
+    refresh,
+    isRequired = false,
+    invalid = false,
+    _errorMessage = "",
 }: Props) {
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [displayImage, setDisplayImage] = useState<string | null>(null);
-    const [uncroppedImage, setUncroppedImage] = useState<string | null>(null);
+    const [displayImage, setDisplayImage] = useState<string | null>(defaultImage ?? null);
+    const [uncroppedImage, setUncroppedImage] = useState<string | null>(defaultImage ?? null);
     const [errorMessage, setErrorMessage] = useState("");
+    const [isInvalid, setIsInvalid] = useState(false);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [fileType, setFileType] = useState("");
-    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        if (defaultImage) {
+            return;
+        }
         let ignore = false;
         const requestImages = async () => {
             const keys = [id, `u${id}`];
@@ -65,18 +79,26 @@ export default function ImageDrop({
             } catch (e) {
                 console.error(e);
             }
-            setIsMounted(true);
         };
         requestImages();
         return () => {
+            console.log("unmounting");
             ignore = true;
         };
     }, []);
 
-    const blobToFile = (blob: Blob, name: string) => {
-        const filename = name + getFileType(blob.type);
-        return new File([blob], filename, { type: blob.type });
-    };
+    useEffect(() => {
+        setErrorMessage(_errorMessage);
+    }, [_errorMessage]);
+    useEffect(() => {
+        setIsInvalid(invalid);
+    }, [invalid]);
+
+    useEffect(() => {
+        localStorage.removeItem(id + "-cropper-data");
+        setDisplayImage(defaultImage ?? null);
+        setUncroppedImage(defaultImage ?? null);
+    }, [refresh]);
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -116,6 +138,9 @@ export default function ImageDrop({
         }
         setErrorMessage("");
         setFileType(file.type);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
         onRemove?.();
         blobToBase64(file).then((base64) => {
             if (autocrop && aspectRatio) {
@@ -152,8 +177,7 @@ export default function ImageDrop({
 
     const updateImages = (image: string, blob?: Blob) => {
         if (!isNullOrEmpty(image)) {
-            const file = blob ? blobToFile(blob, id) : null;
-            onUpdate?.(image, file);
+            onUpdate?.(image, blob ?? null);
             setDisplayImage(image);
         }
     };
@@ -166,7 +190,10 @@ export default function ImageDrop({
     return (
         <>
             <div className={clsx(className, "relative", isDisabled ? "opacity-50" : "")}>
-                <div className="text-sm">{label}</div>
+                <div className="text-sm">
+                    {label}
+                    {isRequired && <Required />}{" "}
+                </div>
 
                 <div className="relative">
                     <div
@@ -179,7 +206,7 @@ export default function ImageDrop({
                         className={clsx(
                             "rounded-lg border-2 border-dashed transition-colors border-blue-500/50 relative flex items-center justify-center mt-2 overflow-hidden",
                             isDragging ? "border-blue-500 bg-blue-950" : "border-blue-500/50 bg-nova-darker",
-                            !isNullOrEmpty(errorMessage) ? "border-red-500" : "",
+                            !isNullOrEmpty(errorMessage) || isInvalid ? "border-red-500" : "",
                             isDisabled ? "" : "hover:cursor-pointer"
                         )}>
                         {(isDragging || !displayImage) && (
@@ -200,7 +227,7 @@ export default function ImageDrop({
                                 className={clsx(
                                     "pointer-events-none w-full h-full absolute transition-opacity",
                                     isDragging ? "opacity-55" : "",
-                                    aspectRatio ? "object-fill" : "object-contain"
+                                    "object-cover"
                                 )}
                             />
                         )}

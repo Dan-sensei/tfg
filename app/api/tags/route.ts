@@ -4,7 +4,6 @@ import { badResponse, getValidLimit, successResponse } from "@/app/utils/util";
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = getValidLimit(searchParams.get("limit"), 15, 20);
-    const skip = getValidLimit(searchParams.get("limit"), 0, 20);
     let searchQuery = searchParams.get("q") || '';
   
     if(searchQuery === '') {

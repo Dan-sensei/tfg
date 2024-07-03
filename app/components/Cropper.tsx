@@ -200,9 +200,11 @@ export default function CropperComponent({ imageSrc, onCrop, onClose, type, maxD
     const cropper = useRef<Cropper>();
 
     useEffect(() => {
+        console.log(imageSrc)
         if (!container.current || !imageElement.current) return;
-
+        
         const [w, h] = [container.current.offsetWidth, container.current.offsetHeight];
+        console.log(w,h)
 
         const cropboxSize: dimension = {
             width: maxDimensions.width > w ? w * 0.9 : maxDimensions.width,

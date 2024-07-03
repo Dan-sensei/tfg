@@ -1,6 +1,7 @@
-import { MAX_IMAGE_BLOCK_HEIGHT } from "@/app/types/defaultData";
+import { MAX_BLOCK_DESCRIPTION_LENGTH, MAX_BLOCK_TITLE_LENGTH, MAX_IMAGE_BLOCK_HEIGHT } from "@/app/types/defaultData";
 import { DOUBLE_MEDIA, DOUBLE_TEXT, MEDIA_TEXT, SINGLE_MEDIA, SINGLE_TEXT, TEXT_MEDIA, TRIPLE_MEDIA, TRIPLE_TEXT } from "./DisplayComponents";
 import { isNullOrEmpty } from "@/app/utils/util";
+import * as v from "valibot";
 
 export enum MEDIATXT_SLOTS {
     /* REQUIRED PARAMS */
@@ -139,18 +140,23 @@ export enum BLOCKTYPE {
     TRIPLE_TEXT,
 }
 
-export type TFG_BLockElement = {
-    type: BLOCKTYPE;
-    content: string[];
+export type ParamErrorMessage = {
+    paramId: number;
+    errorMessage: string;
 };
 
 export type iFile = {
     id: number;
-    file: File;
+    blob: Blob;
+};
+export type TFG_BLockElement = {
+    type: BLOCKTYPE;
+    params: string[];
 };
 export interface BlockInfo extends TFG_BLockElement {
     id: number;
     files: iFile[];
+    errors: string[];
 }
 export type DetailsProps = {
     blocks: TFG_BLockElement[];
@@ -166,15 +172,17 @@ type SkipUnless = {
 };
 
 type _BLOCK_DATA = {
-    element: (props: { content: string[] }) => JSX.Element;
+    element: (props: { params: string[] }) => JSX.Element;
     DEF_VALUES: DefBlockValue;
     SKIP_LOCAL_SAVE_UNLESS: SkipUnless[];
+    VALIDATE: any;
     expectedParameters: number;
 };
+
 interface BLOCK_DATA_TYPE {
     [key: string]: _BLOCK_DATA;
 }
-export const BLOCKDATA: BLOCK_DATA_TYPE = {
+export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
     [BLOCKTYPE.MEDIA_TEXT]: {
         element: MEDIA_TEXT,
         DEF_VALUES: {
@@ -202,6 +210,20 @@ export const BLOCKDATA: BLOCK_DATA_TYPE = {
                 },
             },
         ],
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(MEDIATXT_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.MEDIA_SRC]), "Adjunta una imagen o vídeo"),
+            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.TEXT]), "El texto no puede estar vacío"),
+            v.check(
+                (params) => params[MEDIATXT_SLOTS.TEXT].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[MEDIATXT_SLOTS.TEXT_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            )
+        ),
         expectedParameters: MEDIATXT_SLOTS.__LENGTH,
     },
     [BLOCKTYPE.TEXT_MEDIA]: {
@@ -231,6 +253,20 @@ export const BLOCKDATA: BLOCK_DATA_TYPE = {
                 },
             },
         ],
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(MEDIATXT_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.MEDIA_SRC]), "Adjunta una imagen o vídeo"),
+            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.TEXT]), "El texto no puede estar vacío"),
+            v.check(
+                (params) => params[MEDIATXT_SLOTS.TEXT].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[MEDIATXT_SLOTS.TEXT_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            )
+        ),
         expectedParameters: MEDIATXT_SLOTS.__LENGTH,
     },
     [BLOCKTYPE.SINGLE_MEDIA]: {
@@ -256,6 +292,11 @@ export const BLOCKDATA: BLOCK_DATA_TYPE = {
                 },
             },
         ],
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(SINGLE_MEDIA_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[SINGLE_MEDIA_SLOTS.MEDIA_SRC]), "Adjunta una imagen o vídeo"),
+        ),
         expectedParameters: SINGLE_MEDIA_SLOTS.__LENGTH,
     },
     [BLOCKTYPE.DOUBLE_MEDIA]: {
@@ -299,6 +340,12 @@ export const BLOCKDATA: BLOCK_DATA_TYPE = {
                 },
             },
         ],
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(DOUBLE_MEDIA_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC]), "El recurso [1] está vacío"),
+            v.check((params) => !isNullOrEmpty(params[DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC]), "El recurso [2] está vacío"),
+        ),
         expectedParameters: DOUBLE_MEDIA_SLOTS.__LENGTH,
     },
     [BLOCKTYPE.TRIPLE_MEDIA]: {
@@ -360,6 +407,13 @@ export const BLOCKDATA: BLOCK_DATA_TYPE = {
                 },
             },
         ],
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(TRIPLE_MEDIA_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[TRIPLE_MEDIA_SLOTS.MEDIA_1_SRC]), "El recurso [1] está vacío"),
+            v.check((params) => !isNullOrEmpty(params[TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC]), "El recurso [2] está vacío"),
+            v.check((params) => !isNullOrEmpty(params[TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC]), "El recurso [3] está vacío"),
+        ),
         expectedParameters: TRIPLE_MEDIA_SLOTS.__LENGTH,
     },
     [BLOCKTYPE.SINGLE_TEXT]: {
@@ -367,9 +421,22 @@ export const BLOCKDATA: BLOCK_DATA_TYPE = {
         DEF_VALUES: {
             [SINGLE_TEXT_SLOTS.TEXT_TITLE]: "",
             [SINGLE_TEXT_SLOTS.TEXT]: "Contenido",
-            [SINGLE_TEXT_SLOTS.TEXT_ALIGN]: "lg:text-left",
+            [SINGLE_TEXT_SLOTS.TEXT_ALIGN]: "lg:text-center",
         },
         SKIP_LOCAL_SAVE_UNLESS: [],
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(SINGLE_TEXT_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[SINGLE_TEXT_SLOTS.TEXT]), "El texto no puede estar vacío"),
+            v.check(
+                (params) => params[SINGLE_TEXT_SLOTS.TEXT].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[SINGLE_TEXT_SLOTS.TEXT_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            )
+        ),
         expectedParameters: SINGLE_TEXT_SLOTS.__LENGTH,
     },
     [BLOCKTYPE.DOUBLE_TEXT]: {
@@ -377,30 +444,80 @@ export const BLOCKDATA: BLOCK_DATA_TYPE = {
         DEF_VALUES: {
             [DOUBLE_TEXT_SLOTS.TEXT_1_TITLE]: "",
             [DOUBLE_TEXT_SLOTS.TEXT_1]: "Contenido",
-            [DOUBLE_TEXT_SLOTS.TEXT_1_ALIGN]: "lg:text-left",
+            [DOUBLE_TEXT_SLOTS.TEXT_1_ALIGN]: "lg:text-center",
 
             [DOUBLE_TEXT_SLOTS.TEXT_2_TITLE]: "",
             [DOUBLE_TEXT_SLOTS.TEXT_2]: "Contenido",
-            [DOUBLE_TEXT_SLOTS.TEXT_2_ALIGN]: "lg:text-left",
+            [DOUBLE_TEXT_SLOTS.TEXT_2_ALIGN]: "lg:text-center",
         },
         SKIP_LOCAL_SAVE_UNLESS: [],
-        expectedParameters: SINGLE_TEXT_SLOTS.__LENGTH,
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(DOUBLE_TEXT_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[DOUBLE_TEXT_SLOTS.TEXT_1]), "El texto no puede estar vacío"),
+            v.check(
+                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_1].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto [1] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_1_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título [1] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_2].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto [2] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_2_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título [2] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            )
+        ),
+        expectedParameters: DOUBLE_TEXT_SLOTS.__LENGTH,
     },
     [BLOCKTYPE.TRIPLE_TEXT]: {
         element: TRIPLE_TEXT,
         DEF_VALUES: {
             [TRIPLE_TEXT_SLOTS.TEXT_1_TITLE]: "",
             [TRIPLE_TEXT_SLOTS.TEXT_1]: "Contenido",
-            [TRIPLE_TEXT_SLOTS.TEXT_1_ALIGN]: "lg:text-left",
+            [TRIPLE_TEXT_SLOTS.TEXT_1_ALIGN]: "lg:text-center",
             [TRIPLE_TEXT_SLOTS.TEXT_2_TITLE]: "",
             [TRIPLE_TEXT_SLOTS.TEXT_2]: "Contenido",
-            [TRIPLE_TEXT_SLOTS.TEXT_2_ALIGN]: "lg:text-left",
+            [TRIPLE_TEXT_SLOTS.TEXT_2_ALIGN]: "lg:text-center",
             [TRIPLE_TEXT_SLOTS.TEXT_3_TITLE]: "",
             [TRIPLE_TEXT_SLOTS.TEXT_3]: "Contenido",
-            [TRIPLE_TEXT_SLOTS.TEXT_3_ALIGN]: "lg:text-left",
+            [TRIPLE_TEXT_SLOTS.TEXT_3_ALIGN]: "lg:text-center",
         },
         SKIP_LOCAL_SAVE_UNLESS: [],
-        expectedParameters: SINGLE_TEXT_SLOTS.__LENGTH,
+        VALIDATE: v.pipe(
+            v.array(v.string()),
+            v.length(TRIPLE_TEXT_SLOTS.__LENGTH),
+            v.check((params) => !isNullOrEmpty(params[TRIPLE_TEXT_SLOTS.TEXT_1]), "El texto no puede estar vacío"),
+            v.check(
+                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_1].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto [1] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_1_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título [1] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_2].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto [2] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_2_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título [2] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_3].length < MAX_BLOCK_DESCRIPTION_LENGTH,
+                `El texto [3] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
+            ),
+            v.check(
+                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_3_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
+                `El título [3] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
+            )
+        ),
+        expectedParameters: TRIPLE_TEXT_SLOTS.__LENGTH,
     },
 };
 

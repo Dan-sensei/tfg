@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@nextui-org/button";
-import {
-    IconAlignJustified,
-    IconChevronDown,
-    IconPhotoFilled,
-    IconPlus,
-    IconX,
-} from "@tabler/icons-react";
+import { IconAlignJustified, IconChevronDown, IconPhotoFilled, IconPlus, IconX } from "@tabler/icons-react";
 import { useRef } from "react";
 import clsx from "clsx";
 import {
@@ -25,9 +19,17 @@ import {
 import { produce } from "immer";
 import { ProjectFormData } from "../types/interfaces";
 import { deleteImagesWithPrefix } from "../lib/indexedDBHelper";
-import { DOUBLE_MEDIA_FORM, DOUBLE_TEXT_FORM, MEDIA_TEXT_FORM, SINGLE_MEDIA_FORM, SINGLE_TEXT_FORM, TEXT_MEDIA_FORM, TRIPLE_MEDIA_FORM, TRIPLE_TEXT_FORM } from "./TFG_BlockDefinitions/Forms";
-import { BLOCKDATA, BLOCKTYPE, BlockInfo, iFile } from "./TFG_BlockDefinitions/BlockDefs";
-
+import {
+    DOUBLE_MEDIA_FORM,
+    DOUBLE_TEXT_FORM,
+    MEDIA_TEXT_FORM,
+    SINGLE_MEDIA_FORM,
+    SINGLE_TEXT_FORM,
+    TEXT_MEDIA_FORM,
+    TRIPLE_MEDIA_FORM,
+    TRIPLE_TEXT_FORM,
+} from "./TFG_BlockDefinitions/Forms";
+import { BLOCKSCHEMA, BLOCKTYPE, BlockInfo, iFile } from "./TFG_BlockDefinitions/BlockDefs";
 
 type Props = {
     className?: string;
@@ -35,8 +37,8 @@ type Props = {
     updateForm: (data: Partial<ProjectFormData>) => void;
     updateFormBlock: (blockid: number, slotIndex: number, content: string, file: iFile | null) => void;
     removeFileFromBlock: (blockid: number, fileIdToRemove: number, imageSrcSlot: number) => void;
+    validateBlock: (blockId: number) => void;
 };
-
 
 export const FormTypes = {
     [BLOCKTYPE.MEDIA_TEXT]: {
@@ -129,16 +131,14 @@ export const FormTypes = {
     },
 };
 
-export default function BlockBuilder({ className, blocks, updateForm, updateFormBlock, removeFileFromBlock }: Props) {
+export default function BlockBuilder({ className, blocks, updateForm, updateFormBlock, removeFileFromBlock, validateBlock }: Props) {
     const idCounterRef = useRef(1);
 
-    const getDefatulValuesForType = (type: BLOCKTYPE) => {
-        const DefValuesObject = BLOCKDATA[type].DEF_VALUES;
+    const getDefatulParamsForType = (type: BLOCKTYPE) => {
+        const DefValuesObject = BLOCKSCHEMA[type].DEF_VALUES;
         const maxIndex = Math.max(...Object.keys(DefValuesObject).map(Number));
-        return Array.from({ length: maxIndex + 1 }, (_, index) =>
-            DefValuesObject[index] !== undefined ? DefValuesObject[index] : ""
-        );
-    }
+        return Array.from({ length: maxIndex + 1 }, (_, index) => (DefValuesObject[index] !== undefined ? DefValuesObject[index] : ""));
+    };
 
     const addBlock = () => {
         const newBlocks = produce(blocks, (draft) => {
@@ -146,10 +146,10 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
             do {
                 newId = idCounterRef.current++;
             } while (Object.values(draft).some((d) => d.id === newId));
-            const defaultValues = getDefatulValuesForType(BLOCKTYPE.MEDIA_TEXT);
-            draft.push({ id: newId, type: BLOCKTYPE.MEDIA_TEXT, content: defaultValues, files: [] });
+            const defaultValues = getDefatulParamsForType(BLOCKTYPE.MEDIA_TEXT);
+            draft.push({ id: newId, type: BLOCKTYPE.MEDIA_TEXT, params: defaultValues, files: [], errors: [] });
         });
-        updateForm({ content: newBlocks });
+        updateForm({ contentBlocks: newBlocks });
     };
 
     const removeBlock = (indexToRemove: number) => {
@@ -160,7 +160,7 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
         const newBlocks = produce(blocks, (draft) => {
             draft.splice(targetIndex, 1);
         });
-        updateForm({ content: newBlocks });
+        updateForm({ contentBlocks: newBlocks });
     };
 
     const ChangeBlockType = (targetId: number, newTypeId: BLOCKTYPE) => {
@@ -170,9 +170,10 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
 
         const newBlocks = produce(blocks, (draft) => {
             draft[targetIndex].type = parseInt(newTypeId.toString());
-            draft[targetIndex].content = getDefatulValuesForType(newTypeId);
+            draft[targetIndex].params = getDefatulParamsForType(newTypeId);
+            draft[targetIndex].errors = [];
         });
-        updateForm({ content: newBlocks });
+        updateForm({ contentBlocks: newBlocks });
     };
 
     return (
@@ -189,7 +190,10 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
                     <Disclosure
                         as="div"
                         key={block.id}
-                        className="mt-2 bg-nova-darker border-2 border-blue-500/50 py-1 rounded-lg"
+                        className={clsx(
+                            "mt-2 bg-nova-darker border-2 py-1 rounded-lg",
+                            block.errors?.length > 0 ? "border-nova-error" : "border-blue-500/50"
+                        )}
                         defaultOpen={true}>
                         <div className="px-1 group flex w-full items-center justify-between">
                             <DisclosureButton className="flex justify-between flex-1 items-center px-2 py-1 hover:bg-blue-400/20 transition-colors rounded-lg ">
@@ -209,6 +213,15 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
                                 <IconX size={15} />
                             </Button>
                         </div>
+                        {block.errors.length > 0 && (
+                            <div className="error-message font-semibold px-3 pb-3">
+                                {block.errors.map((error, index) => (
+                                    <div key={index} className="text-tiny text-nova-error flex items-center">
+                                        <IconX size={15} /> {error}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                         <DisclosurePanel
                             transition
                             className="origin-top px-3 pb-3 transition-[transform,opacity] ease-out data-[closed]:-translate-y-[5%] data-[closed]:opacity-0 text-sm/5 text-white/50">
@@ -256,7 +269,13 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
                                     </Listbox>
                                 </div>
                             </Field>
-                            <Form values={block.content} id={block.id} removeFile={removeFileFromBlock} updateBlock={updateFormBlock} />
+                            <Form
+                                values={block.params}
+                                id={block.id}
+                                removeFile={removeFileFromBlock}
+                                updateBlock={updateFormBlock}
+                                validateBlock={validateBlock}
+                            />
                         </DisclosurePanel>
                     </Disclosure>
                 );

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { iFullTFG } from "@/app/types/interfaces";
 import { IconChevronRight, IconCloudDownload, IconDownload, IconEye } from "@tabler/icons-react";
 import prisma from "@/app/lib/db";
-import { tfgFullFields } from "@/app/types/prismaFieldDefs";
+import { tfgFullFieldsDisplay } from "@/app/types/prismaFieldDefs";
 import { montserrat } from "@/app/lib/fonts";
 import Info from "../../../components/TFG/BasicInfo";
 import { Role } from "@/app/lib/enums";
@@ -16,7 +16,7 @@ const getTFGData = async (id: number) => {
         where: {
             id: id,
         },
-        select: tfgFullFields,
+        select: tfgFullFieldsDisplay,
     });
 
     if (!tfgRaw) return null;
@@ -30,27 +30,19 @@ const getTFGData = async (id: number) => {
         author: tfgRaw.users
             .filter((userRelation) => userRelation.user.role === Role.STUDENT)
             .map((userRelation) => ({
-                id: 0,
                 name: userRelation.user.name,
                 contactDetails: userRelation.user.contactDetails,
                 image: userRelation.user.image,
             })),
         tutor: tfgRaw.users
-            .filter((userRelation) => userRelation.user.role === Role.TUTOR)
+            .filter((userRelation) => [Role.TUTOR, Role.MANAGER, Role.ADMIN].includes(userRelation.user.role))
             .map((userRelation) => ({
-                id: 0,
                 name: userRelation.user.name,
                 contactDetails: userRelation.user.contactDetails,
                 image: userRelation.user.image,
             })),
-        department: tfgRaw.department
-            ? {
-                  id: tfgRaw.department.id,
-                  name: tfgRaw.department.name,
-                  link: tfgRaw.department.link ?? undefined,
-              }
-            : undefined,
-        content: tfgRaw.content,
+        department: tfgRaw.department,
+        contentBlocks: tfgRaw.content,
         pages: tfgRaw.pages,
         documentLink: tfgRaw.documentLink,
         tags: tfgRaw.tags,
@@ -58,7 +50,6 @@ const getTFGData = async (id: number) => {
         score: tfgRaw.score,
         createdAt: tfgRaw.createdAt,
         college: {
-            id: 0,
             name: tfgRaw.college.name,
             image: tfgRaw.college.image,
         },
@@ -69,7 +60,7 @@ const getTFGData = async (id: number) => {
 const content: TFG_BLockElement[] = [
     {
         type: BLOCKTYPE.SINGLE_TEXT,
-        content: [
+        params: [
             ``,
             `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
             Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur`,
@@ -77,7 +68,7 @@ const content: TFG_BLockElement[] = [
     },
     {
         type: BLOCKTYPE.MEDIA_TEXT,
-        content: [
+        params: [
             "320",
             "md:mx-auto",
             "image",
@@ -92,7 +83,7 @@ const content: TFG_BLockElement[] = [
     },
     {
         type: BLOCKTYPE.TEXT_MEDIA,
-        content: [
+        params: [
             "500",
             "cover",
             "center",
@@ -104,16 +95,16 @@ const content: TFG_BLockElement[] = [
     },
     {
         type: BLOCKTYPE.SINGLE_MEDIA,
-        content: ["500", "cover", "top", "https://picsum.photos/seed/148/1500/800"],
+        params: ["500", "cover", "top", "https://picsum.photos/seed/148/1500/800"],
     },
     {
         type: BLOCKTYPE.DOUBLE_MEDIA,
-        content: ["100", "cover", "center", "https://picsum.photos/seed/48/1500/800", "cover", "center", "https://picsum.photos/seed/248/1500/800"],
+        params: ["100", "cover", "center", "https://picsum.photos/seed/48/1500/800", "cover", "center", "https://picsum.photos/seed/248/1500/800"],
     },
 
     {
         type: BLOCKTYPE.TRIPLE_TEXT,
-        content: [
+        params: [
             "Title1",
             `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
             Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
@@ -130,7 +121,7 @@ const content: TFG_BLockElement[] = [
     },
     {
         type: BLOCKTYPE.TRIPLE_MEDIA,
-        content: [
+        params: [
             "400",
             "cover",
             "center",
@@ -156,12 +147,11 @@ export default async function Page({ params }: { params: { id: string } }) {
         redirect("/");
     }
 
-
-    TFG.content = JSON.stringify(content);
+    TFG.contentBlocks = JSON.stringify(content);
     await increaseTFGViews(parseFloat(params.id));
 
     return (
-        <div className="pt-[73px]">
+        <div className="pt-[73px] @container">
             <TFG_Details TFG={TFG} />
         </div>
     );

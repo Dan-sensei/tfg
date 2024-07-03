@@ -21,7 +21,7 @@ export const tfgTopFields = {
     score: true,
 };
 
-export const tfgFullFields = {
+export const tfgFullFieldsDisplay = {
     id: true,
     thumbnail: true,
     banner: true,
@@ -41,7 +41,6 @@ export const tfgFullFields = {
     },
     department: {
         select: {
-            id: true,
             name: true,
             link: true,
         },
@@ -59,4 +58,48 @@ export const tfgFullFields = {
             image: true,
         },
     },
+};
+
+export const tfgFullFieldsFormData = {
+    id: true,
+    thumbnail: true,
+    banner: true,
+    title: true,
+    description: true,
+    users: {
+        select: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    contactDetails: true,
+                    image: true,
+                    role: true
+                },
+            },
+        },
+    },
+    department: {
+        select: {
+            id: true,
+            name: true,
+            link: true,
+        },
+    },
+    category: {
+        select: {
+            id: true,
+            name: true,
+        },
+    },
+    titulation: {
+        select: {
+            id: true,
+            name: true,
+        },
+    },
+    content: true,
+    pages: true,
+    documentLink: true,
+    tags: true,
 };

@@ -10,11 +10,11 @@ import {
 } from "./BlockDefs";
 import { MediaFormPart, PropsToBlocks, TextFormPart } from "./BlocksShared";
 
-export const MEDIA_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const MEDIA_TEXT_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <div className={`min-h-[30px] flex flex-col gap-3 pt-2`}>
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={MEDIATXT_SLOTS.MEDIA_SRC}
                 IMG_HAS_TRANSPARENCY={MEDIATXT_SLOTS.IMG_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={MEDIATXT_SLOTS.IMG_MODAL_CLICK}
@@ -23,11 +23,11 @@ export const MEDIA_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsTo
                 MEDIA_POSITION={MEDIATXT_SLOTS.MEDIA_POSITION}
                 MEDIA_TYPE={MEDIATXT_SLOTS.MEDIA_TYPE}
                 VID_SRC_LINK={MEDIATXT_SLOTS.VID_SRC_LINK}
-                IMAGE_DROP_INDEX={0}
+                IMAGE_DROP_INDEX={MEDIATXT_SLOTS.MEDIA_SRC}
             />
             <Divider className="" />
             <TextFormPart
-                blockProps={{ id, removeFile, updateBlock, values }}
+                blockProps={propsToBlocks}
                 PositionText="derecha"
                 TEXT={MEDIATXT_SLOTS.TEXT}
                 TEXT_TITLE={MEDIATXT_SLOTS.TEXT_TITLE}
@@ -38,11 +38,11 @@ export const MEDIA_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsTo
     );
 };
 
-export const TEXT_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const TEXT_MEDIA_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <div className={`min-h-[30px] flex flex-col gap-3 pt-2`}>
             <TextFormPart
-                blockProps={{ id, removeFile, updateBlock, values }}
+                blockProps={propsToBlocks}
                 PositionText="izquierda"
                 TEXT={MEDIATXT_SLOTS.TEXT}
                 TEXT_TITLE={MEDIATXT_SLOTS.TEXT_TITLE}
@@ -51,7 +51,7 @@ export const TEXT_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: PropsTo
             />
             <Divider className="" />
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={MEDIATXT_SLOTS.MEDIA_SRC}
                 IMG_HAS_TRANSPARENCY={MEDIATXT_SLOTS.IMG_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={MEDIATXT_SLOTS.IMG_MODAL_CLICK}
@@ -60,17 +60,17 @@ export const TEXT_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: PropsTo
                 MEDIA_POSITION={MEDIATXT_SLOTS.MEDIA_POSITION}
                 MEDIA_TYPE={MEDIATXT_SLOTS.MEDIA_TYPE}
                 VID_SRC_LINK={MEDIATXT_SLOTS.VID_SRC_LINK}
-                IMAGE_DROP_INDEX={0}
+                IMAGE_DROP_INDEX={MEDIATXT_SLOTS.MEDIA_SRC}
             />
         </div>
     );
 };
 
-export const SINGLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const SINGLE_MEDIA_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <div className={`min-h-[30px] flex flex-col gap-3 pt-2`}>
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={SINGLE_MEDIA_SLOTS.MEDIA_SRC}
                 IMG_HAS_TRANSPARENCY={SINGLE_MEDIA_SLOTS.IMG_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={SINGLE_MEDIA_SLOTS.IMG_MODAL_CLICK}
@@ -79,18 +79,18 @@ export const SINGLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: Props
                 MEDIA_POSITION={SINGLE_MEDIA_SLOTS.MEDIA_POSITION}
                 MEDIA_TYPE={SINGLE_MEDIA_SLOTS.MEDIA_TYPE}
                 VID_SRC_LINK={SINGLE_MEDIA_SLOTS.VID_SRC_LINK}
-                IMAGE_DROP_INDEX={0}
+                IMAGE_DROP_INDEX={SINGLE_MEDIA_SLOTS.MEDIA_SRC}
             />
         </div>
     );
 };
 
-export const DOUBLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const DOUBLE_MEDIA_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <div className={`min-h-[30px] flex flex-col gap-3 pt-2`}>
             <div>Recurso 1</div>
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC}
                 IMG_HAS_TRANSPARENCY={DOUBLE_MEDIA_SLOTS.IMG_1_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={DOUBLE_MEDIA_SLOTS.IMG_1_MODAL_CLICK}
@@ -99,12 +99,12 @@ export const DOUBLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: Props
                 MEDIA_POSITION={DOUBLE_MEDIA_SLOTS.MEDIA_1_POSITION}
                 MEDIA_TYPE={DOUBLE_MEDIA_SLOTS.MEDIA_1_TYPE}
                 VID_SRC_LINK={DOUBLE_MEDIA_SLOTS.VID_1_SRC_LINK}
-                IMAGE_DROP_INDEX={0}
+                IMAGE_DROP_INDEX={DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC}
             />
             <Divider className="my-3" />
             <div>Recurso 2</div>
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC}
                 IMG_HAS_TRANSPARENCY={DOUBLE_MEDIA_SLOTS.IMG_2_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={DOUBLE_MEDIA_SLOTS.IMG_2_MODAL_CLICK}
@@ -113,18 +113,18 @@ export const DOUBLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: Props
                 MEDIA_POSITION={DOUBLE_MEDIA_SLOTS.MEDIA_2_POSITION}
                 MEDIA_TYPE={DOUBLE_MEDIA_SLOTS.MEDIA_2_TYPE}
                 VID_SRC_LINK={DOUBLE_MEDIA_SLOTS.VID_2_SRC_LINK}
-                IMAGE_DROP_INDEX={1}
+                IMAGE_DROP_INDEX={DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC}
             />
         </div>
     );
 };
 
-export const TRIPLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const TRIPLE_MEDIA_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <div className={`min-h-[30px] flex flex-col gap-3 pt-2`}>
             <div>Recurso 1</div>
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={TRIPLE_MEDIA_SLOTS.MEDIA_1_SRC}
                 IMG_HAS_TRANSPARENCY={TRIPLE_MEDIA_SLOTS.IMG_1_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={TRIPLE_MEDIA_SLOTS.IMG_1_MODAL_CLICK}
@@ -133,12 +133,12 @@ export const TRIPLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: Props
                 MEDIA_POSITION={TRIPLE_MEDIA_SLOTS.MEDIA_1_POSITION}
                 MEDIA_TYPE={TRIPLE_MEDIA_SLOTS.MEDIA_1_TYPE}
                 VID_SRC_LINK={TRIPLE_MEDIA_SLOTS.VID_1_SRC_LINK}
-                IMAGE_DROP_INDEX={0}
+                IMAGE_DROP_INDEX={TRIPLE_MEDIA_SLOTS.MEDIA_1_SRC}
             />
             <Divider className="my-3" />
             <div>Recurso 2</div>
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC}
                 IMG_HAS_TRANSPARENCY={TRIPLE_MEDIA_SLOTS.IMG_2_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={TRIPLE_MEDIA_SLOTS.IMG_2_MODAL_CLICK}
@@ -147,12 +147,12 @@ export const TRIPLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: Props
                 MEDIA_POSITION={TRIPLE_MEDIA_SLOTS.MEDIA_2_POSITION}
                 MEDIA_TYPE={TRIPLE_MEDIA_SLOTS.MEDIA_2_TYPE}
                 VID_SRC_LINK={TRIPLE_MEDIA_SLOTS.VID_2_SRC_LINK}
-                IMAGE_DROP_INDEX={1}
+                IMAGE_DROP_INDEX={TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC}
             />
             <Divider className="my-3" />
             <div>Recurso 3</div>
             <MediaFormPart
-                blockProps={{ id, updateBlock, removeFile, values }}
+                blockProps={propsToBlocks}
                 MEDIA_SRC={TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC}
                 IMG_HAS_TRANSPARENCY={TRIPLE_MEDIA_SLOTS.IMG_3_HAS_TRANSPARENCY}
                 IMG_MODAL_CLICK={TRIPLE_MEDIA_SLOTS.IMG_3_MODAL_CLICK}
@@ -161,16 +161,16 @@ export const TRIPLE_MEDIA_FORM = ({ id, removeFile, updateBlock, values }: Props
                 MEDIA_POSITION={TRIPLE_MEDIA_SLOTS.MEDIA_3_POSITION}
                 MEDIA_TYPE={TRIPLE_MEDIA_SLOTS.MEDIA_3_TYPE}
                 VID_SRC_LINK={TRIPLE_MEDIA_SLOTS.VID_3_SRC_LINK}
-                IMAGE_DROP_INDEX={2}
+                IMAGE_DROP_INDEX={TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC}
             />
         </div>
     );
 };
 
-export const SINGLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const SINGLE_TEXT_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <TextFormPart
-            blockProps={{ id, removeFile, updateBlock, values }}
+            blockProps={propsToBlocks}
             PositionText="derecha"
             TEXT={SINGLE_TEXT_SLOTS.TEXT}
             TEXT_TITLE={SINGLE_TEXT_SLOTS.TEXT_TITLE}
@@ -178,11 +178,11 @@ export const SINGLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsT
         />
     );
 };
-export const DOUBLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const DOUBLE_TEXT_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <div className={`min-h-[30px] flex flex-col gap-3 pt-2`}>
             <TextFormPart
-                blockProps={{ id, removeFile, updateBlock, values }}
+                blockProps={propsToBlocks}
                 PositionText="derecha"
                 TEXT={DOUBLE_TEXT_SLOTS.TEXT_1}
                 TEXT_TITLE={DOUBLE_TEXT_SLOTS.TEXT_1_TITLE}
@@ -191,7 +191,7 @@ export const DOUBLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsT
             />
             <Divider className="my-3" />
             <TextFormPart
-                blockProps={{ id, removeFile, updateBlock, values }}
+                blockProps={propsToBlocks}
                 PositionText="derecha"
                 TEXT={DOUBLE_TEXT_SLOTS.TEXT_2}
                 TEXT_TITLE={DOUBLE_TEXT_SLOTS.TEXT_2_TITLE}
@@ -202,11 +202,11 @@ export const DOUBLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsT
     );
 };
 
-export const TRIPLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsToBlocks) => {
+export const TRIPLE_TEXT_FORM = (propsToBlocks: PropsToBlocks) => {
     return (
         <div className={`min-h-[30px] flex flex-col gap-3 pt-2`}>
             <TextFormPart
-                blockProps={{ id, removeFile, updateBlock, values }}
+                blockProps={propsToBlocks}
                 PositionText="derecha"
                 TEXT={TRIPLE_TEXT_SLOTS.TEXT_1}
                 TEXT_TITLE={TRIPLE_TEXT_SLOTS.TEXT_1_TITLE}
@@ -215,7 +215,7 @@ export const TRIPLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsT
             />
             <Divider className="my-3" />
             <TextFormPart
-                blockProps={{ id, removeFile, updateBlock, values }}
+                blockProps={propsToBlocks}
                 PositionText="derecha"
                 TEXT={TRIPLE_TEXT_SLOTS.TEXT_2}
                 TEXT_TITLE={TRIPLE_TEXT_SLOTS.TEXT_2_TITLE}
@@ -224,7 +224,7 @@ export const TRIPLE_TEXT_FORM = ({ id, removeFile, updateBlock, values }: PropsT
             />
             <Divider className="my-3" />
             <TextFormPart
-                blockProps={{ id, removeFile, updateBlock, values }}
+                blockProps={propsToBlocks}
                 PositionText="derecha"
                 TEXT={TRIPLE_TEXT_SLOTS.TEXT_3}
                 TEXT_TITLE={TRIPLE_TEXT_SLOTS.TEXT_3_TITLE}

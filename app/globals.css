@@ -43,6 +43,9 @@ body {
     .grid-2-13rem {
         grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
     }
+    .error-message {
+        @apply text-sm text-red-500 pt-1
+    }
 }
 .embla {
     position: relative;

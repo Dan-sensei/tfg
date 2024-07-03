@@ -51,6 +51,7 @@ const config: Config = {
                 "nova-light2": "#8091a3",
                 "nova-button": "#05689c",
                 "nova-gray": "#bfbfbf",
+                "nova-error": "#f01d1d",
             },
             flex: {
                 "1c": "0 0 100%",
@@ -64,7 +65,7 @@ const config: Config = {
                 wide: "3 / 1",
                 "21-9": "21 / 9",
                 file: "9 / 12",
-                short: "9/16"
+                short: "9/16",
             },
             maskImage: {
                 borders: "linear-gradient(to right, transparent, black 50%, transparent)",

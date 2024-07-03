@@ -14,8 +14,8 @@ type Props = {
 export default function TFG_Details({ TFG }: Props) {
     let content: TFG_BLockElement[] = [];
     try {
-        if (!isNullOrEmpty(TFG.content)) {
-            content = JSON.parse(TFG.content);
+        if (!isNullOrEmpty(TFG.contentBlocks)) {
+            content = JSON.parse(TFG.contentBlocks);
         }
     } catch (e) {
         console.error(e);
@@ -37,7 +37,7 @@ export default function TFG_Details({ TFG }: Props) {
                 <div className="block md:hidden">
                     <TFG_BasicInfo TFG={TFG} />
                 </div>
-                <div className="text-center italic pt-10 md:pt-4">{TFG.description}</div>
+                <div className="text-center italic pt-10 md:pt-4 whitespace-pre-wrap">{TFG.description}</div>
                 <InfoBlocks blocks={content} />
             </main>
         </>

@@ -15,13 +15,13 @@ export default function App({filters, updateFilters}: TagsProps) {
     const [tags, setTags] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>(filters.tags ? filters.tags.split(",") : []);
     const handleSearch = useDebouncedCallback((value: string) => {
-        if (value.length > 0) {
+        if (value.length > 1) {
             fetch("/api/tags?q=" + value)
                 .then((res) => res.json())
                 .then((data) => {
                     setTags(data.response);
                 });
-        } else {
+        } else if(value.length === 0) {
             setTags([]);
         }
     }, SEARCH_INPUT_DELAY);
