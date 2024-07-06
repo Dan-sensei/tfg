@@ -5,21 +5,14 @@ import { DBProperty, TFGRowData, PopularFields } from "@/app/types/interfaces";
 import { tfgFields, tfgTopFields } from "@/app/types/prismaFieldDefs";
 import Link from "next/link";
 import { IconChevronRight } from "@tabler/icons-react";
-
-async function foryou() {
-    const recents = await prisma.tfg.findMany({
-        select: tfgFields,
-        orderBy: {
-            createdAt: "desc",
-        },
-        take: 20,
-    });
-    return recents;
-}
+import { TFGStatus } from "@/app/lib/enums";
 
 async function getRecents() {
     const recents = await prisma.tfg.findMany({
         select: tfgFields,
+        where: {
+            status: TFGStatus.PUBLISHED,
+        },
         orderBy: {
             createdAt: "desc",
         },
@@ -31,6 +24,9 @@ async function getRecents() {
 async function getTopWorks() {
     const TopWorks = await prisma.tfg.findMany({
         select: tfgTopFields,
+        where: {
+            status: TFGStatus.PUBLISHED,
+        },
         orderBy: [{ views: "desc" }, { score: "desc" }, { createdAt: "desc" }],
         take: 5,
     });
@@ -38,12 +34,12 @@ async function getTopWorks() {
 }
 
 async function findMostPopular(): Promise<PopularFields> {
-    async function getPopular(
-        type: DBProperty,
-        groupByField: "titulationId" | "categoryId"
-    ) {
+    async function getPopular(type: DBProperty, groupByField: "titulationId" | "categoryId") {
         return (
             await prisma.tfg.groupBy({
+                where: {
+                    status: TFGStatus.PUBLISHED,
+                },
                 by: [groupByField],
                 _sum: {
                     views: true,
@@ -67,16 +63,9 @@ async function findMostPopular(): Promise<PopularFields> {
         getPopular(DBProperty.Category, "categoryId"),
     ]);
 
-    const gradeIds = mostPopularGradeMasters
-        .sort((a, b) => b.views - a.views || a.id - b.id)
-        .map((p) => p.id);
-    const categoriesIds = mostPopularCategories
-        .sort((a, b) => b.views - a.views || a.id - b.id)
-        .map((p) => p.id);
-    const popularGroups = [
-        ...mostPopularGradeMasters,
-        ...mostPopularCategories,
-    ];
+    const gradeIds = mostPopularGradeMasters.sort((a, b) => b.views - a.views || a.id - b.id).map((p) => p.id);
+    const categoriesIds = mostPopularCategories.sort((a, b) => b.views - a.views || a.id - b.id).map((p) => p.id);
+    const popularGroups = [...mostPopularGradeMasters, ...mostPopularCategories];
     popularGroups.sort((a, b) => b.views - a.views || a.id - b.id);
     return { grade: gradeIds, category: categoriesIds, order: popularGroups };
 }
@@ -130,20 +119,14 @@ const getRowsData = async () => {
             },
         };
     }
-    const categoriesWithTopTFGs = await prisma.category.findMany(
-        getQuery(popularFields.category)
-    );
-    const categoriesArray: TFGRowData[] = categoriesWithTopTFGs.map(
-        (category) => ({
-            id: category.id,
-            name: "Trabajos de " + category.name,
-            type: "categoria",
-            tfgs: category.tfgs,
-        })
-    );
-    const gradesWithTopTFGs = await prisma.titulation.findMany(
-        getQuery(popularFields.grade)
-    );
+    const categoriesWithTopTFGs = await prisma.category.findMany(getQuery(popularFields.category));
+    const categoriesArray: TFGRowData[] = categoriesWithTopTFGs.map((category) => ({
+        id: category.id,
+        name: "Trabajos de " + category.name,
+        type: "categoria",
+        tfgs: category.tfgs,
+    }));
+    const gradesWithTopTFGs = await prisma.titulation.findMany(getQuery(popularFields.grade));
     const gradesArray: TFGRowData[] = gradesWithTopTFGs.map((grade) => ({
         id: grade.id,
         name: "Trabajos de " + grade.name,
@@ -183,7 +166,7 @@ export default async function Home() {
     return (
         <div className="overflow-hidden pt-[66px] lg:pt-[87px] ">
             <HomeCarousel topTfgs={topWorks} />
-            
+
             <div className="pb-[180px] px-4 lg:px-12 pt-7">
                 {RowData.map((rowData, index) => (
                     <div key={index} className="pb-10">
@@ -197,13 +180,9 @@ export default async function Home() {
                             {rowData.type && (
                                 <Link
                                     className=" xs:pl-3 text-sm lg:text-medium transition-colors inline-flex items-center text-gray-400 hover:text-nova-link group"
-                                    href={`/${rowData.type}/${rowData.id}`}
-                                >
+                                    href={`/${rowData.type}/${rowData.id}`}>
                                     Ver más{" "}
-                                    <IconChevronRight
-                                        className="inline text-blue-500 stroke-3 duration-400 group-hover:translate-x-1"
-                                        size={20}
-                                    />{" "}
+                                    <IconChevronRight className="inline text-blue-500 stroke-3 duration-400 group-hover:translate-x-1" size={20} />{" "}
                                 </Link>
                             )}
                         </div>

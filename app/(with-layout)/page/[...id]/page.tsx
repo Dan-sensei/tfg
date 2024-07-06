@@ -1,13 +1,7 @@
-import Image from "next/image";
 import { increaseTFGViews } from "@/app/lib/actions/tfg";
 import { redirect } from "next/navigation";
 import { iFullTFG } from "@/app/types/interfaces";
-import { IconChevronRight, IconCloudDownload, IconDownload, IconEye } from "@tabler/icons-react";
 import prisma from "@/app/lib/db";
-import { tfgFullFieldsDisplay } from "@/app/types/prismaFieldDefs";
-import { montserrat } from "@/app/lib/fonts";
-import Info from "../../../components/TFG/BasicInfo";
-import { Role } from "@/app/lib/enums";
 import TFG_Details from "@/app/components/TFG/TFG_Details";
 import { BLOCKTYPE, TFG_BLockElement } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
 
@@ -16,7 +10,53 @@ const getTFGData = async (id: number) => {
         where: {
             id: id,
         },
-        select: tfgFullFieldsDisplay,
+        select: {
+            id: true,
+            thumbnail: true,
+            banner: true,
+            title: true,
+            description: true,
+            authors: {
+                select: {
+                    name: true,
+                    socials: true,
+                    personalPage: true,
+                    image: true,
+                    role: true,
+                },
+            },
+            tutors: {
+                select: {
+                    user: {
+                        select: {
+                            name: true,
+                            personalPage: true,
+                            image: true,
+                            role: true,
+                        },
+                    },
+                },
+            },
+            department: {
+                select: {
+                    name: true,
+                    link: true,
+                },
+            },
+            contentBlocks: true,
+            pages: true,
+            documentLink: true,
+            tags: true,
+            views: true,
+            score: true,
+            createdAt: true,
+            college: {
+                select: {
+                    name: true,
+                    image: true,
+                },
+            },
+        },
     });
 
     if (!tfgRaw) return null;
@@ -27,22 +67,14 @@ const getTFGData = async (id: number) => {
         banner: tfgRaw.banner,
         title: tfgRaw.title,
         description: tfgRaw.description,
-        author: tfgRaw.users
-            .filter((userRelation) => userRelation.user.role === Role.STUDENT)
-            .map((userRelation) => ({
-                name: userRelation.user.name,
-                contactDetails: userRelation.user.contactDetails,
-                image: userRelation.user.image,
-            })),
-        tutor: tfgRaw.users
-            .filter((userRelation) => [Role.TUTOR, Role.MANAGER, Role.ADMIN].includes(userRelation.user.role))
-            .map((userRelation) => ({
-                name: userRelation.user.name,
-                contactDetails: userRelation.user.contactDetails,
-                image: userRelation.user.image,
-            })),
+        author: tfgRaw.authors,
+        tutors: tfgRaw.tutors.map((userRelation) => ({
+            name: userRelation.user.name,
+            personalPage: userRelation.user.personalPage,
+            image: userRelation.user.image,
+        })),
         department: tfgRaw.department,
-        contentBlocks: tfgRaw.content,
+        contentBlocks: tfgRaw.contentBlocks,
         pages: tfgRaw.pages,
         documentLink: tfgRaw.documentLink,
         tags: tfgRaw.tags,

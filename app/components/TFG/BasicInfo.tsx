@@ -23,15 +23,15 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iFullTFG }) {
                         </div>
                     </div>
                 )}
-                {TFG.tutor.length > 0 && (
+                {TFG.tutors.length > 0 && (
                     <div className="flex pt-4">
                         <div className="font-bold text-xs lg:text-sm text-nova-gray pt-[6px]">TUTOR/ES</div>
                         <div className="pl-7 font-semibold uppercase text-lg lg:text-xl md:max-w-96">
-                            {TFG.tutor.map((tutor, index) =>
-                                tutor.contactDetails ? (
+                            {TFG.tutors.map((tutor, index) =>
+                                tutor.personalPage ? (
                                     <Link
                                         key={index}
-                                        href={tutor.contactDetails || "#"}
+                                        href={tutor.personalPage || "#"}
                                         target="_blank"
                                         className="transition-colors hover:text-nova-link group w-full block">
                                         {`${tutor.name}`}

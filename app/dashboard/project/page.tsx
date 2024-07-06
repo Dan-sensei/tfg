@@ -6,13 +6,13 @@ import { Role } from "@/app/lib/enums";
 import { Category, Titulation, FullDepartment, FullUser, ProjectFormData } from "@/app/types/interfaces";
 import { getTopTags } from "@/app/lib/fetchData";
 import { redirect } from "next/navigation";
-import { tfgFullFieldsFormData } from "@/app/types/prismaFieldDefs";
 import { BlockInfo, TFG_BLockElement } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
+
+
 
 export default async function Project() {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role != Role.STUDENT) return redirect("/dashboard");
-
     const college = await prisma.college.findUnique({
         where: {
             id: session.user.collegeId,
@@ -40,7 +40,7 @@ export default async function Project() {
                     name: true,
                     image: true,
                     role: true,
-                    contactDetails: true,
+                    personalPage: true,
                 },
             },
             departments: {
@@ -58,13 +58,64 @@ export default async function Project() {
 
     const tfgRaw = await prisma.tfg.findFirst({
         where: {
-            users: {
+            authors: {
                 some: {
-                    userId: session.user.uid,
+                    id: session.user.uid,
                 },
             },
         },
-        select: tfgFullFieldsFormData,
+        select: {
+            id: true,
+            thumbnail: true,
+            banner: true,
+            title: true,
+            description: true,
+            authors: {
+                select: {
+                    id: true,
+                    name: true,
+                    socials: true,
+                    image: true,
+                    role: true,
+                },
+            },
+            tutors: {
+                select: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            image: true,
+                            role: true,
+                            personalPage: true,
+                        },
+                    },
+                },
+            },
+            department: {
+                select: {
+                    id: true,
+                    name: true,
+                    link: true,
+                },
+            },
+            category: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            titulation: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            contentBlocks: true,
+            pages: true,
+            documentLink: true,
+            tags: true,
+        },
     });
 
     const categories = (await prisma.category.findMany({
@@ -90,13 +141,13 @@ export default async function Project() {
     if (tfgRaw) {
         let contentBlocks: BlockInfo[] = [];
         try {
-            const tfgBlocks: TFG_BLockElement[] = JSON.parse(tfgRaw.content);
+            const tfgBlocks: TFG_BLockElement[] = JSON.parse(tfgRaw.contentBlocks);
             tfgBlocks.map((block, index) => {
                 contentBlocks.push({
                     ...block,
                     id: index,
                     files: [],
-                    errors: []
+                    errors: [],
                 });
             });
         } catch (e) {
@@ -109,14 +160,12 @@ export default async function Project() {
             banner: tfgRaw.banner,
             title: tfgRaw.title,
             description: tfgRaw.description,
-            tutor: tfgRaw.users
-                .filter((userRelation) => [Role.TUTOR, Role.MANAGER, Role.ADMIN].includes(userRelation.user.role))
-                .map((userRelation) => ({
-                    id: userRelation.user.id,
-                    name: userRelation.user.name,
-                    contactDetails: userRelation.user.contactDetails,
-                    image: userRelation.user.image,
-                })),
+            tutors: tfgRaw.tutors.map((userRelation) => ({
+                id: userRelation.user.id,
+                name: userRelation.user.name,
+                personalPage: userRelation.user.personalPage,
+                image: userRelation.user.image,
+            })),
             department: tfgRaw.department,
             category: tfgRaw.category,
             titulation: tfgRaw.titulation,

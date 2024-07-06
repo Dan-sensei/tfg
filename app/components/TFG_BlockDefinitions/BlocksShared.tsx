@@ -3,7 +3,7 @@ import clsx from "clsx";
 import ImageDrop from "../ImageDrop";
 import { Checkbox } from "@nextui-org/checkbox";
 import { Slider } from "@nextui-org/slider";
-import { MAX_IMAGE_BLOCK_WIDTH, MAX_IMAGE_BLOCK_HEIGHT, MAX_BLOCK_DESCRIPTION_LENGTH, MAX_BLOCK_TITLE_LENGTH } from "@/app/types/defaultData";
+import { MAX_IMAGE_BLOCK_WIDTH, MAX_IMAGE_BLOCK_HEIGHT, MAX_BLOCK_DESCRIPTION_LENGTH, MAX_BLOCK_TITLE_LENGTH, MAX_BLOCK_IMAGE_SIZE } from "@/app/types/defaultData";
 import { getYoutubeVideoId, isNullOrEmpty } from "@/app/utils/util";
 import { Description, Field, Input, Label, Radio, RadioGroup, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from "@headlessui/react";
 import ImageViewer from "../ImageViewer";
@@ -40,10 +40,8 @@ export const MediaMissing = (type: string, imagePosition: string) => {
 type MediaFormPartProps = {
     blockProps: PropsToBlocks;
     MEDIA_POSITION: number;
-    IMG_SRC_LINK: number;
     MEDIA_SRC: number;
     MEDIA_TYPE: number;
-    VID_SRC_LINK: number;
     IMG_MODAL_CLICK: number;
     MEDIA_MAX_HEIGHT: number;
     IMG_HAS_TRANSPARENCY: number;
@@ -53,10 +51,8 @@ type MediaFormPartProps = {
 export const MediaFormPart = ({
     blockProps: { id, updateBlock, removeFile, validateBlock, values },
     MEDIA_POSITION,
-    IMG_SRC_LINK,
     MEDIA_SRC,
     MEDIA_TYPE,
-    VID_SRC_LINK,
     IMG_MODAL_CLICK,
     MEDIA_MAX_HEIGHT,
     IMG_HAS_TRANSPARENCY,
@@ -70,16 +66,15 @@ export const MediaFormPart = ({
     ];
     const defaultImagePosition = imagePositions.find((position) => position.value === values[MEDIA_POSITION]) ?? imagePositions[1];
 
-    const isInputDisabled = isNullOrEmpty(values[IMG_SRC_LINK]) && !isNullOrEmpty(values[MEDIA_SRC]);
-    const isImageDropDisabled = !isNullOrEmpty(values[IMG_SRC_LINK]) && !isNullOrEmpty(values[MEDIA_SRC]);
+    const isInputDisabled = !isNullOrEmpty(values[MEDIA_SRC]) && values[IMG_MODAL_CLICK] !== "true";
+    const isImageDropDisabled = !isNullOrEmpty(values[MEDIA_SRC]) && values[IMG_MODAL_CLICK] === "true";
     return (
         <section>
             <TabGroup
                 defaultIndex={values[MEDIA_TYPE] == "image" ? 0 : 1}
                 onChange={(index) => {
                     updateBlock(id, MEDIA_TYPE, tabs[index], null);
-                    const src = index === 0 ? values[IMG_SRC_LINK] : values[VID_SRC_LINK];
-                    updateBlock(id, MEDIA_SRC, src, null);
+                    updateBlock(id, MEDIA_SRC, "", null);
                 }}>
                 <TabList className="flex gap-2">
                     <Tab className="rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none data-[selected]:bg-white/10 data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-white/10 data-[focus]:outline-1 data-[focus]:outline-white">
@@ -98,11 +93,12 @@ export const MediaFormPart = ({
                                     <IconPhotoScan />
                                 </div>
                                 <Input
-                                    defaultValue={values[IMG_SRC_LINK]}
+                                    defaultValue={
+                                        values[MEDIA_TYPE] === "image" && values[IMG_MODAL_CLICK] === "true" ? values[MEDIA_SRC] : ""
+                                    }
                                     onChange={(e) => {
                                         updateBlock(id, MEDIA_SRC, e.target.value, null);
-                                        updateBlock(id, IMG_SRC_LINK, e.target.value, null);
-                                        updateBlock(id, IMG_MODAL_CLICK, "true", null);
+                                        updateBlock(id, IMG_MODAL_CLICK, isNullOrEmpty(e.target.value) ? "false" : "true", null);
                                         validateBlock(id);
                                     }}
                                     className={clsx(
@@ -118,12 +114,12 @@ export const MediaFormPart = ({
                             isDisabled={isImageDropDisabled}
                             id={`block-${id}-${IMAGE_DROP_INDEX}`}
                             label=""
+                            defaultImage={values[MEDIA_SRC]}
                             maxDimensions={{ width: MAX_IMAGE_BLOCK_WIDTH, height: MAX_IMAGE_BLOCK_HEIGHT }}
-                            maxSize={3 * 1024 * 1024}
+                            maxSize={MAX_BLOCK_IMAGE_SIZE}
                             onUpdate={(image: string, blob: Blob | null) => {
                                 const imageFile = blob ? { id: IMAGE_DROP_INDEX, blob: blob } : null;
                                 updateBlock(id, MEDIA_SRC, image, imageFile);
-                                updateBlock(id, IMG_SRC_LINK, "", null);
                                 updateBlock(id, IMG_MODAL_CLICK, "", null);
                                 validateBlock(id);
                             }}
@@ -154,11 +150,10 @@ export const MediaFormPart = ({
                                 <Input
                                     onChange={(e) => {
                                         updateBlock(id, MEDIA_SRC, e.target.value, null);
-                                        updateBlock(id, VID_SRC_LINK, e.target.value, null);
                                         updateBlock(id, IMG_MODAL_CLICK, "", null);
                                         validateBlock(id);
                                     }}
-                                    defaultValue={values[VID_SRC_LINK]}
+                                    defaultValue={values[MEDIA_TYPE] === "video" ? values[MEDIA_SRC] : ""}
                                     className={clsx(
                                         "block w-full rounded-lg border-none bg-white/5  py-1.5 px-3 text-sm/6 text-white",
                                         "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",

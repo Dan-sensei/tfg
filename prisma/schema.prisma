@@ -13,7 +13,7 @@ model tfg {
   thumbnail    String
   banner       String
   title        String
-  content      String
+  contentBlocks String
   pages        Int
   documentLink String
   tags         String[]
@@ -22,7 +22,6 @@ model tfg {
   createdAt    DateTime         @default(now())
   description  String           @default("")
   scoredTimes  Int              @default(0)
-  author       String[]
   trendingScore Float @default(0)
 
   status       Int           @default(0)
@@ -42,7 +41,10 @@ model tfg {
   department   department?      @relation(fields: [departmentId], references: [id], map: "TFG_departmentId_fkey")
   titulation   titulation       @relation(fields: [titulationId], references: [id], map: "TFG_titulationId_fkey")
   voteLogs     votelog[]
-  users  UserTFG[]
+  authors user[]
+  tutors  TutorTFG[]
+
+  @@index([status], name: "TFG_status_index")
 }
 model ReviewMessage {
   id        Int      @id @default(autoincrement())
@@ -68,10 +70,13 @@ model user {
   image     String?
   email String @unique
   role Int
-  contactDetails String?
+  socials String?
+  personalPage String?
   collegeId Int
   college college  @relation(fields: [collegeId], references: [id])
-  tfg UserTFG[]
+  supervisedProjecs TutorTFG[]
+  personalProjectId     Int?
+  personalProject       tfg?   @relation(fields: [personalProjectId], references: [id], onDelete: SetNull)
   reviewMessages ReviewMessage[]
 }
 
@@ -96,19 +101,20 @@ model college {
   departments department[]
 }
 
-model UserTFG {
+model TutorTFG {
   userId Int
   tfgId  Int
   user   user @relation(fields: [userId], references: [id])
   tfg    tfg  @relation(fields: [tfgId], references: [id])
   assignedAt DateTime @default(now())
-  assignedBy String
+  assignedBy Int
   @@id([userId, tfgId])
 }
 
 model category {
   id   Int    @id(map: "Category_pkey") @default(autoincrement())
   name String
+  icon String?
   tfgs tfg[]
 }
 

@@ -18,7 +18,7 @@ export interface iFullTFG {
     title: string;
     description: string;
     author: User[];
-    tutor: User[];
+    tutors: User[];
     department: Department | null;
     contentBlocks: string;
     pages: number;
@@ -29,21 +29,37 @@ export interface iFullTFG {
     createdAt: Date;
     college: College;
 }
-export type ProjectFormData = {
+export interface ProjectFormData {
     id: number;
     thumbnail: string;
     banner: string;
     title: string;
     description: string;
-    tutor: FullUser[];
+    tutors: FullUser[];
     department: FullDepartment | null;
-    category: Category | null;
-    titulation: Titulation | null;
+    category: Category;
+    titulation: Titulation;
     pages: number;
     contentBlocks: BlockInfo[];
     documentLink: string;
     tags: string[];
 };
+
+export interface ProjectFromDataSend {
+    title: string;
+    banner: string | null;
+    description: string;
+    documentLink: string;
+    pages: number;
+    titulationId: number;
+    categoryId: number;
+    departmentId: number;
+    thumbnail: string | null;
+    tags: string[];
+    contentBlocks: BlockInfo[];
+    tutors: number[];
+    collegeId: number;
+}
 export interface College {
     name: string;
     image: string | null;
@@ -63,7 +79,8 @@ export interface FullDepartment extends Department {
 
 export interface User {
     name: string;
-    contactDetails: string | null;
+    socials?: string | null;
+    personalPage?: string | null;
     image: string | null;
 }
 
@@ -180,7 +197,7 @@ export type MessageError = {
     documentLink: string;
     pages: string;
     tags: string;
-    tutor: string;
+    tutors: string;
 };
 
 
