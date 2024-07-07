@@ -1,6 +1,16 @@
 "use client";
 
-import { Category, FullCollege, FullDepartment, FullUser, MessageError, ProjectFormData, ProjectFromDataSend, Titulation, iFullTFG } from "@/app/types/interfaces";
+import {
+    Category,
+    FullCollege,
+    FullDepartment,
+    FullUser,
+    MessageError,
+    ProjectFormData,
+    ProjectFromDataSend,
+    Titulation,
+    iFullTFG,
+} from "@/app/types/interfaces";
 import { normalizeText } from "@/app/utils/util";
 import { useEffect, useRef, useState } from "react";
 import TFG_Details from "@/app/components/TFG/TFG_Details";
@@ -18,6 +28,8 @@ import {
     MAX_THUMBNAIL_SIZE,
     MAX_TITLE_LENGTH,
     MAX_TUTORS,
+    MAX_BANNER_DIMENSIONS,
+    MAX_THUMBNAIL_DIMENSIONS,
 } from "@/app/types/defaultData";
 import { deleteNonExistentImagesFromIndexedDB } from "@/app/lib/indexedDBHelper";
 import { Divider } from "@nextui-org/divider";
@@ -27,7 +39,7 @@ import { Button as NextUIButton } from "@nextui-org/button";
 import { produce } from "immer";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
-import { BLOCKSCHEMA, BlockInfo, FormSchema, iFile } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
+import { BLOCKSCHEMA, BlockInfo, FormSchema, iFile, localStorageBlob } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
 import { CharacterCounter, Required } from "@/app/components/BasicComponentes";
 import * as v from "valibot";
 import { HeadlessComplete } from "@/app/lib/headlessUIStyle";
@@ -36,8 +48,6 @@ import { SEARCH_INPUT_DELAY } from "@/app/lib/config";
 import toast, { Toaster } from "react-hot-toast";
 import Autocomplete from "@/app/components/Autocomplete";
 import CreateProjectButton from "@/app/components/dashboard/createProject";
-
-
 
 type Props = {
     college: FullCollege;
@@ -105,7 +115,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
 
     const simplifiedBlocks = Object.values(form.contentBlocks).map((block) => ({
         type: block.type,
-        params: block.params,
+        data: block.data,
     }));
 
     const TFG: iFullTFG = {
@@ -136,7 +146,8 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                 setForm((current) => ({
                     ...current,
                     title: data.title ?? "",
-                    banner: DEF_BANNER,
+                    banner: data.banner,
+                    thumbnail: data.thumbnail,
                     description: data.description ?? "",
                     departmentId: data.department ?? categories[0]?.id ?? null,
                     pages: data.pages ?? 0,
@@ -152,7 +163,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                     existingImages.push("banner");
                     existingImages.push("ubanner");
                 }
-                if (data.thumbnail) {
+                if (data.thumbnail === localStorageBlob) {
                     existingImages.push("thumbnail");
                     existingImages.push("uthumbnail");
                 }
@@ -193,8 +204,8 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         const updatedBlocks = produce(form.contentBlocks, (draft) => {
             draft.forEach((block) => {
                 const schema = BLOCKSCHEMA[block.type];
-                const cleanedParams = CleanContentImageBase64(block.type, block.params);
-                const missingParamsInBlock = v.safeParse(schema.VALIDATE, cleanedParams.slice(0, schema.expectedParameters));
+                const cleanedParams = schema.prepareForLocalStorage(block.data);
+                const missingParamsInBlock = v.safeParse(schema.VALIDATE, JSON.parse(cleanedParams));
                 if (missingParamsInBlock.issues) {
                     block.errors = missingParamsInBlock.issues.map((issue) => issue.message);
                     foundErrorsInBlocks = true;
@@ -204,7 +215,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
             });
         });
         updateForm({ contentBlocks: updatedBlocks });
-        console.log(updatedBlocks)
+        console.log(updatedBlocks);
         if (!result.success || foundErrorsInBlocks) return null;
         return { ...result.output, contentBlocks: updatedBlocks };
     };
@@ -216,14 +227,14 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         if (data.banner instanceof Blob) formData.append("banner", data.banner);
         if (data.thumbnail instanceof Blob) formData.append("thumbnail", data.thumbnail);
 
-        const blocks : BlockInfo[] = data.contentBlocks.map((block) => {
-            const cleanedContent = CleanContentImageBase64(block.type, block.params);
+        const blocks: BlockInfo[] = data.contentBlocks.map((block) => {
+            const cleanedContent = BLOCKSCHEMA[block.type].prepareForLocalStorage(block.data);
             return {
                 id: block.id,
                 files: block.files,
                 type: block.type,
+                data: cleanedContent,
                 errors: [],
-                params: cleanedContent.slice(0, BLOCKSCHEMA[block.type].expectedParameters),
             };
         });
 
@@ -233,7 +244,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
             });
         });
 
-        const projectData : ProjectFromDataSend = {
+        const projectData: ProjectFromDataSend = {
             title: data.title,
             banner: typeof data.banner === "string" ? data.banner : null,
             description: data.description,
@@ -253,15 +264,14 @@ export default function ProjectForm({ college, departments, tutors, titulations,
 
         fetch("/api/dashboard/save-tfg", {
             method: "PUT",
-            body: formData
+            body: formData,
         })
             .then((response) => response.json())
             .then((json) => {
-                if(json.success){
+                if (json.success) {
                     toast.success("TFG guardado con éxito");
                     localStorage.removeItem("tfg-data");
-                }
-                else{
+                } else {
                     console.log("ERRROR");
                     toast.error(json.message);
                 }
@@ -279,18 +289,26 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         );
     };
 
-    const updateFormBlock = (blockid: number, slotIndex: number, content: string, file: iFile | null) => {
+    const updateFormBlock = (blockid: number, content: string) => {
         setForm(
             produce((draft) => {
                 const target = draft.contentBlocks.find((contentBlock) => contentBlock.id === blockid);
                 if (target) {
-                    target.params[slotIndex] = content;
+                    target.data = content;
+                }
+                saveToLocalStorage(draft);
+            })
+        );
+    };
 
-                    if (file) {
-                        const targetFile = target.files.findIndex((f) => f.id === file.id);
-                        if (targetFile > -1) target.files[targetFile] = file;
-                        else target.files.push(file);
-                    }
+    const addFileToBlock = (blockid: number, file: iFile) => {
+        setForm(
+            produce((draft) => {
+                const target = draft.contentBlocks.find((contentBlock) => contentBlock.id === blockid);
+                if (target) {
+                    const targetFile = target.files.findIndex((f) => f.id === file.id);
+                    if (targetFile > -1) target.files[targetFile] = file;
+                    else target.files.push(file);
                 }
                 saveToLocalStorage(draft);
             })
@@ -303,8 +321,8 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                 const target = draft.contentBlocks.find((block) => block.id === blockId);
                 if (target) {
                     const schema = BLOCKSCHEMA[target.type];
-                    const cleanedParams = CleanContentImageBase64(target.type, target.params);
-                    const missingParamsInBlock = v.safeParse(schema.VALIDATE, cleanedParams.slice(0, schema.expectedParameters));
+                    const cleanedData = schema.prepareForLocalStorage(target.data);
+                    const missingParamsInBlock = v.safeParse(schema.VALIDATE, JSON.parse(cleanedData));
                     if (missingParamsInBlock.issues) {
                         target.errors = missingParamsInBlock.issues.map((issue) => issue.message);
                     } else {
@@ -316,12 +334,11 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         );
     };
 
-    const removeFileFromBlock = (blockid: number, fileIdToRemove: number, imageSrcSlot: number) => {
+    const removeFileFromBlock = (blockid: number, fileIdToRemove: string) => {
         setForm(
             produce((draft) => {
                 const target = draft.contentBlocks.find((contentBlock) => contentBlock.id === blockid);
                 if (target) {
-                    target.params[imageSrcSlot] = "";
                     target.files = target.files.filter((file) => file.id !== fileIdToRemove);
                 }
                 saveToLocalStorage(draft);
@@ -329,27 +346,13 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         );
     };
 
-    const CleanContentImageBase64 = (blockType: number, params: string[]) => {
-        const blockSchema = BLOCKSCHEMA[blockType];
-        return params.map((c, i) => {
-            const skipRule = blockSchema.SKIP_LOCAL_SAVE_UNLESS.find((rule) => rule.skip === i);
-            if (skipRule) {
-                const shouldKeep = skipRule.unless(params);
-                if (!shouldKeep) {
-                    return "data:image";
-                }
-            }
-            return c;
-        });
-    };
-
     const saveToLocalStorage = (data: ProjectFormData) => {
         const saveBlocksData: BlockInfo[] = data.contentBlocks.map((block) => {
-            const params = CleanContentImageBase64(block.type, block.params);
+            const data = BLOCKSCHEMA[block.type].prepareForLocalStorage(block.data);
             return {
                 id: block.id,
                 type: block.type,
-                params: params,
+                data: data,
                 errors: block.errors,
                 files: [],
             };
@@ -359,8 +362,8 @@ export default function ProjectForm({ college, departments, tutors, titulations,
             "tfg-data",
             JSON.stringify({
                 ...data,
-                banner: data.banner && data.banner !== DEF_BANNER ? true : false,
-                thumbnail: data.thumbnail ? true : false,
+                banner: data.banner && data.banner !== DEF_BANNER && !data.banner.startsWith("data:") ? data.banner : localStorageBlob,
+                thumbnail: data.thumbnail && !data.thumbnail.startsWith("data:") ? data.thumbnail : localStorageBlob,
                 contentBlocks: saveBlocksData,
             })
         );
@@ -442,11 +445,9 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                             <div className="error-message">{errorMessages.title}</div>
                                         </Field>
                                     </div>
-                                    {form.banner}
                                     <ImageDrop
                                         isRequired
-                                        refresh={refresh.current}
-                                        defaultImage={form.banner === DEF_BANNER ? undefined : form.banner}
+                                        defaultImage={form.banner === localStorageBlob || form.banner === DEF_BANNER ? null : form.banner}
                                         invalid={!!errorMessages.banner}
                                         _errorMessage={errorMessages.banner}
                                         className="pt-4"
@@ -454,7 +455,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                         maxSize={MAX_BANNER_SIZE}
                                         aspectRatio={3 / 1}
                                         label="Banner"
-                                        maxDimensions={{ width: 2400, height: 800 }}
+                                        maxDimensions={MAX_BANNER_DIMENSIONS}
                                         autocrop={true}
                                         onUpdate={(newImage: string, blob: Blob | null) => {
                                             updateErrorMessage({ banner: "" });
@@ -660,8 +661,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
 
                                     <ImageDrop
                                         isRequired
-                                        refresh={refresh.current}
-                                        defaultImage={form.thumbnail}
+                                        defaultImage={form.thumbnail === localStorageBlob ? null : form.thumbnail}
                                         invalid={!!errorMessages.thumbnail}
                                         _errorMessage={errorMessages.thumbnail}
                                         className="pt-4"
@@ -670,7 +670,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                         aspectRatio={16 / 9}
                                         label="Thumbnail"
                                         autocrop={true}
-                                        maxDimensions={{ width: 400, height: 225 }}
+                                        maxDimensions={MAX_THUMBNAIL_DIMENSIONS}
                                         onUpdate={(newImage: string, blob: Blob | null) => {
                                             updateErrorMessage({ thumbnail: "" });
                                             setThumbnailFile(blob);
@@ -817,6 +817,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                         updateForm={updateForm}
                                         updateFormBlock={updateFormBlock}
                                         removeFileFromBlock={removeFileFromBlock}
+                                        addFileToBlock={addFileToBlock}
                                         validateBlock={validateBlock}
                                         className="pt-1"
                                     />

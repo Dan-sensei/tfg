@@ -21,6 +21,7 @@ export default function TFG_Details({ TFG }: Props) {
         console.error(e);
         content = [];
     }
+
     return (
         <>
             <div className="aspect-video lg:aspect-wide relative z-0 grid grid-stack max-h-[600px] w-full border-b-[1px] border-b-white/10">

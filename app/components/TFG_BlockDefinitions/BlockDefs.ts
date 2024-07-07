@@ -7,110 +7,281 @@ import {
     MAX_LINK_LENGTH,
     MAX_THUMBNAIL_SIZE,
     MAX_TITLE_LENGTH,
+    MIN_IMAGE_BLOCK_HEIGHT,
 } from "@/app/types/defaultData";
-import { DOUBLE_MEDIA, DOUBLE_TEXT, MEDIA_TEXT, SINGLE_MEDIA, SINGLE_TEXT, TEXT_MEDIA, TRIPLE_MEDIA, TRIPLE_TEXT } from "./DisplayComponents";
-import { isNullOrEmpty, roundTwoDecimals } from "@/app/utils/util";
+import {
+    BlockParams,
+    DOUBLE_MEDIA,
+    DOUBLE_TEXT,
+    MEDIA_TEXT,
+    SINGLE_MEDIA,
+    SINGLE_TEXT,
+    TEXT_MEDIA,
+    TRIPLE_MEDIA,
+    TRIPLE_TEXT,
+} from "./DisplayComponents";
+import { roundTwoDecimals } from "@/app/utils/util";
 import * as v from "valibot";
 
-export enum MEDIATXT_SLOTS {
-    MEDIA_MAX_HEIGHT = 0,
-    MEDIA_POSITION,
-    MEDIA_TYPE,
-    MEDIA_SRC,
-    IMG_MODAL_CLICK,
-    IMG_HAS_TRANSPARENCY,
-    TEXT_TITLE,
-    TEXT,
-    TEXT_ALIGN,
-    TEXT_POSITION,
-    __LENGTH,
-}
+export const localStorageBlob = "__data:";
 
-/* TXTMEDIA_SLOTS SAME AS MEDIATXT_SLOTS FOR NOW*/
+const MEDIA_POSITIONS = ["lg:mr-auto", "lg:mx-auto", "lg:ml-auto"];
+const TEXT_ALIGNS = ["lg:text-left", "lg:text-center", "lg:text-right"];
+const TEXT_V_ALIGNS = ["lg:items-start", "lg:items-center", "lg:items-end"];
+const MEDIA_TYPES = ["image", "video"];
 
-export enum SINGLE_MEDIA_SLOTS {
-    MEDIA_MAX_HEIGHT = 0,
-    MEDIA_POSITION,
-    MEDIA_TYPE,
-    MEDIA_SRC,
-    IMG_MODAL_CLICK,
-    IMG_HAS_TRANSPARENCY,
-    __LENGTH,
-}
+const errorMessages = {
+    title: {
+        tooLong: (max: number, index?: number) => `El título ${index ? `[${index}]` : ""} no ocupar más de ${max} carácteres`,
+    },
+    content: {
+        empty: (index?: number) => `El cuerpo de texto ${index ? `[${index}]` : ""} no puede estar vacío`,
+        tooLong: (max: number, index?: number) => `El cuerpo de texto ${index ? `[${index}]` : ""} no puede ocupar más de ${max} carácteres`,
+    },
+    media_src: {
+        empty: (index?: number) => `Recurso ${index ? `[${index}]` : ""} vacío`,
+        tooLong: (max: number, index?: number) => `El link del recurso ${index ? `[${index}]` : ""} no puede ocupar más de ${max} carácteres`,
+    },
+};
 
-export enum DOUBLE_MEDIA_SLOTS {
-    MEDIA_1_MAX_HEIGHT = 0,
-    MEDIA_1_POSITION,
-    MEDIA_1_TYPE,
-    MEDIA_1_SRC,
-    IMG_1_MODAL_CLICK,
-    IMG_1_HAS_TRANSPARENCY,
+// MEDIA SCHEMAS
+const mediaSrcSchema = (index?: number) =>
+    v.pipe(
+        v.string(),
+        v.nonEmpty(errorMessages.media_src.empty(index)),
+        v.maxLength(MAX_LINK_LENGTH, errorMessages.media_src.tooLong(MAX_LINK_LENGTH))
+    );
+const maxHeightSchema = v.fallback(
+    v.pipe(v.number(), v.minValue(MIN_IMAGE_BLOCK_HEIGHT), v.maxValue(MAX_IMAGE_BLOCK_HEIGHT)),
+    MAX_IMAGE_BLOCK_HEIGHT
+);
+const mediaPositionSchema = v.fallback(v.picklist(MEDIA_POSITIONS), MEDIA_POSITIONS[1]);
+const mediaTypeSchema = v.fallback(v.picklist(MEDIA_TYPES), MEDIA_TYPES[0]);
+const mediaPopOverSchema = v.boolean();
+const mediaHasTransparencySchema = v.boolean();
 
-    MEDIA_2_MAX_HEIGHT,
-    MEDIA_2_POSITION,
-    MEDIA_2_TYPE,
-    MEDIA_2_SRC,
-    IMG_2_MODAL_CLICK,
-    IMG_2_HAS_TRANSPARENCY,
-    __LENGTH,
-}
+// TEXT SCHEMAS
+const titleSchema = (index?: number) =>
+    v.pipe(v.string(), v.maxLength(MAX_BLOCK_TITLE_LENGTH, errorMessages.title.tooLong(MAX_BLOCK_TITLE_LENGTH, index)));
+const textSchema = (index?: number) => v.pipe(v.string(), v.nonEmpty(errorMessages.content.empty(index)), v.maxLength(MAX_BLOCK_DESCRIPTION_LENGTH));
+const textAlignSchema = v.fallback(v.picklist(TEXT_ALIGNS), TEXT_ALIGNS[0]);
+const textVAlignSchema = v.fallback(v.picklist(TEXT_V_ALIGNS), TEXT_V_ALIGNS[0]);
 
-export enum TRIPLE_MEDIA_SLOTS {
-    /* REQUIRED PARAMS */
-    MEDIA_1_MAX_HEIGHT = 0,
-    MEDIA_1_POSITION,
-    MEDIA_1_TYPE,
-    MEDIA_1_SRC,
-    IMG_1_MODAL_CLICK,
-    IMG_1_HAS_TRANSPARENCY,
+// BLOCK SCHEMAS
+const MEDIA_TEXT_SCHEMA = v.object({
+    mediaSrc: mediaSrcSchema(),
+    mediaMaxHeight: maxHeightSchema,
+    mediaPosition: mediaPositionSchema,
+    mediaType: mediaTypeSchema,
+    mediaPopOver: mediaPopOverSchema,
+    mediaHasTransparency: mediaHasTransparencySchema,
 
-    MEDIA_2_MAX_HEIGHT,
-    MEDIA_2_POSITION,
-    MEDIA_2_TYPE,
-    MEDIA_2_SRC,
-    IMG_2_MODAL_CLICK,
-    IMG_2_HAS_TRANSPARENCY,
+    title: titleSchema(),
+    text: textSchema(),
+    textAlign: textAlignSchema,
+    textVAlign: textVAlignSchema,
+});
 
-    MEDIA_3_MAX_HEIGHT,
-    MEDIA_3_POSITION,
-    MEDIA_3_TYPE,
-    MEDIA_3_SRC,
-    IMG_3_MODAL_CLICK,
-    IMG_3_HAS_TRANSPARENCY,
-    __LENGTH,
-}
+const SINGLE_MEDIA_SCHEMA = v.object({
+    mediaSrc: mediaSrcSchema(),
+    mediaMaxHeight: maxHeightSchema,
+    mediaPosition: mediaPositionSchema,
+    mediaType: mediaTypeSchema,
+    mediaPopOver: mediaPopOverSchema,
+    mediaHasTransparency: mediaHasTransparencySchema,
+});
 
-export enum SINGLE_TEXT_SLOTS {
-    TEXT_TITLE,
-    TEXT,
-    TEXT_ALIGN,
-    __LENGTH,
-}
-export enum DOUBLE_TEXT_SLOTS {
-    TEXT_1_TITLE,
-    TEXT_1,
-    TEXT_1_ALIGN,
+const DOUBLE_MEDIA_SCHEMA = v.object({
+    media1Src: mediaSrcSchema(1),
+    media1MaxHeight: maxHeightSchema,
+    media1Position: mediaPositionSchema,
+    media1Type: mediaTypeSchema,
+    media1PopOver: mediaPopOverSchema,
+    media1HasTransparency: mediaHasTransparencySchema,
 
-    TEXT_2_TITLE,
-    TEXT_2,
-    TEXT_2_ALIGN,
-    __LENGTH,
-}
+    media2Src: mediaSrcSchema(2),
+    media2MaxHeight: maxHeightSchema,
+    media2Position: mediaPositionSchema,
+    media2Type: mediaTypeSchema,
+    media2PopOver: mediaPopOverSchema,
+    media2HasTransparency: mediaHasTransparencySchema,
+});
 
-export enum TRIPLE_TEXT_SLOTS {
-    TEXT_1_TITLE,
-    TEXT_1,
-    TEXT_1_ALIGN,
+const TRIPLE_MEDIA_SCHEMA = v.object({
+    media1Src: mediaSrcSchema(1),
+    media1MaxHeight: maxHeightSchema,
+    media1Position: mediaPositionSchema,
+    media1Type: mediaTypeSchema,
+    media1PopOver: mediaPopOverSchema,
+    media1HasTransparency: mediaHasTransparencySchema,
 
-    TEXT_2_TITLE,
-    TEXT_2,
-    TEXT_2_ALIGN,
+    media2Src: mediaSrcSchema(2),
+    media2MaxHeight: maxHeightSchema,
+    media2Position: mediaPositionSchema,
+    media2Type: mediaTypeSchema,
+    media2PopOver: mediaPopOverSchema,
+    media2HasTransparency: mediaHasTransparencySchema,
 
-    TEXT_3_TITLE,
-    TEXT_3,
-    TEXT_3_ALIGN,
-    __LENGTH,
-}
+    media3Src: mediaSrcSchema(3),
+    media3MaxHeight: maxHeightSchema,
+    media3Position: mediaPositionSchema,
+    media3Type: mediaTypeSchema,
+    media3PopOver: mediaPopOverSchema,
+    media3HasTransparency: mediaHasTransparencySchema,
+});
+
+const SINGLE_TEXT_SCHEMA = v.object({
+    title: titleSchema(),
+    text: textSchema(),
+    textAlign: textAlignSchema,
+    textVAlign: textVAlignSchema,
+});
+
+const DOUBLE_TEXT_SCHEMA = v.object({
+    title1: titleSchema(1),
+    text1: textSchema(1),
+    textAlign1: textAlignSchema,
+    textVAlign1: textVAlignSchema,
+
+    title2: titleSchema(2),
+    text2: textSchema(2),
+    textAlign2: textAlignSchema,
+    textVAlign2: textVAlignSchema,
+});
+
+const TRIPLE_TEXT_SCHEMA = v.object({
+    title1: titleSchema(1),
+    text1: textSchema(1),
+    textAlign1: textAlignSchema,
+    textVAlign1: textVAlignSchema,
+
+    title2: titleSchema(2),
+    text2: textSchema(2),
+    textAlign2: textAlignSchema,
+    textVAlign2: textVAlignSchema,
+
+    title3: titleSchema(3),
+    text3: textSchema(3),
+    textAlign3: textAlignSchema,
+    textVAlign3: textVAlignSchema,
+});
+
+// DEFAULT VALUES
+export type MEDIA_TEXT_TYPE = v.InferOutput<typeof MEDIA_TEXT_SCHEMA>;
+const DEF_MEDIA_TEXT: MEDIA_TEXT_TYPE = {
+    mediaSrc: "",
+    mediaMaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    mediaPosition: MEDIA_POSITIONS[1],
+    mediaType: MEDIA_TYPES[0],
+    mediaPopOver: false,
+    mediaHasTransparency: false,
+
+    title: "",
+    text: "Contenido",
+    textAlign: TEXT_ALIGNS[0],
+    textVAlign: TEXT_V_ALIGNS[0],
+};
+
+// Same as MEDIA_TEXT for now
+const DEF_TEXT_MEDIA: MEDIA_TEXT_TYPE = {
+    mediaSrc: "",
+    mediaMaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    mediaPosition: MEDIA_POSITIONS[1],
+    mediaType: MEDIA_TYPES[0],
+    mediaPopOver: false,
+    mediaHasTransparency: false,
+    title: "Título",
+    text: "Contenido",
+    textAlign: TEXT_ALIGNS[2],
+    textVAlign: TEXT_V_ALIGNS[0],
+};
+export type SINGLE_MEDIA_TYPE = v.InferOutput<typeof SINGLE_MEDIA_SCHEMA>;
+const DEF_SINGLE_MEDIA: SINGLE_MEDIA_TYPE = {
+    mediaSrc: "",
+    mediaMaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    mediaPosition: MEDIA_POSITIONS[1],
+    mediaType: MEDIA_TYPES[0],
+    mediaPopOver: false,
+    mediaHasTransparency: false,
+};
+
+export type DOUBLE_MEDIA_TYPE = v.InferOutput<typeof DOUBLE_MEDIA_SCHEMA>;
+const DEF_DOUBLE_MEDIA: DOUBLE_MEDIA_TYPE = {
+    media1Src: "",
+    media1MaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    media1Position: MEDIA_POSITIONS[1],
+    media1Type: MEDIA_TYPES[0],
+    media1PopOver: false,
+    media1HasTransparency: false,
+
+    media2Src: "",
+    media2MaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    media2Position: MEDIA_POSITIONS[1],
+    media2Type: MEDIA_TYPES[0],
+    media2PopOver: false,
+    media2HasTransparency: false,
+};
+
+export type TRIPLE_MEDIA_TYPE = v.InferOutput<typeof TRIPLE_MEDIA_SCHEMA>;
+const DEF_TRIPLE_MEDIA: TRIPLE_MEDIA_TYPE = {
+    media1Src: "",
+    media1MaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    media1Position: MEDIA_POSITIONS[1],
+    media1Type: MEDIA_TYPES[0],
+    media1PopOver: false,
+    media1HasTransparency: false,
+
+    media2Src: "",
+    media2MaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    media2Position: MEDIA_POSITIONS[1],
+    media2Type: MEDIA_TYPES[0],
+    media2PopOver: false,
+    media2HasTransparency: false,
+
+    media3Src: "",
+    media3MaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
+    media3Position: MEDIA_POSITIONS[1],
+    media3Type: MEDIA_TYPES[0],
+    media3PopOver: false,
+    media3HasTransparency: false,
+};
+export type SINGLE_TEXT_TYPE = v.InferOutput<typeof SINGLE_TEXT_SCHEMA>;
+const DEF_SINGLE_TEXT: SINGLE_TEXT_TYPE = {
+    title: "",
+    text: "Contenido",
+    textAlign: TEXT_ALIGNS[1],
+    textVAlign: TEXT_V_ALIGNS[0],
+};
+
+export type DOUBLE_TEXT_TYPE = v.InferOutput<typeof DOUBLE_TEXT_SCHEMA>;
+const DEF_DOUBLE_TEXT: DOUBLE_TEXT_TYPE = {
+    title1: "",
+    text1: "Contenido",
+    textAlign1: TEXT_ALIGNS[1],
+    textVAlign1: TEXT_V_ALIGNS[0],
+
+    title2: "",
+    text2: "Contenido",
+    textAlign2: TEXT_ALIGNS[1],
+    textVAlign2: TEXT_V_ALIGNS[0],
+};
+export type TRIPLE_TEXT_TYPE = v.InferOutput<typeof TRIPLE_TEXT_SCHEMA>;
+const DEF_TRIPLE_TEXT: TRIPLE_TEXT_TYPE = {
+    title1: "",
+    text1: "Contenido",
+    textAlign1: TEXT_ALIGNS[1],
+    textVAlign1: TEXT_V_ALIGNS[0],
+
+    title2: "",
+    text2: "Contenido",
+    textAlign2: TEXT_ALIGNS[1],
+    textVAlign2: TEXT_V_ALIGNS[0],
+
+    title3: "",
+    text3: "Contenido",
+    textAlign3: TEXT_ALIGNS[1],
+    textVAlign3: TEXT_V_ALIGNS[0],
+};
 
 export enum BLOCKTYPE {
     MEDIA_TEXT = 1,
@@ -176,12 +347,12 @@ export type ParamErrorMessage = {
 };
 
 export type iFile = {
-    id: number;
+    id: string;
     blob: Blob;
 };
 export type TFG_BLockElement = {
     type: BLOCKTYPE;
-    params: string[];
+    data: string;
 };
 export interface BlockInfo extends TFG_BLockElement {
     id: number;
@@ -192,21 +363,12 @@ export type DetailsProps = {
     blocks: TFG_BLockElement[];
 };
 
-type DefBlockValue = {
-    [key: string]: string;
-};
-
-type SkipUnless = {
-    skip: number;
-    unless: (source: string[]) => boolean;
-};
-
 type _BLOCK_DATA = {
-    element: (props: { params: string[] }) => JSX.Element;
-    DEF_VALUES: DefBlockValue;
-    SKIP_LOCAL_SAVE_UNLESS: SkipUnless[];
+    element: ({ data }: BlockParams) => JSX.Element;
+    DEF_VALUES: string;
+    prepareForLocalStorage: (data: string) => string;
     VALIDATE: any;
-    expectedParameters: number;
+    getFileNames: (source: string) => string[];
 };
 
 interface BLOCK_DATA_TYPE {
@@ -215,355 +377,109 @@ interface BLOCK_DATA_TYPE {
 export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
     [BLOCKTYPE.MEDIA_TEXT]: {
         element: MEDIA_TEXT,
-        DEF_VALUES: {
-            [MEDIATXT_SLOTS.MEDIA_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [MEDIATXT_SLOTS.MEDIA_POSITION]: "lg:mx-auto",
-            [MEDIATXT_SLOTS.MEDIA_TYPE]: "image",
-            [MEDIATXT_SLOTS.MEDIA_SRC]: "",
-            [MEDIATXT_SLOTS.IMG_MODAL_CLICK]: "false",
-            [MEDIATXT_SLOTS.IMG_HAS_TRANSPARENCY]: "false",
-            [MEDIATXT_SLOTS.TEXT_TITLE]: "",
-            [MEDIATXT_SLOTS.TEXT]: "Contenido",
-            [MEDIATXT_SLOTS.TEXT_ALIGN]: "lg:text-left",
-            [MEDIATXT_SLOTS.TEXT_POSITION]: "lg:items-start",
+        DEF_VALUES: JSON.stringify(DEF_MEDIA_TEXT),
+        prepareForLocalStorage: (source: string) => {
+            const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
+            data.mediaSrc = data.mediaSrc.startsWith("data:") ? localStorageBlob : data.mediaSrc;
+            return JSON.stringify(data);
         },
-        SKIP_LOCAL_SAVE_UNLESS: [
-            {
-                skip: MEDIATXT_SLOTS.MEDIA_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[MEDIATXT_SLOTS.MEDIA_TYPE] === "video" ||
-                        (source[MEDIATXT_SLOTS.MEDIA_TYPE] === "image" && !source[MEDIATXT_SLOTS.MEDIA_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-        ],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(MEDIATXT_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.MEDIA_SRC]), "Adjunta una imagen o vídeo"),
-            v.check(
-                (params) => params[MEDIATXT_SLOTS.MEDIA_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.TEXT]), "El texto no puede estar vacío"),
-            v.check(
-                (params) => params[MEDIATXT_SLOTS.TEXT].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[MEDIATXT_SLOTS.TEXT_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            )
-        ),
-        expectedParameters: MEDIATXT_SLOTS.__LENGTH,
+        getFileNames: (source: string) => {
+            const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
+            return [data.mediaSrc];
+        },
+        VALIDATE: MEDIA_TEXT_SCHEMA,
     },
     [BLOCKTYPE.TEXT_MEDIA]: {
         element: TEXT_MEDIA,
-        DEF_VALUES: {
-            [MEDIATXT_SLOTS.MEDIA_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [MEDIATXT_SLOTS.MEDIA_POSITION]: "lg:mx-auto",
-            [MEDIATXT_SLOTS.MEDIA_TYPE]: "image",
-            [MEDIATXT_SLOTS.MEDIA_SRC]: "",
-            [MEDIATXT_SLOTS.IMG_MODAL_CLICK]: "false",
-            [MEDIATXT_SLOTS.IMG_HAS_TRANSPARENCY]: "false",
-            [MEDIATXT_SLOTS.TEXT_TITLE]: "",
-            [MEDIATXT_SLOTS.TEXT]: "Contenido",
-            [MEDIATXT_SLOTS.TEXT_ALIGN]: "lg:text-right",
-            [MEDIATXT_SLOTS.TEXT_POSITION]: "lg:items-start",
+        DEF_VALUES: JSON.stringify(DEF_TEXT_MEDIA),
+        prepareForLocalStorage: (source: string) => {
+            const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
+            data.mediaSrc = data.mediaSrc.startsWith("data:") ? localStorageBlob : data.mediaSrc;
+            return JSON.stringify(data);
         },
-        SKIP_LOCAL_SAVE_UNLESS: [
-            {
-                skip: MEDIATXT_SLOTS.MEDIA_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[MEDIATXT_SLOTS.MEDIA_TYPE] === "video" ||
-                        (source[MEDIATXT_SLOTS.MEDIA_TYPE] === "image" && !source[MEDIATXT_SLOTS.MEDIA_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-        ],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(MEDIATXT_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.MEDIA_SRC]), "Adjunta una imagen o vídeo"),
-            v.check(
-                (params) => params[MEDIATXT_SLOTS.MEDIA_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-            v.check((params) => !isNullOrEmpty(params[MEDIATXT_SLOTS.TEXT]), "El texto no puede estar vacío"),
-            v.check(
-                (params) => params[MEDIATXT_SLOTS.TEXT].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[MEDIATXT_SLOTS.TEXT_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            )
-        ),
-        expectedParameters: MEDIATXT_SLOTS.__LENGTH,
+        getFileNames: (source: string) => {
+            const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
+            return [data.mediaSrc];
+        },
+        VALIDATE: MEDIA_TEXT_SCHEMA,
     },
     [BLOCKTYPE.SINGLE_MEDIA]: {
         element: SINGLE_MEDIA,
-        DEF_VALUES: {
-            [SINGLE_MEDIA_SLOTS.MEDIA_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [SINGLE_MEDIA_SLOTS.MEDIA_POSITION]: "lg:mx-auto",
-            [SINGLE_MEDIA_SLOTS.MEDIA_TYPE]: "image",
-            [SINGLE_MEDIA_SLOTS.MEDIA_SRC]: "",
-            [SINGLE_MEDIA_SLOTS.IMG_MODAL_CLICK]: "false",
-            [SINGLE_MEDIA_SLOTS.IMG_HAS_TRANSPARENCY]: "false",
+        DEF_VALUES: JSON.stringify(DEF_SINGLE_MEDIA),
+        prepareForLocalStorage: (source: string) => {
+            const data = JSON.parse(source) as SINGLE_MEDIA_TYPE;
+            data.mediaSrc = data.mediaSrc.startsWith("data:") ? localStorageBlob : data.mediaSrc;
+            return JSON.stringify(data);
         },
-        SKIP_LOCAL_SAVE_UNLESS: [
-            {
-                skip: SINGLE_MEDIA_SLOTS.MEDIA_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[SINGLE_MEDIA_SLOTS.MEDIA_TYPE] === "video" ||
-                        (source[SINGLE_MEDIA_SLOTS.MEDIA_TYPE] === "image" && !source[SINGLE_MEDIA_SLOTS.MEDIA_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-        ],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(SINGLE_MEDIA_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[SINGLE_MEDIA_SLOTS.MEDIA_SRC]), "Adjunta una imagen o vídeo"),
-            v.check(
-                (params) => params[SINGLE_MEDIA_SLOTS.MEDIA_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-        ),
-        expectedParameters: SINGLE_MEDIA_SLOTS.__LENGTH,
+        getFileNames: (source: string) => {
+            const data = JSON.parse(source) as SINGLE_MEDIA_TYPE;
+            return [data.mediaSrc];
+        },
+        VALIDATE: SINGLE_MEDIA_SCHEMA,
     },
     [BLOCKTYPE.DOUBLE_MEDIA]: {
         element: DOUBLE_MEDIA,
-        DEF_VALUES: {
-            [DOUBLE_MEDIA_SLOTS.MEDIA_1_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [DOUBLE_MEDIA_SLOTS.MEDIA_1_POSITION]: "lg:mx-auto",
-            [DOUBLE_MEDIA_SLOTS.MEDIA_1_TYPE]: "image",
-            [DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC]: "",
-            [DOUBLE_MEDIA_SLOTS.IMG_1_MODAL_CLICK]: "false",
-            [DOUBLE_MEDIA_SLOTS.IMG_1_HAS_TRANSPARENCY]: "false",
-
-            [DOUBLE_MEDIA_SLOTS.MEDIA_2_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [DOUBLE_MEDIA_SLOTS.MEDIA_2_POSITION]: "lg:mx-auto",
-            [DOUBLE_MEDIA_SLOTS.MEDIA_2_TYPE]: "image",
-            [DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC]: "",
-            [DOUBLE_MEDIA_SLOTS.IMG_2_MODAL_CLICK]: "false",
-            [DOUBLE_MEDIA_SLOTS.IMG_2_HAS_TRANSPARENCY]: "false",
+        DEF_VALUES: JSON.stringify(DEF_DOUBLE_MEDIA),
+        prepareForLocalStorage: (source: string) => {
+            const data = JSON.parse(source) as DOUBLE_MEDIA_TYPE;
+            data.media1Src = data.media1Src.startsWith("data:") ? localStorageBlob : data.media1Src;
+            data.media2Src = data.media2Src.startsWith("data:") ? localStorageBlob : data.media2Src;
+            return JSON.stringify(data);
         },
-        SKIP_LOCAL_SAVE_UNLESS: [
-            {
-                skip: DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[DOUBLE_MEDIA_SLOTS.MEDIA_1_TYPE] === "video" ||
-                        (source[DOUBLE_MEDIA_SLOTS.MEDIA_1_TYPE] === "image" && !source[DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-            {
-                skip: DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[DOUBLE_MEDIA_SLOTS.MEDIA_2_TYPE] === "video" ||
-                        (source[DOUBLE_MEDIA_SLOTS.MEDIA_2_TYPE] === "image" && !source[DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-        ],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(DOUBLE_MEDIA_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC]), "El recurso [1] está vacío"),
-            v.check(
-                (params) => params[DOUBLE_MEDIA_SLOTS.MEDIA_1_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso [1] no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-            v.check((params) => !isNullOrEmpty(params[DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC]), "El recurso [2] está vacío"),
-            v.check(
-                (params) => params[DOUBLE_MEDIA_SLOTS.MEDIA_2_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso [2] no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-        ),
-        expectedParameters: DOUBLE_MEDIA_SLOTS.__LENGTH,
+        getFileNames: (source: string) => {
+            const data = JSON.parse(source) as DOUBLE_MEDIA_TYPE;
+            return [data.media1Src, data.media2Src];
+        },
+        VALIDATE: DOUBLE_MEDIA_SCHEMA,
     },
     [BLOCKTYPE.TRIPLE_MEDIA]: {
         element: TRIPLE_MEDIA,
-        DEF_VALUES: {
-            [TRIPLE_MEDIA_SLOTS.MEDIA_1_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [TRIPLE_MEDIA_SLOTS.MEDIA_1_POSITION]: "lg:mx-auto",
-            [TRIPLE_MEDIA_SLOTS.MEDIA_1_TYPE]: "image",
-            [TRIPLE_MEDIA_SLOTS.MEDIA_1_SRC]: "",
-            [TRIPLE_MEDIA_SLOTS.IMG_1_MODAL_CLICK]: "false",
-            [TRIPLE_MEDIA_SLOTS.IMG_1_HAS_TRANSPARENCY]: "false",
-
-            [TRIPLE_MEDIA_SLOTS.MEDIA_2_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [TRIPLE_MEDIA_SLOTS.MEDIA_2_POSITION]: "lg:mx-auto",
-            [TRIPLE_MEDIA_SLOTS.MEDIA_2_TYPE]: "image",
-            [TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC]: "",
-            [TRIPLE_MEDIA_SLOTS.IMG_2_MODAL_CLICK]: "false",
-            [TRIPLE_MEDIA_SLOTS.IMG_2_HAS_TRANSPARENCY]: "false",
-
-            [TRIPLE_MEDIA_SLOTS.MEDIA_3_MAX_HEIGHT]: MAX_IMAGE_BLOCK_HEIGHT.toString(),
-            [TRIPLE_MEDIA_SLOTS.MEDIA_3_POSITION]: "lg:mx-auto",
-            [TRIPLE_MEDIA_SLOTS.MEDIA_3_TYPE]: "image",
-            [TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC]: "",
-            [TRIPLE_MEDIA_SLOTS.IMG_3_MODAL_CLICK]: "false",
-            [TRIPLE_MEDIA_SLOTS.IMG_3_HAS_TRANSPARENCY]: "false",
+        DEF_VALUES: JSON.stringify(DEF_TRIPLE_MEDIA),
+        prepareForLocalStorage: (source: string) => {
+            const data = JSON.parse(source) as TRIPLE_MEDIA_TYPE;
+            data.media1Src = data.media1Src.startsWith("data:") ? localStorageBlob : data.media1Src;
+            data.media2Src = data.media2Src.startsWith("data:") ? localStorageBlob : data.media2Src;
+            data.media3Src = data.media3Src.startsWith("data:") ? localStorageBlob : data.media3Src;
+            return JSON.stringify(data);
         },
-        SKIP_LOCAL_SAVE_UNLESS: [
-            {
-                skip: TRIPLE_MEDIA_SLOTS.MEDIA_1_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[TRIPLE_MEDIA_SLOTS.MEDIA_1_TYPE] === "video" ||
-                        (source[TRIPLE_MEDIA_SLOTS.MEDIA_1_TYPE] === "image" && !source[TRIPLE_MEDIA_SLOTS.MEDIA_1_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-            {
-                skip: TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[TRIPLE_MEDIA_SLOTS.MEDIA_2_TYPE] === "video" ||
-                        (source[TRIPLE_MEDIA_SLOTS.MEDIA_2_TYPE] === "image" && !source[TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-            {
-                skip: TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC,
-                unless: (source: string[]) => {
-                    return (
-                        source[TRIPLE_MEDIA_SLOTS.MEDIA_3_TYPE] === "video" ||
-                        (source[TRIPLE_MEDIA_SLOTS.MEDIA_3_TYPE] === "image" && !source[TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC].startsWith("data:image"))
-                    );
-                },
-            },
-        ],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(TRIPLE_MEDIA_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[TRIPLE_MEDIA_SLOTS.MEDIA_1_SRC]), "El recurso [1] está vacío"),
-            v.check(
-                (params) => params[TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso [1] no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-            v.check((params) => !isNullOrEmpty(params[TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC]), "El recurso [2] está vacío"),
-            v.check(
-                (params) => params[TRIPLE_MEDIA_SLOTS.MEDIA_2_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso [2] no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-            v.check((params) => !isNullOrEmpty(params[TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC]), "El recurso [3] está vacío"),
-            v.check(
-                (params) => params[TRIPLE_MEDIA_SLOTS.MEDIA_3_SRC].length < MAX_LINK_LENGTH,
-                `El link del recurso [3] no puede ocupar más de ${MAX_LINK_LENGTH} carácteres.`
-            ),
-        ),
-        expectedParameters: TRIPLE_MEDIA_SLOTS.__LENGTH,
+        getFileNames: (source: string) => {
+            const data = JSON.parse(source) as TRIPLE_MEDIA_TYPE;
+            return [data.media1Src, data.media2Src, data.media3Src];
+        },
+        VALIDATE: TRIPLE_MEDIA_SCHEMA,
     },
     [BLOCKTYPE.SINGLE_TEXT]: {
         element: SINGLE_TEXT,
-        DEF_VALUES: {
-            [SINGLE_TEXT_SLOTS.TEXT_TITLE]: "",
-            [SINGLE_TEXT_SLOTS.TEXT]: "Contenido",
-            [SINGLE_TEXT_SLOTS.TEXT_ALIGN]: "lg:text-center",
+        DEF_VALUES: JSON.stringify(DEF_SINGLE_TEXT),
+        prepareForLocalStorage: (source: string) => {
+            return source;
         },
-        SKIP_LOCAL_SAVE_UNLESS: [],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(SINGLE_TEXT_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[SINGLE_TEXT_SLOTS.TEXT]), "El texto no puede estar vacío"),
-            v.check(
-                (params) => params[SINGLE_TEXT_SLOTS.TEXT].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[SINGLE_TEXT_SLOTS.TEXT_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            )
-        ),
-        expectedParameters: SINGLE_TEXT_SLOTS.__LENGTH,
+        getFileNames(source) {
+            return [];
+        },
+        VALIDATE: SINGLE_TEXT_SCHEMA,
     },
     [BLOCKTYPE.DOUBLE_TEXT]: {
         element: DOUBLE_TEXT,
-        DEF_VALUES: {
-            [DOUBLE_TEXT_SLOTS.TEXT_1_TITLE]: "",
-            [DOUBLE_TEXT_SLOTS.TEXT_1]: "Contenido",
-            [DOUBLE_TEXT_SLOTS.TEXT_1_ALIGN]: "lg:text-center",
-
-            [DOUBLE_TEXT_SLOTS.TEXT_2_TITLE]: "",
-            [DOUBLE_TEXT_SLOTS.TEXT_2]: "Contenido",
-            [DOUBLE_TEXT_SLOTS.TEXT_2_ALIGN]: "lg:text-center",
+        DEF_VALUES: JSON.stringify(DEF_DOUBLE_TEXT),
+        prepareForLocalStorage: (source: string) => {
+            return source;
         },
-        SKIP_LOCAL_SAVE_UNLESS: [],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(DOUBLE_TEXT_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[DOUBLE_TEXT_SLOTS.TEXT_1]), "El texto no puede estar vacío"),
-            v.check(
-                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_1].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto [1] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_1_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título [1] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_2].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto [2] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[DOUBLE_TEXT_SLOTS.TEXT_2_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título [2] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            )
-        ),
-        expectedParameters: DOUBLE_TEXT_SLOTS.__LENGTH,
+        getFileNames(source) {
+            return [];
+        },
+        VALIDATE: DOUBLE_TEXT_SCHEMA,
     },
     [BLOCKTYPE.TRIPLE_TEXT]: {
         element: TRIPLE_TEXT,
-        DEF_VALUES: {
-            [TRIPLE_TEXT_SLOTS.TEXT_1_TITLE]: "",
-            [TRIPLE_TEXT_SLOTS.TEXT_1]: "Contenido",
-            [TRIPLE_TEXT_SLOTS.TEXT_1_ALIGN]: "lg:text-center",
-            [TRIPLE_TEXT_SLOTS.TEXT_2_TITLE]: "",
-            [TRIPLE_TEXT_SLOTS.TEXT_2]: "Contenido",
-            [TRIPLE_TEXT_SLOTS.TEXT_2_ALIGN]: "lg:text-center",
-            [TRIPLE_TEXT_SLOTS.TEXT_3_TITLE]: "",
-            [TRIPLE_TEXT_SLOTS.TEXT_3]: "Contenido",
-            [TRIPLE_TEXT_SLOTS.TEXT_3_ALIGN]: "lg:text-center",
+        DEF_VALUES: JSON.stringify(DEF_TRIPLE_TEXT),
+        prepareForLocalStorage: (source: string) => {
+            return source;
         },
-        SKIP_LOCAL_SAVE_UNLESS: [],
-        VALIDATE: v.pipe(
-            v.array(v.string()),
-            v.length(TRIPLE_TEXT_SLOTS.__LENGTH),
-            v.check((params) => !isNullOrEmpty(params[TRIPLE_TEXT_SLOTS.TEXT_1]), "El texto no puede estar vacío"),
-            v.check(
-                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_1].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto [1] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_1_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título [1] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_2].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto [2] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_2_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título [2] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_3].length < MAX_BLOCK_DESCRIPTION_LENGTH,
-                `El texto [3] no ocupar más de ${MAX_BLOCK_DESCRIPTION_LENGTH} carácteres`
-            ),
-            v.check(
-                (params) => params[TRIPLE_TEXT_SLOTS.TEXT_3_TITLE].length < MAX_BLOCK_TITLE_LENGTH,
-                `El título [3] no ocupar más de ${MAX_BLOCK_TITLE_LENGTH} carácteres`
-            )
-        ),
-        expectedParameters: TRIPLE_TEXT_SLOTS.__LENGTH,
+        getFileNames(source) {
+            return [];
+        },
+        VALIDATE: TRIPLE_TEXT_SCHEMA,
     },
 };
 

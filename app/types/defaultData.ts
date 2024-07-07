@@ -17,8 +17,14 @@ export const MAX_TUTORS = 5;
 export const MAX_TAGS = 30;
 
 export const MAX_BANNER_SIZE = 5 * 1024 * 1024;
+export const MAX_BANNER_DIMENSIONS = {
+    width: 1200,
+    height: 630,
+};
+
 export const MAX_THUMBNAIL_SIZE = 2 * 1024 * 1024;
-export const MAX_BLOCK_IMAGE_SIZE = 3 * 1024 * 1024;
+export const MAX_THUMBNAIL_DIMENSIONS = { width: 400, height: 225 };
+
 export const MAX_TITLE_LENGTH = 70;
 export const MAX_DESCRIPTION_LENGTH = 500;
 export const MAX_BLOCK_TITLE_LENGTH = 30;
@@ -26,8 +32,10 @@ export const MAX_BLOCK_DESCRIPTION_LENGTH = 500;
 
 export const DEF_BANNER = "/default/def_banner.jpg";
 export const DEF_CROPBOX_SIZE = 350;
-export const MAX_IMAGE_BLOCK_WIDTH = 1000;
 export const MAX_IMAGE_BLOCK_HEIGHT = 500;
+export const MAX_BLOCK_IMAGE_SIZE = 3 * 1024 * 1024;
+export const MAX_BLOCK_IMAGE_DIMENSIONS = { width: 1000, height: MAX_IMAGE_BLOCK_HEIGHT };
+export const MIN_IMAGE_BLOCK_HEIGHT = 100;
 
 export const partialDefaultProjectData = {
     id: -1,
@@ -40,5 +48,5 @@ export const partialDefaultProjectData = {
     department: null,
     pages: 0,
     documentLink: "",
-    tags: []
+    tags: [],
 };

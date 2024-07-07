@@ -14,7 +14,7 @@ type Props = {
     className?: string;
     autocrop: boolean;
     label: string;
-    defaultImage?: string;
+    defaultImage?: string | null;
     id: string;
     onUpdate?: (newImage: string, blob: Blob | null) => void;
     onRemove?: () => void;
@@ -25,7 +25,6 @@ type Props = {
     isRequired?: boolean;
     _errorMessage?: string;
     invalid?: boolean;
-    refresh?: boolean;
 };
 
 export default function ImageDrop({
@@ -40,13 +39,13 @@ export default function ImageDrop({
     isDisabled = false,
     autocrop,
     defaultImage,
-    refresh,
     isRequired = false,
     invalid = false,
     _errorMessage = "",
 }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const lastImage = useRef<string | null>(defaultImage ?? null);
     const [displayImage, setDisplayImage] = useState<string | null>(defaultImage ?? null);
     const [uncroppedImage, setUncroppedImage] = useState<string | null>(defaultImage ?? null);
     const [errorMessage, setErrorMessage] = useState("");
@@ -58,6 +57,7 @@ export default function ImageDrop({
         if (defaultImage) {
             return;
         }
+        console.log("loading from indexedDB " + id);
         let ignore = false;
         const requestImages = async () => {
             const keys = [id, `u${id}`];
@@ -82,7 +82,6 @@ export default function ImageDrop({
         };
         requestImages();
         return () => {
-            console.log("unmounting");
             ignore = true;
         };
     }, []);
@@ -95,10 +94,16 @@ export default function ImageDrop({
     }, [invalid]);
 
     useEffect(() => {
-        localStorage.removeItem(id + "-cropper-data");
-        setDisplayImage(defaultImage ?? null);
-        setUncroppedImage(defaultImage ?? null);
-    }, [refresh]);
+        // lastImage = defaultImage when cropped or deleted within the component
+        // if it doesn't match that means it was changed from the reset button of the form
+        if (defaultImage != lastImage.current) {
+            console.log("resetting image");
+            lastImage.current = defaultImage ?? null;
+            setDisplayImage(defaultImage ?? null);
+            setUncroppedImage(defaultImage ?? null);
+            localStorage.removeItem(id + "-cropper-data");
+        }
+    }, [defaultImage]);
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -141,8 +146,8 @@ export default function ImageDrop({
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
-        onRemove?.();
         blobToBase64(file).then((base64) => {
+            lastImage.current = base64;
             if (autocrop && aspectRatio) {
                 AutoCrop({
                     imageSrc: base64,
@@ -161,6 +166,7 @@ export default function ImageDrop({
     };
 
     const removeImage = () => {
+        lastImage.current = null;
         setDisplayImage(null);
         setUncroppedImage(null);
         onRemove?.();
@@ -176,7 +182,9 @@ export default function ImageDrop({
     };
 
     const updateImages = (image: string, blob?: Blob) => {
+        lastImage.current = image;
         if (!isNullOrEmpty(image)) {
+            console.log("updating image", image.slice(0, 30));
             onUpdate?.(image, blob ?? null);
             setDisplayImage(image);
         }

@@ -35,8 +35,9 @@ type Props = {
     className?: string;
     blocks: BlockInfo[];
     updateForm: (data: Partial<ProjectFormData>) => void;
-    updateFormBlock: (blockid: number, slotIndex: number, content: string, file: iFile | null) => void;
-    removeFileFromBlock: (blockid: number, fileIdToRemove: number, imageSrcSlot: number) => void;
+    updateFormBlock: (blockid: number, content: string) => void;
+    removeFileFromBlock: (blockid: number, fileIdToRemove: string) => void;
+    addFileToBlock: (blockid: number, file: iFile) => void;
     validateBlock: (blockId: number) => void;
 };
 
@@ -131,14 +132,8 @@ export const FormTypes = {
     },
 };
 
-export default function BlockBuilder({ className, blocks, updateForm, updateFormBlock, removeFileFromBlock, validateBlock }: Props) {
+export default function BlockBuilder({ className, blocks, updateForm, updateFormBlock, removeFileFromBlock, addFileToBlock, validateBlock }: Props) {
     const idCounterRef = useRef(1);
-
-    const getDefatulParamsForType = (type: BLOCKTYPE) => {
-        const DefValuesObject = BLOCKSCHEMA[type].DEF_VALUES;
-        const maxIndex = Math.max(...Object.keys(DefValuesObject).map(Number));
-        return Array.from({ length: maxIndex + 1 }, (_, index) => (DefValuesObject[index] !== undefined ? DefValuesObject[index] : ""));
-    };
 
     const addBlock = () => {
         const newBlocks = produce(blocks, (draft) => {
@@ -146,8 +141,9 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
             do {
                 newId = idCounterRef.current++;
             } while (Object.values(draft).some((d) => d.id === newId));
-            const defaultValues = getDefatulParamsForType(BLOCKTYPE.MEDIA_TEXT);
-            draft.push({ id: newId, type: BLOCKTYPE.MEDIA_TEXT, params: defaultValues, files: [], errors: [] });
+            const defaultValues = BLOCKSCHEMA[BLOCKTYPE.MEDIA_TEXT].DEF_VALUES;
+            draft.push({ id: newId, type: BLOCKTYPE.MEDIA_TEXT, data: defaultValues, files: [], errors: [] });
+            console.log("new block", JSON.parse(defaultValues));
         });
         updateForm({ contentBlocks: newBlocks });
     };
@@ -170,7 +166,7 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
 
         const newBlocks = produce(blocks, (draft) => {
             draft[targetIndex].type = parseInt(newTypeId.toString());
-            draft[targetIndex].params = getDefatulParamsForType(newTypeId);
+            draft[targetIndex].data = BLOCKSCHEMA[newTypeId].DEF_VALUES;
             draft[targetIndex].errors = [];
         });
         updateForm({ contentBlocks: newBlocks });
@@ -270,10 +266,11 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
                                 </div>
                             </Field>
                             <Form
-                                values={block.params}
+                                stringifiedData={block.data}
                                 id={block.id}
-                                removeFile={removeFileFromBlock}
-                                updateBlock={updateFormBlock}
+                                removeFileFromBlock={removeFileFromBlock}
+                                addFileToBlock={addFileToBlock}
+                                updateFormBlock={updateFormBlock}
                                 validateBlock={validateBlock}
                             />
                         </DisclosurePanel>

@@ -92,79 +92,32 @@ const getTFGData = async (id: number) => {
 const content: TFG_BLockElement[] = [
     {
         type: BLOCKTYPE.SINGLE_TEXT,
-        params: [
-            ``,
-            `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
-            Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur`,
-        ],
+        data: "[]",
     },
     {
         type: BLOCKTYPE.MEDIA_TEXT,
-        params: [
-            "320",
-            "md:mx-auto",
-            "image",
-            "https://picsum.photos/seed/800/600/300",
-            "false",
-            "false",
-            "md:items-start",
-            `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
-            Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
-            Odio voluptatibus saepe minus tempore neque veniam libero aspernatur suscipit? Ad placeat maiores laboriosam debitis, illo accusamus iure architecto quasi mollitia quam eligendi assumenda eaque commodi minima repudiandae quia. Aut!`,
-        ],
+        data: "[]",
     },
     {
         type: BLOCKTYPE.TEXT_MEDIA,
-        params: [
-            "500",
-            "cover",
-            "center",
-            "https://picsum.photos/seed/124/600/300",
-            `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
-            Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
-            Odio voluptatibus saepe minus tempore neque veniam libero aspernatur suscipit? Ad placeat maiores laboriosam debitis, illo accusamus iure architecto quasi mollitia quam eligendi assumenda eaque commodi minima repudiandae quia. Aut!`,
-        ],
+        data: "[]",
     },
     {
         type: BLOCKTYPE.SINGLE_MEDIA,
-        params: ["500", "cover", "top", "https://picsum.photos/seed/148/1500/800"],
+        data: "[]",
     },
     {
         type: BLOCKTYPE.DOUBLE_MEDIA,
-        params: ["100", "cover", "center", "https://picsum.photos/seed/48/1500/800", "cover", "center", "https://picsum.photos/seed/248/1500/800"],
+        data: "[]",
     },
 
     {
         type: BLOCKTYPE.TRIPLE_TEXT,
-        params: [
-            "Title1",
-            `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
-            Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
-            Odio voluptatibus saepe minus tempore neque veniam libero aspernatur suscipit? Ad placeat maiores laboriosam debitis, illo accusamus iure architecto quasi mollitia quam eligendi assumenda eaque commodi minima repudiandae quia. Aut!`,
-            "Title2",
-            `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
-            Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
-            Odio voluptatibus saepe minus tempore neque veniam libero aspernatur suscipit? Ad placeat maiores laboriosam debitis, illo accusamus iure architecto quasi mollitia quam eligendi assumenda eaque commodi minima repudiandae quia. Aut!`,
-            "Title3",
-            `Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, omnis aspernatur officia quaerat incidunt corporis voluptatem repellendus error quibusdam molestiae sed, beatae quod dolore nostrum. Enim magnam beatae nostrum repellendus.
-            Voluptates obcaecati voluptas et dolorum voluptate cum, odit, nam, pariatur assumenda laudantium neque labore nulla nisi consequatur debitis! Ut quaerat laborum temporibus ducimus magnam, excepturi architecto. Labore officia repellat laborum.
-            Odio voluptatibus saepe minus tempore neque veniam libero aspernatur suscipit? Ad placeat maiores laboriosam debitis, illo accusamus iure architecto quasi mollitia quam eligendi assumenda eaque commodi minima repudiandae quia. Aut!`,
-        ],
+        data: "[]",
     },
     {
         type: BLOCKTYPE.TRIPLE_MEDIA,
-        params: [
-            "400",
-            "cover",
-            "center",
-            "https://picsum.photos/seed/2480/1500/800",
-            "cover",
-            "center",
-            "https://picsum.photos/seed/2458/1500/800",
-            "cover",
-            "center",
-            "https://picsum.photos/seed/2748/1500/800",
-        ],
+        data: "[]",
     },
 ];
 
@@ -179,7 +132,6 @@ export default async function Page({ params }: { params: { id: string } }) {
         redirect("/");
     }
 
-    TFG.contentBlocks = JSON.stringify(content);
     await increaseTFGViews(parseFloat(params.id));
 
     return (

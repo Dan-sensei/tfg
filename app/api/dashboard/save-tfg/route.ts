@@ -5,9 +5,17 @@ import sharp from "sharp";
 import prisma from "@/app/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/authOptions";
-import { MAX_BANNER_SIZE, MAX_BLOCK_IMAGE_SIZE, MAX_THUMBNAIL_SIZE, partialDefaultProjectData } from "@/app/types/defaultData";
+import {
+    MAX_BANNER_DIMENSIONS,
+    MAX_BANNER_SIZE,
+    MAX_BLOCK_IMAGE_DIMENSIONS,
+    MAX_BLOCK_IMAGE_SIZE,
+    MAX_THUMBNAIL_DIMENSIONS,
+    MAX_THUMBNAIL_SIZE,
+    partialDefaultProjectData,
+} from "@/app/types/defaultData";
 import { TFGStatus } from "@/app/lib/enums";
-import { ProjectFormData, ProjectFromDataSend } from "@/app/types/interfaces";
+import { dimension, ProjectFormData, ProjectFromDataSend } from "@/app/types/interfaces";
 import { getFileType, isNullOrEmpty, roundTwoDecimals } from "@/app/utils/util";
 import * as v from "valibot";
 import { BLOCKSCHEMA, FormSchema } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
@@ -20,20 +28,25 @@ interface FileToSave {
     name: string;
     blob: Blob;
     maxSize: number;
+    maxDimensions: dimension;
     extension: string;
 }
 
-const removePreviousFile = async (filePath: string) => {
-    try {
-        await stat(filePath);
-        await unlink(filePath);
-        return true;
-    } catch (err) {
-        return false;
+const cleanUnusedFiles = async (whitelist: string[], path: string) => {
+    const files = fs.readdirSync(path);
+    for (const file of files) {
+        if (!whitelist.includes(file)) {
+            try {
+                await unlink(path + file);
+            } catch (e) {
+                console.log(e);
+                continue;
+            }
+        }
     }
 };
 
-const saveFile = async (blob: Blob, pathFolder: string, name: string, maxSize: number, fileType: string) => {
+const saveFile = async (blob: Blob, pathFolder: string, name: string, maxSize: number, maxDimensions: dimension, fileType: string) => {
     const buffer = Buffer.from(await blob.arrayBuffer());
     const filepath = path.join(process.cwd(), `${pathFolder}${name}.${fileType}`);
     // Check image type and file size
@@ -49,7 +62,16 @@ const saveFile = async (blob: Blob, pathFolder: string, name: string, maxSize: n
     try {
         let compressedBuffer: Buffer;
         if (fileType === "png") compressedBuffer = await sharp(buffer).png({ quality: 80 }).toBuffer();
-        else compressedBuffer = await sharp(buffer).jpeg({ quality: 80 }).toBuffer();
+        else
+            compressedBuffer = await sharp(buffer)
+                .resize({
+                    width: maxDimensions.width,
+                    height: maxDimensions.height,
+                    fit: "inside",
+                    withoutEnlargement: true,
+                })
+                .jpeg({ quality: 80 })
+                .toBuffer();
 
         await writeFile(filepath, compressedBuffer);
 
@@ -92,6 +114,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const filesToSave: FileToSave[] = [];
+    let whiteList = ["banner.jpg", "thumbnail.jpg"];
+
     let projectData: ProjectFromDataSend;
     try {
         //Will throw error if parse fails
@@ -101,27 +125,36 @@ export async function PUT(request: NextRequest) {
             const blob = data.get(fileName) as Blob | null;
             if (!blob) return NextResponse.json({ succcess: false, message: `No ${fileName} image received` }, { status: 400 });
             projectData.banner = `${DISPLAY_PATH}${session.user.uid}/${fileName}.jpg`;
-            filesToSave.push({ name: fileName, blob: blob, maxSize: MAX_BANNER_SIZE, extension: "jpg" });
+            filesToSave.push({ name: fileName, blob: blob, maxSize: MAX_BANNER_SIZE, maxDimensions: MAX_BANNER_DIMENSIONS, extension: "jpg" });
         }
         if (projectData.thumbnail === null) {
             const fileName = "thumbnail";
             const blob = data.get(fileName) as Blob | null;
             if (!blob) return NextResponse.json({ succcess: false, message: `No ${fileName} image received` }, { status: 400 });
             projectData.thumbnail = `${DISPLAY_PATH}${session.user.uid}/${fileName}.jpg`;
-            filesToSave.push({ name: fileName, blob: blob, maxSize: MAX_THUMBNAIL_SIZE, extension: "jpg" });
+            filesToSave.push({ name: fileName, blob: blob, maxSize: MAX_THUMBNAIL_SIZE, maxDimensions: MAX_THUMBNAIL_DIMENSIONS, extension: "jpg" });
         }
         v.parse(FormSchema, projectData);
 
         for (const block of projectData.contentBlocks) {
-            block.files.forEach((file, index) => {
+            block.files.forEach((file) => {
                 const fileName = `block-${block.id}-${file.id}`;
                 const blob = data.get(fileName) as Blob | null;
                 if (!blob) return NextResponse.json({ succcess: false, message: `No ${fileName} image received` }, { status: 400 });
                 const fileType = getFileType(blob.type).toLowerCase();
-                filesToSave.push({ name: fileName, blob: blob, maxSize: MAX_BLOCK_IMAGE_SIZE, extension: fileType });
-                block.params[file.id] = `${DISPLAY_PATH}${session.user.uid}/${fileName}.${fileType}`;
+                filesToSave.push({
+                    name: fileName,
+                    blob: blob,
+                    maxSize: MAX_BLOCK_IMAGE_SIZE,
+                    maxDimensions: MAX_BLOCK_IMAGE_DIMENSIONS,
+                    extension: fileType,
+                });
+                const parsedBlockData = JSON.parse(block.data);
+                parsedBlockData[file.id] = `${DISPLAY_PATH}${session.user.uid}/${fileName}.${fileType}`;
+                v.parse(BLOCKSCHEMA[block.type].VALIDATE, parsedBlockData);
+                block.data = JSON.stringify(parsedBlockData);
             });
-            v.parse(BLOCKSCHEMA[block.type].VALIDATE, block.params);
+            whiteList = whiteList.concat(BLOCKSCHEMA[block.type].getFileNames(block.data));
         }
     } catch (e) {
         console.log(e);
@@ -132,11 +165,21 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: "Error creating user folder" }, { status: 500 });
     }
 
+    whiteList = whiteList.map((filePath) => path.basename(filePath));
+    cleanUnusedFiles(whiteList, `${USER_FOLDER_PATH}${session.user.uid}/`);
+
     // Save files
     try {
         console.log("Files to save: ", filesToSave.length);
         for (const file of filesToSave) {
-            const isFileSaved = await saveFile(file.blob, `${USER_FOLDER_PATH}${session.user.uid}/`, file.name, file.maxSize, file.extension);
+            const isFileSaved = await saveFile(
+                file.blob,
+                `${USER_FOLDER_PATH}${session.user.uid}/`,
+                file.name,
+                file.maxSize,
+                file.maxDimensions,
+                file.extension
+            );
             if (!isFileSaved) return NextResponse.json({ error: `Error saving file ${file.name}` }, { status: 400 });
         }
     } catch (e) {
@@ -145,13 +188,10 @@ export async function PUT(request: NextRequest) {
     }
 
     try {
-        console.log(projectData);
-
         const contentBlocksSave = projectData.contentBlocks.map((block) => ({
             type: block.type,
-            params: block.params,
+            data: block.data,
         }));
-        console.log(contentBlocksSave);
         // Fetch existing tutors for the TFG
         const existingTutors = await prisma.tutorTFG.findMany({
             where: { tfgId: user.personalProjectId },

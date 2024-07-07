@@ -5,14 +5,20 @@ export default function InfoBlocks({ blocks }: DetailsProps) {
         <div className="max-w-screen-2xl mx-auto xl:pt-10">
             {blocks.map((c, i) => {
                 const BlockTypeComponent = BLOCKSCHEMA[c.type];
-                if (!BlockTypeComponent || BlockTypeComponent.expectedParameters > c.params.length) {
+                if (!BlockTypeComponent) {
                     console.error("Blocktype component not found or missing params (InfoBlocks)");
+                    return null;
+                }
+                let data: any;
+                try {
+                    data = JSON.parse(c.data);
+                } catch (e) {
                     return null;
                 }
                 const Element = BlockTypeComponent.element;
                 return (
                     <section key={i} className="pt-10">
-                        <Element key={c.type} params={c.params} />
+                        <Element key={c.type} data={data} />
                     </section>
                 );
             })}
