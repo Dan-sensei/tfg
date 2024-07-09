@@ -8,12 +8,12 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session) return badResponse("Not signed in", 400);
     const userId = session.user.uid;
-    console.log("wah")
     const body = await request.json();
     const { tfgId, messageIds } = body;
 
     try {
-
+        // Check if the messages are from the specified TFG and the user is part of
+        // the author group or the tutor group
         const checkMessages = await prisma.reviewMessage.findMany({
             where: {
                 id: {
@@ -49,9 +49,10 @@ export async function POST(request: NextRequest) {
             }
         })
 
+        //If not, return
         const unreadMessages = checkMessages.map((message) => ({userId: userId, messageId: message.id}));
-        console.log(unreadMessages);
         if(unreadMessages.length === 0) return badResponse("No unread messages", 400);
+
         await prisma.messageRead.createMany({
             data: unreadMessages,
         });

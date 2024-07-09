@@ -14,6 +14,7 @@ import { isNullOrEmpty } from "../utils/util";
 import { Button } from "@headlessui/react";
 import { CHATBOX_REFRESH_INTERVAL } from "../types/defaultData";
 import "simplebar-react/dist/simplebar.min.css";
+import { useDebouncedCallback } from "use-debounce";
 
 type EditMessage = {
     id: number;
@@ -56,7 +57,6 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
     const abortController = useRef<AbortController | null>(null);
 
     useEffect(() => {
-        let timeout: NodeJS.Timeout | null = null;
         const checkNewMessages = () => {
             fetch(`/api/dashboard/review-message?tfgId=${tfgId}`, {
                 method: "GET",
@@ -78,55 +78,15 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
                 })
                 .catch((err) => {
                     console.error(err);
-                })
-                .finally(() => {
-                    timeout = setTimeout(() => {
-                        checkNewMessages();
-                    }, CHATBOX_REFRESH_INTERVAL);
                 });
         };
 
-        timeout = setTimeout(() => {
-            checkNewMessages();
-        }, CHATBOX_REFRESH_INTERVAL);
+        const intervalId = setInterval(checkNewMessages, CHATBOX_REFRESH_INTERVAL);
+
         return () => {
-            if (timeout) clearTimeout(timeout);
+            clearInterval(intervalId);
         };
     }, [tfgId]);
-
-    const checkUnreadMessages = () => {
-        const unreadMessages = reviewMessages.filter((message) => message.readBy.includes(userId) === false).map((message) => message.id);
-        if (unreadMessages.length > 0) {
-            fetch(`/api/dashboard/read-message`, {
-                signal: abortController.current?.signal,
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ messageIds: unreadMessages, tfgId: tfgId }),
-            })
-                .then((response) => response.json())
-                .then((json) => {
-                    if (json.success) {
-                        setReviewMessages(
-                            produce((draft) => {
-                                unreadMessages.forEach((messageId) => {
-                                    const message = draft.find((message) => message.id === messageId);
-                                    if (message) {
-                                        message.readBy.push(userId);
-                                    }
-                                });
-                            })
-                        );
-                    } else {
-                        console.error(json.response);
-                    }
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        }
-    };
 
     useEffect(() => {
         let skip = false;
@@ -170,6 +130,40 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
             })
             .finally(() => setIsSending(false));
     };
+
+    const checkUnreadMessages = useDebouncedCallback(() => {
+        const unreadMessages = reviewMessages.filter((message) => message.readBy.includes(userId) === false).map((message) => message.id);
+        if (unreadMessages.length > 0) {
+            fetch(`/api/dashboard/read-message`, {
+                signal: abortController.current?.signal,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ messageIds: unreadMessages, tfgId: tfgId }),
+            })
+                .then((response) => response.json())
+                .then((json) => {
+                    if (json.success) {
+                        setReviewMessages(
+                            produce((draft) => {
+                                unreadMessages.forEach((messageId) => {
+                                    const message = draft.find((message) => message.id === messageId);
+                                    if (message) {
+                                        message.readBy.push(userId);
+                                    }
+                                });
+                            })
+                        );
+                    } else {
+                        console.error(json.response);
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }
+    }, 500);
 
     useEffect(() => {
         if (simplebar.current) {
