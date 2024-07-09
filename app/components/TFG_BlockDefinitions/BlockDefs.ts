@@ -11,14 +11,14 @@ import {
 } from "@/app/types/defaultData";
 import {
     BlockParams,
-    DOUBLE_MEDIA,
-    DOUBLE_TEXT,
-    MEDIA_TEXT,
-    SINGLE_MEDIA,
-    SINGLE_TEXT,
-    TEXT_MEDIA,
-    TRIPLE_MEDIA,
-    TRIPLE_TEXT,
+    DOUBLE_MEDIA_ELEMENT,
+    DOUBLE_TEXT_ELEMENT,
+    MEDIA_TEXT_ELEMENT,
+    SINGLE_MEDIA_ELEMENT,
+    SINGLE_TEXT_ELEMENT,
+    TEXT_MEDIA_ELEMENT,
+    TRIPLE_MEDIA_ELEMENT,
+    TRIPLE_TEXT_ELEMENT,
 } from "./DisplayComponents";
 import { roundTwoDecimals } from "@/app/utils/util";
 import * as v from "valibot";
@@ -49,7 +49,8 @@ const mediaSrcSchema = (index?: number) =>
     v.pipe(
         v.string(),
         v.nonEmpty(errorMessages.media_src.empty(index)),
-        v.maxLength(MAX_LINK_LENGTH, errorMessages.media_src.tooLong(MAX_LINK_LENGTH))
+        v.check((input) => input.startsWith("data:") || input.length <= MAX_LINK_LENGTH, errorMessages.media_src.tooLong(MAX_LINK_LENGTH)),
+        v.transform((input) => (input.startsWith("data:") ? "data:" : input))
     );
 const maxHeightSchema = v.fallback(
     v.pipe(v.number(), v.minValue(MIN_IMAGE_BLOCK_HEIGHT), v.maxValue(MAX_IMAGE_BLOCK_HEIGHT)),
@@ -182,7 +183,7 @@ const DEF_MEDIA_TEXT: MEDIA_TEXT_TYPE = {
     textVAlign: TEXT_V_ALIGNS[0],
 };
 
-// Same as MEDIA_TEXT for now
+// Same type as MEDIA_TEXT for now
 const DEF_TEXT_MEDIA: MEDIA_TEXT_TYPE = {
     mediaSrc: "",
     mediaMaxHeight: MAX_IMAGE_BLOCK_HEIGHT,
@@ -333,7 +334,7 @@ export const FormSchema = v.object({
         v.nonEmpty("Por favor introduce el enlace a tu memoria"),
         v.maxLength(MAX_LINK_LENGTH, `El enlace no puede tener más de ${MAX_LINK_LENGTH} carácteres`)
     ),
-    departmentId: v.fallback(v.pipe(v.number(), v.notValue(0)), 1),
+    departmentId: v.nullable(v.pipe(v.number(), v.notValue(0))),
     collegeId: v.fallback(v.pipe(v.number(), v.notValue(0)), 1),
     categoryId: v.fallback(v.pipe(v.number(), v.notValue(0)), 1),
     titulationId: v.fallback(v.pipe(v.number(), v.notValue(0)), 1),
@@ -367,16 +368,17 @@ type _BLOCK_DATA = {
     element: ({ data }: BlockParams) => JSX.Element;
     DEF_VALUES: string;
     prepareForLocalStorage: (data: string) => string;
-    VALIDATE: any;
+    VALIDATE: (data: string | object) => v.SafeParseResult<any>;
     getFileNames: (source: string) => string[];
 };
 
 interface BLOCK_DATA_TYPE {
     [key: string]: _BLOCK_DATA;
 }
+
 export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
     [BLOCKTYPE.MEDIA_TEXT]: {
-        element: MEDIA_TEXT,
+        element: MEDIA_TEXT_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_MEDIA_TEXT),
         prepareForLocalStorage: (source: string) => {
             const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
@@ -387,10 +389,10 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
             const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
             return [data.mediaSrc];
         },
-        VALIDATE: MEDIA_TEXT_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(MEDIA_TEXT_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
     [BLOCKTYPE.TEXT_MEDIA]: {
-        element: TEXT_MEDIA,
+        element: TEXT_MEDIA_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_TEXT_MEDIA),
         prepareForLocalStorage: (source: string) => {
             const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
@@ -401,10 +403,10 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
             const data = JSON.parse(source) as MEDIA_TEXT_TYPE;
             return [data.mediaSrc];
         },
-        VALIDATE: MEDIA_TEXT_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(MEDIA_TEXT_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
     [BLOCKTYPE.SINGLE_MEDIA]: {
-        element: SINGLE_MEDIA,
+        element: SINGLE_MEDIA_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_SINGLE_MEDIA),
         prepareForLocalStorage: (source: string) => {
             const data = JSON.parse(source) as SINGLE_MEDIA_TYPE;
@@ -415,10 +417,10 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
             const data = JSON.parse(source) as SINGLE_MEDIA_TYPE;
             return [data.mediaSrc];
         },
-        VALIDATE: SINGLE_MEDIA_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(SINGLE_MEDIA_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
     [BLOCKTYPE.DOUBLE_MEDIA]: {
-        element: DOUBLE_MEDIA,
+        element: DOUBLE_MEDIA_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_DOUBLE_MEDIA),
         prepareForLocalStorage: (source: string) => {
             const data = JSON.parse(source) as DOUBLE_MEDIA_TYPE;
@@ -430,10 +432,10 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
             const data = JSON.parse(source) as DOUBLE_MEDIA_TYPE;
             return [data.media1Src, data.media2Src];
         },
-        VALIDATE: DOUBLE_MEDIA_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(DOUBLE_MEDIA_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
     [BLOCKTYPE.TRIPLE_MEDIA]: {
-        element: TRIPLE_MEDIA,
+        element: TRIPLE_MEDIA_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_TRIPLE_MEDIA),
         prepareForLocalStorage: (source: string) => {
             const data = JSON.parse(source) as TRIPLE_MEDIA_TYPE;
@@ -446,10 +448,10 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
             const data = JSON.parse(source) as TRIPLE_MEDIA_TYPE;
             return [data.media1Src, data.media2Src, data.media3Src];
         },
-        VALIDATE: TRIPLE_MEDIA_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(TRIPLE_MEDIA_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
     [BLOCKTYPE.SINGLE_TEXT]: {
-        element: SINGLE_TEXT,
+        element: SINGLE_TEXT_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_SINGLE_TEXT),
         prepareForLocalStorage: (source: string) => {
             return source;
@@ -457,10 +459,10 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
         getFileNames(source) {
             return [];
         },
-        VALIDATE: SINGLE_TEXT_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(SINGLE_TEXT_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
     [BLOCKTYPE.DOUBLE_TEXT]: {
-        element: DOUBLE_TEXT,
+        element: DOUBLE_TEXT_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_DOUBLE_TEXT),
         prepareForLocalStorage: (source: string) => {
             return source;
@@ -468,10 +470,10 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
         getFileNames(source) {
             return [];
         },
-        VALIDATE: DOUBLE_TEXT_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(DOUBLE_TEXT_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
     [BLOCKTYPE.TRIPLE_TEXT]: {
-        element: TRIPLE_TEXT,
+        element: TRIPLE_TEXT_ELEMENT,
         DEF_VALUES: JSON.stringify(DEF_TRIPLE_TEXT),
         prepareForLocalStorage: (source: string) => {
             return source;
@@ -479,7 +481,7 @@ export const BLOCKSCHEMA: BLOCK_DATA_TYPE = {
         getFileNames(source) {
             return [];
         },
-        VALIDATE: TRIPLE_TEXT_SCHEMA,
+        VALIDATE: (data: string | object) => v.safeParse(TRIPLE_TEXT_SCHEMA, typeof data === "string" ? JSON.parse(data) : data),
     },
 };
 

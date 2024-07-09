@@ -11,10 +11,13 @@ export const ROLE_NAMES = {
     [Role.ADMIN]: "Admin",
 };
 
+
 // Dashboard
 export const MAX_LINK_LENGTH = 350;
 export const MAX_TUTORS = 5;
 export const MAX_TAGS = 30;
+
+export const CHATBOX_REFRESH_INTERVAL = 5000;
 
 export const MAX_BANNER_SIZE = 5 * 1024 * 1024;
 export const MAX_BANNER_DIMENSIONS = {

@@ -70,6 +70,7 @@ const config: Config = {
             maskImage: {
                 borders: "linear-gradient(to right, transparent, black 50%, transparent)",
                 "borders-10": "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+                "borders-y-10": "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
                 left: "linear-gradient(to right, transparent, black 100%)",
                 right: "linear-gradient(to right, black, transparent 100%)",
                 "bottom-10": "linear-gradient(to bottom, black 80%, transparent 100%)",

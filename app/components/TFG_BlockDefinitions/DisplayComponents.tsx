@@ -13,7 +13,7 @@ export type BlockParams = {
     data: any;
 };
 
-export const MEDIA_TEXT = ({ data }: BlockParams) => {
+export const MEDIA_TEXT_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as MEDIA_TEXT_TYPE;
     return (
         <div className={`gap-3 xl:gap-8 grid grid-cols-1 lg:grid-cols-2`}>
@@ -30,7 +30,7 @@ export const MEDIA_TEXT = ({ data }: BlockParams) => {
     );
 };
 
-export const TEXT_MEDIA = ({ data }: BlockParams) => {
+export const TEXT_MEDIA_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as MEDIA_TEXT_TYPE;
 
     return (
@@ -48,7 +48,7 @@ export const TEXT_MEDIA = ({ data }: BlockParams) => {
     );
 };
 
-export const SINGLE_MEDIA = ({ data }: BlockParams) => {
+export const SINGLE_MEDIA_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as SINGLE_MEDIA_TYPE;
 
     return (
@@ -65,7 +65,7 @@ export const SINGLE_MEDIA = ({ data }: BlockParams) => {
     );
 };
 
-export const DOUBLE_MEDIA = ({ data }: BlockParams) => {
+export const DOUBLE_MEDIA_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as DOUBLE_MEDIA_TYPE;
 
     return (
@@ -90,7 +90,7 @@ export const DOUBLE_MEDIA = ({ data }: BlockParams) => {
     );
 };
 
-export const TRIPLE_MEDIA = ({ data }: BlockParams) => {
+export const TRIPLE_MEDIA_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as TRIPLE_MEDIA_TYPE;
 
     return (
@@ -123,12 +123,12 @@ export const TRIPLE_MEDIA = ({ data }: BlockParams) => {
     );
 };
 
-export const SINGLE_TEXT = ({ data }: BlockParams) => {
+export const SINGLE_TEXT_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as SINGLE_TEXT_TYPE;
     return <Text align={convertedData.textAlign} valign={convertedData.textVAlign} text={convertedData.text} title={convertedData.title} />;
 };
 
-export const DOUBLE_TEXT = ({ data }: BlockParams) => {
+export const DOUBLE_TEXT_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as DOUBLE_TEXT_TYPE;
 
     return (
@@ -139,7 +139,7 @@ export const DOUBLE_TEXT = ({ data }: BlockParams) => {
     );
 };
 
-export const TRIPLE_TEXT = ({ data }: BlockParams) => {
+export const TRIPLE_TEXT_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as TRIPLE_TEXT_TYPE;
 
     return (

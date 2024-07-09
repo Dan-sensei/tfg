@@ -15,10 +15,8 @@ import { Description, Field, Input, Label, Radio, RadioGroup, Tab, TabGroup, Tab
 import ImageViewer from "../ImageViewer";
 import { iFile, localStorageBlob } from "./BlockDefs";
 import { CharacterCounter } from "../BasicComponentes";
-import { HeadlessComplete } from "@/app/lib/headlessUIStyle";
-import { ProjectFormData } from "@/app/types/interfaces";
+import { HeadlessBasic, HeadlessComplete } from "@/app/lib/headlessUIStyle";
 import { BlockMethods } from "./Forms";
-
 
 export const MediaMissing = (type: string, imagePosition: string) => {
     return (
@@ -48,7 +46,7 @@ type MediaFormUpdateProperties<T> = {
 };
 
 type MediaFormPartProps<T> = {
-    blockMethods: BlockMethods,
+    blockMethods: BlockMethods;
     maxHeight: number;
     mediaPosition: string;
     mediaSrc: string;
@@ -168,11 +166,7 @@ export const MediaFormPart = <T,>({
                                         blockMethods.validateBlock(id);
                                     }}
                                     defaultValue={mediaType === "video" ? mediaSrc : ""}
-                                    className={clsx(
-                                        "block w-full rounded-lg border-none bg-white/5  py-1.5 px-3 text-sm/6 text-white",
-                                        "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
-                                        "data-[invalid]:outline-2 data-[invalid]:outline data-[invalid]:-outline-offset-2 data-[invalid]:outline-nova-error/75"
-                                    )}
+                                    className={clsx(HeadlessBasic, "rounded-lg")}
                                     placeholder="https://youtu.be/dQw4w9WgXcQ"
                                 />
                             </div>
@@ -368,7 +362,7 @@ export const TextFormPart = <T,>({
                                 blockMethods.validateBlock(id);
                             }}
                             invalid={title.length > MAX_BLOCK_TITLE_LENGTH}
-                            className={clsx("pr-14", HeadlessComplete)}
+                            className={clsx("pr-14 rounded-lg", HeadlessComplete)}
                             placeholder="Título (opcional)"
                         />
                     </Field>
@@ -384,7 +378,7 @@ export const TextFormPart = <T,>({
                             }}
                             invalid={isNullOrEmpty(text) || text.length > MAX_BLOCK_DESCRIPTION_LENGTH}
                             placeholder="Contenido"
-                            className={clsx("flex-1 pt-5 resize-none", HeadlessComplete)}
+                            className={clsx("flex-1 pt-5 resize-none rounded-lg", HeadlessComplete)}
                             rows={5}
                         />
                     </Field>

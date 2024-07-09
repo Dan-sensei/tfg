@@ -31,6 +31,7 @@ import {
 } from "./TFG_BlockDefinitions/Forms";
 import { BLOCKSCHEMA, BLOCKTYPE, BlockInfo, iFile } from "./TFG_BlockDefinitions/BlockDefs";
 
+
 type Props = {
     className?: string;
     blocks: BlockInfo[];
@@ -180,6 +181,8 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
                     <span className=" tracking-wider">({Object.keys(blocks).length}/5</span> bloques)
                 </span>
             </div>
+
+
             {blocks.map((block, index) => {
                 const Form = FormTypes[block.type].form;
                 return (

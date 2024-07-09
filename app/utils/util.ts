@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 export const sanitizeString = (str: string) => {
     str = str.trim();
     str = str.toLocaleLowerCase();
@@ -80,12 +82,15 @@ export const convertUTCDateToLocalDateKey = (utcDateString: string) => {
 };
 
 const HTTPResponse = (success: boolean, responseData: string, statusCode: number) => {
-    return new Response(JSON.stringify({ success: success, response: responseData }), {
-        status: statusCode,
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    return NextResponse.json(
+        { success: success, response: responseData },
+        {
+            status: statusCode,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
 };
 
 export const badResponse = (errorMessage: string, statusCode: number = 400) => {
@@ -179,3 +184,4 @@ export const normalizeText = (text: string) => {
     return text;
 };
 
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

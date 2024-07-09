@@ -16,13 +16,14 @@ import {
 } from "@/app/types/defaultData";
 import { TFGStatus } from "@/app/lib/enums";
 import { dimension, ProjectFormData, ProjectFromDataSend } from "@/app/types/interfaces";
-import { getFileType, isNullOrEmpty, roundTwoDecimals } from "@/app/utils/util";
+import { badResponse, getFileType, isNullOrEmpty, roundTwoDecimals, sleep, successResponse } from "@/app/utils/util";
 import * as v from "valibot";
 import { BLOCKSCHEMA, FormSchema } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
 import fs from "fs";
 
 const USER_FOLDER_PATH = "public/assets/users/";
 const DISPLAY_PATH = "/assets/users/";
+const BACKUP_PREFIX = "__b__";
 
 interface FileToSave {
     name: string;
@@ -32,19 +33,54 @@ interface FileToSave {
     extension: string;
 }
 
-const cleanUnusedFiles = async (whitelist: string[], path: string) => {
-    const files = fs.readdirSync(path);
+const removeFilesExcept = (directoryPath: string, whitelist: string[]) => {
+    const files = fs.readdirSync(directoryPath);
+    console.log(files);
     for (const file of files) {
         if (!whitelist.includes(file)) {
-            try {
-                await unlink(path + file);
-            } catch (e) {
-                console.log(e);
-                continue;
-            }
+            console.log(file);
+            fs.unlinkSync(path.join(directoryPath, file));
         }
     }
 };
+
+function backupFiles(directoryPath: string) {
+    const files = fs.readdirSync(directoryPath);
+    for (const file of files) {
+        const originalFile = path.join(directoryPath, file);
+        const backupFile = path.join(directoryPath, BACKUP_PREFIX + file);
+        fs.renameSync(originalFile, backupFile);
+    }
+    return files;
+}
+
+function restoreFilesWihoutOverwrite(directoryPath: string, filesToRestore: string[]) {
+    for (const file of filesToRestore) {
+        const backupFile = path.join(directoryPath, BACKUP_PREFIX + file);
+        const originalFile = path.join(directoryPath, file);
+        if (fs.existsSync(originalFile)) {
+            fs.unlinkSync(backupFile);
+            continue;
+        }
+        fs.renameSync(backupFile, originalFile);
+    }
+}
+
+function restoreUserFolder(directoryPath: string, filesToRestore: string[]) {
+    const files = fs.readdirSync(directoryPath);
+    console.log(files.filter((file) => file.startsWith(BACKUP_PREFIX)));
+
+    removeFilesExcept(
+        directoryPath,
+        files.filter((file) => file.startsWith(BACKUP_PREFIX))
+    );
+
+    for (const file of filesToRestore) {
+        const backupFile = path.join(directoryPath, BACKUP_PREFIX + file);
+        const originalFile = path.join(directoryPath, file);
+        fs.renameSync(backupFile, originalFile);
+    }
+}
 
 const saveFile = async (blob: Blob, pathFolder: string, name: string, maxSize: number, maxDimensions: dimension, fileType: string) => {
     const buffer = Buffer.from(await blob.arrayBuffer());
@@ -96,7 +132,7 @@ const checkAndCreateUserFolder = (user: string) => {
 
 export async function PUT(request: NextRequest) {
     const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json("/dashboard", { status: 401 });
+    if (!session) return badResponse("Not signed in", 400);
 
     const user = await prisma.user.findUnique({
         where: { id: session.user.uid },
@@ -104,18 +140,19 @@ export async function PUT(request: NextRequest) {
             personalProjectId: true,
         },
     });
-    if (!user || user.personalProjectId === null) return NextResponse.json({ success: false, response: "Project doesn't exist" });
+    if (!user || user.personalProjectId === null) return badResponse("Project doesn't exist", 400);
 
     const data = await request.formData();
 
     const projectDataRaw = data.get("projectData") as string | null;
     if (!projectDataRaw) {
-        return NextResponse.json({ error: "No project data received." }, { status: 400 });
+        return badResponse("No project data received.", 400);
     }
 
     const filesToSave: FileToSave[] = [];
-    let whiteList = ["banner.jpg", "thumbnail.jpg"];
+    let filesWhiteList = ["banner.jpg", "thumbnail.jpg"];
 
+    // Check if project data is valid
     let projectData: ProjectFromDataSend;
     try {
         //Will throw error if parse fails
@@ -141,6 +178,7 @@ export async function PUT(request: NextRequest) {
                 const fileName = `block-${block.id}-${file.id}`;
                 const blob = data.get(fileName) as Blob | null;
                 if (!blob) return NextResponse.json({ succcess: false, message: `No ${fileName} image received` }, { status: 400 });
+
                 const fileType = getFileType(blob.type).toLowerCase();
                 filesToSave.push({
                     name: fileName,
@@ -151,26 +189,30 @@ export async function PUT(request: NextRequest) {
                 });
                 const parsedBlockData = JSON.parse(block.data);
                 parsedBlockData[file.id] = `${DISPLAY_PATH}${session.user.uid}/${fileName}.${fileType}`;
-                v.parse(BLOCKSCHEMA[block.type].VALIDATE, parsedBlockData);
+                if (!BLOCKSCHEMA[block.type].VALIDATE(parsedBlockData).success) {
+                    throw new Error(`Invalid block data: Block #${block.id}`);
+                }
                 block.data = JSON.stringify(parsedBlockData);
             });
-            whiteList = whiteList.concat(BLOCKSCHEMA[block.type].getFileNames(block.data));
+            // Reset file list to return back to front end
+            block.files = [];
+            filesWhiteList = filesWhiteList.concat(BLOCKSCHEMA[block.type].getFileNames(block.data));
         }
     } catch (e) {
         console.log(e);
-        return NextResponse.json({ error: "Datos incorrectos" }, { status: 500 });
+        return badResponse(`Datos incorrectos`, 500);
     }
 
+    // Check and create user folder if doesn't exist
     if (!checkAndCreateUserFolder(session.user.uid.toString())) {
-        return NextResponse.json({ error: "Error creating user folder" }, { status: 500 });
+        return badResponse("Error creating user folder", 500);
     }
 
-    whiteList = whiteList.map((filePath) => path.basename(filePath));
-    cleanUnusedFiles(whiteList, `${USER_FOLDER_PATH}${session.user.uid}/`);
+    const userFolder = `${USER_FOLDER_PATH}${session.user.uid}`;
+    const originalFiles = backupFiles(userFolder);
 
-    // Save files
     try {
-        console.log("Files to save: ", filesToSave.length);
+        // Save files
         for (const file of filesToSave) {
             const isFileSaved = await saveFile(
                 file.blob,
@@ -180,11 +222,18 @@ export async function PUT(request: NextRequest) {
                 file.maxDimensions,
                 file.extension
             );
-            if (!isFileSaved) return NextResponse.json({ error: `Error saving file ${file.name}` }, { status: 400 });
+            if (!isFileSaved) throw new Error(`Error saving file ${file.name} in user ${session.user.uid}`);
         }
+
+        restoreFilesWihoutOverwrite(userFolder, originalFiles);
+
+        // Remove unreferenced files
+        filesWhiteList = filesWhiteList.map((filePath) => path.basename(filePath));
+        removeFilesExcept(userFolder, filesWhiteList);
     } catch (e) {
         console.log(e);
-        return NextResponse.json({ message: e }, { status: 400 });
+        restoreUserFolder(userFolder, originalFiles);
+        return badResponse(`Error saving files`, 500);
     }
 
     try {
@@ -205,7 +254,7 @@ export async function PUT(request: NextRequest) {
             const tfgId = user.personalProjectId;
 
             if (tfgId === null) {
-                return NextResponse.json({ error: "Project doesn't exist" }, { status: 400 });
+                return badResponse(`Project doesn't exist`, 500);
             }
 
             // Update the TFG with new data
@@ -226,6 +275,7 @@ export async function PUT(request: NextRequest) {
                     tags: projectData.tags,
                     contentBlocks: JSON.stringify(contentBlocksSave),
                     collegeId: projectData.collegeId,
+                    status: TFGStatus.SENT_FOR_REVIEW,
                 },
             });
 
@@ -252,40 +302,48 @@ export async function PUT(request: NextRequest) {
         });
     } catch (e) {
         console.log(e);
-        return NextResponse.json({ error: "Error saving project" }, { status: 500 });
+        return badResponse("Error saving project", 500);
     }
-    /*
-    await prisma.tfg.create({data: {
-        thumbnail: "",
-        banner: "",
-        title: "",
-        description: "0",
-        content: "",
-        pages: 0,
-        documentLink: "",
-        tags: [],
-        views: 0,
-        score: 0,
-        scoredTimes: 0,
 
-        departmentId: 0,
-        categoryId: 0,
-        titulationId: 0,
-        collegeId: 0,
-    }})*/
-    return NextResponse.json({ success: true }, { status: 200 });
-
-    //const isFileSaved = await saveFile(file);
-
-    //if(!isFileSaved)
-    //return NextResponse.json({ error: "Error saving file" }, { status: 400 });
-
-    return NextResponse.json(true);
+    const newTFG: ProjectFormData = {
+        id: user.personalProjectId,
+        thumbnail: projectData.thumbnail,
+        banner: projectData.banner,
+        title: projectData.title,
+        description: projectData.description,
+        tutors: projectData.tutors.map((tutor) => ({
+            id: tutor,
+            name: "",
+            socials: "",
+            personalPage: "",
+            image: "",
+        })),
+        department: projectData.departmentId
+            ? {
+                  id: projectData.departmentId,
+                  name: "",
+                  link: "",
+              }
+            : null,
+        category: {
+            id: projectData.categoryId,
+            name: "",
+        },
+        titulation: {
+            id: projectData.titulationId,
+            name: "",
+        },
+        pages: projectData.pages,
+        contentBlocks: projectData.contentBlocks,
+        documentLink: projectData.documentLink,
+        tags: projectData.tags,
+    };
+    return successResponse(newTFG, 200);
 }
 
 export async function POST() {
     const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json("/dashboard", { status: 401 });
+    if (!session) return badResponse("Not signed in", 400);
 
     try {
         const user = await prisma.user.findUnique({

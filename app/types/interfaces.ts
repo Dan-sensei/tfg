@@ -53,7 +53,7 @@ export interface ProjectFromDataSend {
     pages: number;
     titulationId: number;
     categoryId: number;
-    departmentId: number;
+    departmentId: number | null;
     thumbnail: string | null;
     tags: string[];
     contentBlocks: BlockInfo[];
@@ -75,6 +75,12 @@ export interface Department {
 }
 export interface FullDepartment extends Department {
     id: number;
+}
+
+export interface SimplifiedUser {
+    id: number;
+    name: string;
+    image: string | null;
 }
 
 export interface User {
@@ -206,3 +212,13 @@ export type dimension = {
     width: number;
     height: number;
 };
+
+
+export interface ReviewMessageType {
+    readonly id: number;
+    readonly message: string;
+    readonly user: SimplifiedUser | null;
+    readonly createdAt: Date;
+    readonly edited: boolean;
+    readonly readBy: number[];
+}

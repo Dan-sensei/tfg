@@ -42,11 +42,10 @@ const iconStyles = "stroke-2 w-5 h-5 mx-0";
 const CommonLinks: MobileLinkProps[] = [
     { name: "Home", href: "/dashboard", icon: <IconHome className={iconStyles} /> },
     { name: "Perfil", href: "/dashboard/profile", icon: <IconUserScan className={iconStyles} /> },
+    { name: "Proyecto", href: "/dashboard/project", icon: <IconBox className={iconStyles} /> }
 ];
 
-const StudentLinks: MobileLinkProps[] = [...CommonLinks, { name: "Proyecto", href: "/dashboard/project", icon: <IconBox className={iconStyles} /> }];
-
-const TutorLinks: MobileLinkProps[] = [...CommonLinks, { name: "Área tutor", href: "/dashboard/tutor", icon: <IconSchool className={iconStyles} /> }];
+const TutorLinks: MobileLinkProps[] = [...CommonLinks, { name: "Área tutor", href: "/dashboard/tutor-area", icon: <IconSchool className={iconStyles} /> }];
 
 const ManagerLinks: MobileLinkProps[] = [
     ...TutorLinks,
@@ -59,7 +58,7 @@ const AdminLinks: MobileLinkProps[] = [
 ];
 
 const LinksByRole = {
-    [Role.STUDENT]: StudentLinks,
+    [Role.STUDENT]: CommonLinks,
     [Role.TUTOR]: TutorLinks,
     [Role.MANAGER]: ManagerLinks,
     [Role.ADMIN]: AdminLinks,
@@ -90,7 +89,7 @@ export default function DashboardNavigation({ className }: Props) {
     };
     return (
         <>
-            <div className="hidden xl:block fixed left-0 top-0 h-full w-60 pt-3 pl-3 pb-3">
+            <div className="hidden xl:block absolute left-0 top-0 h-full w-60 pt-3 pl-3 pb-3">
                 <nav className="flex flex-col transition-width w-full h-full self-stretch gap-3 left-0">
                     <Button
                         as={Link}
@@ -148,12 +147,8 @@ export default function DashboardNavigation({ className }: Props) {
                 </NavbarContent>
 
                 <NavbarContent className="xl:hidden pr-3" justify="center">
-                    <NavbarBrand>
-                        <Link href={links[0].href}>
-                            <picture>
-                                <img alt="Logo" src="" />
-                            </picture>
-                        </Link>
+                    <NavbarBrand className="text-white font-semibold text-xl uppercase">
+                        Dashboard
                     </NavbarBrand>
                 </NavbarContent>
 

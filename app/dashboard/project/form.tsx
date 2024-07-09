@@ -55,15 +55,16 @@ type Props = {
     tutors: FullUser[];
     titulations: Titulation[];
     categories: Category[];
+    authors: FullUser[];
     popularTags: string[];
     tfg: ProjectFormData | null;
 };
 
 export default function ProjectForm({ college, departments, tutors, titulations, categories, popularTags, tfg }: Props) {
     const [isMounted, setIsMounted] = useState(false);
+    const defaultData = useRef<ProjectFormData | null>(tfg);
     const [bannerFile, setBannerFile] = useState<Blob | null>(null);
     const [thumbnailFile, setThumbnailFile] = useState<Blob | null>(null);
-    const refresh = useRef(false);
     const [showPreview, setShowPreview] = useState(false);
     const [tutorQuery, setTutorQuery] = useState("");
     const defaultFormData = {
@@ -137,8 +138,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
     };
 
     useEffect(() => {
-        const tfgSavedData = localStorage.getItem("tfg-data");
-
+        const tfgSavedData = localStorage.getItem(`tfg-data-${tfg?.id}`);
         const existingImages: string[] = [];
         if (tfgSavedData) {
             try {
@@ -172,7 +172,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                     existingImages.push(`ublock-${c.id}`);
                 });
             } catch (e) {
-                localStorage.removeItem("tfg-data");
+                localStorage.removeItem(`tfg-data-${tfg?.id}`);
             }
         }
         deleteNonExistentImagesFromIndexedDB(existingImages);
@@ -204,8 +204,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         const updatedBlocks = produce(form.contentBlocks, (draft) => {
             draft.forEach((block) => {
                 const schema = BLOCKSCHEMA[block.type];
-                const cleanedParams = schema.prepareForLocalStorage(block.data);
-                const missingParamsInBlock = v.safeParse(schema.VALIDATE, JSON.parse(cleanedParams));
+                const missingParamsInBlock = schema.VALIDATE(block.data);
                 if (missingParamsInBlock.issues) {
                     block.errors = missingParamsInBlock.issues.map((issue) => issue.message);
                     foundErrorsInBlocks = true;
@@ -215,7 +214,6 @@ export default function ProjectForm({ college, departments, tutors, titulations,
             });
         });
         updateForm({ contentBlocks: updatedBlocks });
-        console.log(updatedBlocks);
         if (!result.success || foundErrorsInBlocks) return null;
         return { ...result.output, contentBlocks: updatedBlocks };
     };
@@ -270,12 +268,52 @@ export default function ProjectForm({ college, departments, tutors, titulations,
             .then((json) => {
                 if (json.success) {
                     toast.success("TFG guardado con éxito");
-                    localStorage.removeItem("tfg-data");
+                    const newState = json.response as ProjectFormData;
+                    // We just receive the id of each property
+                    for (const emptyTutor of newState.tutors) {
+                        const t = tutors.find((tutor) => tutor.id === emptyTutor.id);
+                        if (!t) {
+                            location.reload();
+                            return;
+                        }
+                        emptyTutor.image = t.image;
+                        emptyTutor.name = t.name;
+                        emptyTutor.personalPage = t.personalPage;
+                        emptyTutor.socials = t.socials;
+                    }
+
+                    if (newState.department !== null) {
+                        const emptyDepartment = newState.department;
+                        const d = departments.find((department) => department.id === emptyDepartment.id);
+                        if (!d) {
+                            location.reload();
+                            return;
+                        }
+                        emptyDepartment.name = d.name;
+                        emptyDepartment.link = d.link;
+                    }
+
+                    const c = categories.find((category) => category.id === newState.category.id);
+                    if (!c) {
+                        location.reload();
+                        return;
+                    }
+                    newState.category.name = c.name;
+
+                    const ti = titulations.find((titulation) => titulation.id === newState.titulation.id);
+                    if (!ti) {
+                        location.reload();
+                        return;
+                    }
+                    newState.titulation.name = ti.name;
+
+                    defaultData.current = newState;
+                    localStorage.removeItem(`tfg-data-${tfg?.id}`);
+                    deleteNonExistentImagesFromIndexedDB([]);
+                    setForm(newState);
                 } else {
-                    console.log("ERRROR");
-                    toast.error(json.message);
+                    toast.error(json.response);
                 }
-                console.log(json);
             })
             .catch((e) => console.error(e));
     };
@@ -321,8 +359,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                 const target = draft.contentBlocks.find((block) => block.id === blockId);
                 if (target) {
                     const schema = BLOCKSCHEMA[target.type];
-                    const cleanedData = schema.prepareForLocalStorage(target.data);
-                    const missingParamsInBlock = v.safeParse(schema.VALIDATE, JSON.parse(cleanedData));
+                    const missingParamsInBlock = schema.VALIDATE(target.data);
                     if (missingParamsInBlock.issues) {
                         target.errors = missingParamsInBlock.issues.map((issue) => issue.message);
                     } else {
@@ -359,7 +396,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         });
 
         localStorage.setItem(
-            "tfg-data",
+            `tfg-data-${tfg?.id}`,
             JSON.stringify({
                 ...data,
                 banner: data.banner && data.banner !== DEF_BANNER && !data.banner.startsWith("data:") ? data.banner : localStorageBlob,
@@ -388,6 +425,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                 <div className="flex items-center justify-center flex-col w-full bg-grid">
                     <CreateProjectButton
                         onCreate={(newProject: ProjectFormData) => {
+                            defaultData.current = newProject;
                             setForm(newProject);
                         }}
                         toast={toast}
@@ -410,13 +448,12 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                 onClick={() => {
                                     setForm(
                                         produce((draft) => {
-                                            const { id, ...newData } = tfg ?? defaultFormData;
+                                            const { id, ...newData } = defaultData.current ?? defaultFormData;
                                             Object.assign(draft, newData);
                                         })
                                     );
-                                    localStorage.removeItem("tfg-data");
+                                    localStorage.removeItem(`tfg-data-${tfg?.id}`);
                                     deleteNonExistentImagesFromIndexedDB([]);
-                                    refresh.current = !refresh.current;
                                 }}>
                                 <IconRestore size={12} /> Restaurar
                             </NextUIButton>
@@ -435,7 +472,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                                 value={form.title}
                                                 invalid={!!errorMessages.title}
                                                 placeholder="La Inteligencia Artificial en la Industria del Entretenimiento"
-                                                className={clsx("resize-none", HeadlessComplete)}
+                                                className={clsx("resize-none rounded-lg", HeadlessComplete)}
                                                 onChange={(e) => {
                                                     const validateResult = v.safeParse(FormSchema.entries.title, e.target.value);
                                                     updateErrorMessage({ title: validateResult.issues?.[0].message ?? "" });
@@ -479,7 +516,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                                 value={form.description}
                                                 invalid={!!errorMessages.description}
                                                 placeholder="Cómo la IA está cambiando la forma en que se crea y se consume el contenido de entretenimiento"
-                                                className={clsx(HeadlessComplete)}
+                                                className={clsx(HeadlessComplete, "rounded-lg")}
                                                 rows={5}
                                                 onChange={(e) => {
                                                     const validateResult = v.safeParse(FormSchema.entries.description, e.target.value);
@@ -832,18 +869,20 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                     </div>
                     <div
                         className={clsx(
-                            "flex-1 absolute md:relative bg-nova-darker-2 border-1 border-l-0 border-white/10 w-full left-0 top-0 transition-transform rounded-large md:rounded-r-xl md:rounded-l-none md:translate-x-0 shadow-dark overflow-hidden",
+                            "flex-1 absolute h-full md:h-auto md:relative bg-nova-darker-2 border-1  min-h-[600px] border-l-0 border-white/10 w-full left-0 top-0 transition-transform rounded-large md:rounded-r-xl md:rounded-l-none md:translate-x-0 shadow-dark overflow-hidden",
                             showPreview ? "translate-x-0 " : "translate-x-[105%]",
                             "z-20"
                         )}>
-                        <div className="w-full bg-grid">
-                            <TFG_Details TFG={TFG} />
-                        </div>
+                            <div className="absolute top-0 bottom-0 left-0 right-0 w-full bg-grid">
+                                <SimpleBar autoHide={false} className="h-full pr-4">
+                                    <TFG_Details TFG={TFG} />
+                                </SimpleBar>
+                            </div>
                     </div>
                     <NextUIButton
                         onClick={() => setShowPreview((preview) => !preview)}
                         className={clsx(
-                            "fixed  md:hidden top-32 shadow-light-dark -right-3 flex gap-3 rounded-l-full px-7 py-3 z-50",
+                            "fixed  md:hidden top-60 shadow-light-dark -right-3 flex gap-3 rounded-l-full px-7 py-3 z-50",
                             showPreview ? "bg-red-500" : "bg-blue-500 "
                         )}>
                         {showPreview ? (

@@ -12,7 +12,7 @@ import { BlockInfo, TFG_BLockElement } from "@/app/components/TFG_BlockDefinitio
 
 export default async function Project() {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role != Role.STUDENT) return redirect("/dashboard");
+    if (!session) return redirect("/dashboard");
     const college = await prisma.college.findUnique({
         where: {
             id: session.user.collegeId,
@@ -136,7 +136,7 @@ export default async function Project() {
     const departments: FullDepartment[] = college.departments;
 
     const popularTags = await getTopTags(10);
-
+    let authors: FullUser[] = [];
     let tfg: ProjectFormData | null = null;
     if (tfgRaw) {
         let contentBlocks: BlockInfo[] = [];
@@ -153,7 +153,13 @@ export default async function Project() {
         } catch (e) {
             console.log(e);
         }
-
+        authors = tfgRaw.authors.map((author) => ({
+            id: author.id,
+            name: author.name,
+            image: author.image,
+            role: author.role,
+            personalPage: author.socials,
+        }));
         tfg = {
             id: tfgRaw.id,
             thumbnail: tfgRaw.thumbnail,
@@ -178,6 +184,7 @@ export default async function Project() {
 
     return (
         <ProjectForm
+            authors={authors}
             tfg={tfg}
             college={{ id: session.user.collegeId, name: college.name, image: college.image }}
             departments={departments}

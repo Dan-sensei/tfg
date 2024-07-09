@@ -20,7 +20,7 @@ model tfg {
   views        Int              @default(0)
   score        Float            @default(0)
   createdAt    DateTime         @default(now())
-  description  String           @default("")
+  description  String           
   scoredTimes  Int              @default(0)
   trendingScore Float @default(0)
 
@@ -38,7 +38,7 @@ model tfg {
   defense      defense?
   category     category         @relation(fields: [categoryId], references: [id], map: "TFG_categoryId_fkey")
   college      college          @relation(fields: [collegeId], references: [id], map: "TFG_collegeId_fkey")
-  department   department?      @relation(fields: [departmentId], references: [id], map: "TFG_departmentId_fkey")
+  department   department?      @relation(fields: [departmentId], references: [id], map: "TFG_departmentId_fkey", onDelete: SetNull)
   titulation   titulation       @relation(fields: [titulationId], references: [id], map: "TFG_titulationId_fkey")
   voteLogs     votelog[]
   authors user[]
@@ -49,11 +49,24 @@ model tfg {
 model ReviewMessage {
   id        Int      @id @default(autoincrement())
   message   String
+  edited    Boolean  @default(false)
   createdAt DateTime @default(now())
-  userId    Int
+  userId    Int?
   tfgId     Int
-  user      user     @relation(fields: [userId], references: [id])
-  tfg       tfg      @relation(fields: [tfgId], references: [id])
+  user      user?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tfg       tfg      @relation(fields: [tfgId], references: [id], onDelete: Cascade)
+  reads     MessageRead[]
+}
+model MessageRead {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  messageId   Int
+  readAt      DateTime @default(now())
+
+  user       user?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  message     ReviewMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, messageId])
 }
 model department {
   id   Int     @id @default(autoincrement())
@@ -61,7 +74,7 @@ model department {
   link String?
   tfgs tfg[]
   collegeId Int
-  college college @relation(fields: [collegeId], references: [id])
+  college college @relation(fields: [collegeId], references: [id], onDelete: Cascade)
 }
 
 model user {
@@ -78,6 +91,7 @@ model user {
   personalProjectId     Int?
   personalProject       tfg?   @relation(fields: [personalProjectId], references: [id], onDelete: SetNull)
   reviewMessages ReviewMessage[]
+  messageReads       MessageRead[]
 }
 
 model titulation {
@@ -85,7 +99,7 @@ model titulation {
   name      String
   collegeId Int
   tfgs      tfg[]
-  college   college @relation(fields: [collegeId], references: [id], map: "GradeMaster_collegeId_fkey")
+  college   college @relation(fields: [collegeId], references: [id], map: "GradeMaster_collegeId_fkey", onDelete: Cascade)
 }
 
 model college {
@@ -104,8 +118,8 @@ model college {
 model TutorTFG {
   userId Int
   tfgId  Int
-  user   user @relation(fields: [userId], references: [id])
-  tfg    tfg  @relation(fields: [tfgId], references: [id])
+  user   user @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tfg    tfg  @relation(fields: [tfgId], references: [id], onDelete: Cascade)
   assignedAt DateTime @default(now())
   assignedBy Int
   @@id([userId, tfgId])
@@ -134,9 +148,9 @@ model defense {
   collegeId  Int
   startTime  DateTime
   endTime    DateTime
-  college    college  @relation(fields: [collegeId], references: [id], map: "Defense_collegeId_fkey")
+  college    college  @relation(fields: [collegeId], references: [id], map: "Defense_collegeId_fkey", onDelete: Cascade)
   location   location @relation(fields: [locationId], references: [id], map: "Defense_locationId_fkey")
-  tfg        tfg?     @relation(fields: [tfgId], references: [id], map: "Defense_tfgId_fkey")
+  tfg        tfg?     @relation(fields: [tfgId], references: [id], map: "Defense_tfgId_fkey", onDelete: SetNull)
 }
 
 model location {
@@ -145,7 +159,7 @@ model location {
   mapLink   String
   collegeId Int
   defenses  defense[]
-  college   college   @relation(fields: [collegeId], references: [id], map: "Location_collegeId_fkey")
+  college   college   @relation(fields: [collegeId], references: [id], map: "Location_collegeId_fkey", onDelete: Cascade)
 }
 
 model daily_tfg_view {
@@ -153,7 +167,7 @@ model daily_tfg_view {
   tfgId Int
   views Int      @default(0)
   date  DateTime @default(now())
-  tfg   tfg      @relation(fields: [tfgId], references: [id], map: "DailyTFGView_tfgId_fkey")
+  tfg   tfg      @relation(fields: [tfgId], references: [id], map: "DailyTFGView_tfgId_fkey", onDelete: Cascade)
 
   @@unique([tfgId, date], map: "DailyTFGView_tfgId_date_key")
 }
