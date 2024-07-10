@@ -9,12 +9,15 @@ import { IconCheck, IconSend2, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 import { HeadlessBasic } from "../lib/headlessUIStyle";
 import { produce } from "immer";
-import { Spinner } from "@nextui-org/spinner";
-import { isNullOrEmpty } from "../utils/util";
+import { isNullOrEmpty, toFirstLetterUppercase } from "../utils/util";
 import { Button } from "@headlessui/react";
 import { CHATBOX_REFRESH_INTERVAL } from "../types/defaultData";
+import { Spinner } from "@nextui-org/spinner";
 import "simplebar-react/dist/simplebar.min.css";
 import { useDebouncedCallback } from "use-debounce";
+import { format, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
+import React from "react";
 
 type EditMessage = {
     id: number;
@@ -27,6 +30,11 @@ type Props = {
     defReviewMessages: ReviewMessageType[];
 };
 
+type MessagesByDay = {
+    date: string;
+    messages: ReviewMessageType[];
+}
+
 const getIdsFromMessages = (messages: ReviewMessageType[]): number[] => {
     return messages.map((message) => message.id).sort((a, b) => a - b);
 };
@@ -38,13 +46,16 @@ const areMessageIdArraysEqual = (arr1: ReviewMessageType[], arr2: ReviewMessageT
     if (ids1.length !== ids2.length) {
         return false;
     }
-
+    console.log("checking if arrays are equal");
+    console.log(ids1, ids2)
     for (let i = 0; i < ids1.length; i++) {
         if (ids1[i] !== ids2[i]) {
+            console.log("not equal")
             return false;
         }
     }
 
+    console.log("equal")
     return true;
 };
 
@@ -82,11 +93,10 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
         };
 
         const intervalId = setInterval(checkNewMessages, CHATBOX_REFRESH_INTERVAL);
-
         return () => {
             clearInterval(intervalId);
         };
-    }, [tfgId]);
+    }, [tfgId, reviewMessages]);
 
     useEffect(() => {
         let skip = false;
@@ -132,6 +142,7 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
     };
 
     const checkUnreadMessages = useDebouncedCallback(() => {
+        console.log("checking unread messages");
         const unreadMessages = reviewMessages.filter((message) => message.readBy.includes(userId) === false).map((message) => message.id);
         if (unreadMessages.length > 0) {
             fetch(`/api/dashboard/read-message`, {
@@ -166,6 +177,7 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
     }, 500);
 
     useEffect(() => {
+        console.log("scrolling to bottom");
         if (simplebar.current) {
             const scrollElement = simplebar.current.contentWrapperEl;
             scrollElement.scrollTop = scrollElement.scrollHeight;
@@ -267,24 +279,51 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
             newValue: currentMessageValue,
         });
     };
+
+    const groupByDay = (messages: ReviewMessageType[]): MessagesByDay[] => {
+        const grouped: Record<string, ReviewMessageType[]> = messages.reduce((acc, message) => {
+            const localDate = format(parseISO(message.createdAt.toISOString()), 'MMM d', { locale: es });
+            const formattedDate = toFirstLetterUppercase(localDate);
+            if (!acc[formattedDate]) {
+                acc[formattedDate] = [];
+            }
+            acc[formattedDate].push(message);
+            return acc;
+        }, {} as Record<string, ReviewMessageType[]>);
+    
+        return Object.keys(grouped).map(date => ({
+            date,
+            messages: grouped[date]
+        }));
+    };
+
+    const groupedMessages = groupByDay(reviewMessages);
+    
     return (
         <>
-            <div className="flex-1 rounded-xl bg-white/5 relative">
+            <div className="flex-1 rounded-xl bg-dark-grid relative">
                 <div className=" absolute top-0 bottom-0 left-0 right-0">
                     {reviewMessages.length === 0 ? (
                         <div className="h-full flex items-center justify-center w-full text-center text-gray-400">Todavía no hay mensajes</div>
                     ) : (
                         <SimpleBar ref={simplebar} autoHide={false} className="h-full pr-4">
                             <div className="py-3 pl-3 flex flex-col gap-1">
-                                {reviewMessages.map((message, index) => (
-                                    <ReviewMessageBox
-                                        loadEditInterface={loadEditInterface}
-                                        showAvatarAndName={message.user?.id == reviewMessages[index - 1]?.user?.id ? false : true}
-                                        key={message.id}
-                                        messageData={message}
-                                        own={message.user?.id === userId}
-                                        deleteMessage={deleteMessage}
-                                    />
+                                {groupedMessages.map((group) => (
+                                    <React.Fragment key={group.date}>
+                                        <div className="text-gray-400 w-full text-center">
+                                            <div className="text-sm inline-block text-white mt-2 mb-1 py-1 border-1 border-white/20 bg-black/50 rounded-full px-5">{group.date}</div>
+                                        </div>
+                                        {group.messages.map((message, index) => (
+                                            <ReviewMessageBox
+                                                loadEditInterface={loadEditInterface}
+                                                showAvatarAndName={index === 0 || group.messages[index - 1].user?.id!== message.user?.id}
+                                                key={message.id}
+                                                messageData={message}
+                                                own={message.user?.id === userId}
+                                                deleteMessage={deleteMessage}
+                                            />
+                                        ))}
+                                    </React.Fragment>
                                 ))}
                             </div>
                         </SimpleBar>

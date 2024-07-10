@@ -9,7 +9,7 @@ import {
     ProjectFormData,
     ProjectFromDataSend,
     Titulation,
-    iFullTFG,
+    iDetailsTFG,
 } from "@/app/types/interfaces";
 import { normalizeText } from "@/app/utils/util";
 import { useEffect, useRef, useState } from "react";
@@ -48,6 +48,7 @@ import { SEARCH_INPUT_DELAY } from "@/app/lib/config";
 import toast, { Toaster } from "react-hot-toast";
 import Autocomplete from "@/app/components/Autocomplete";
 import CreateProjectButton from "@/app/components/dashboard/createProject";
+import SimpleBarAbs from "@/app/components/SimpleBarAbs";
 
 type Props = {
     college: FullCollege;
@@ -119,7 +120,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         data: block.data,
     }));
 
-    const TFG: iFullTFG = {
+    const TFG: iDetailsTFG = {
         ...form,
         id: 0,
         author: [],
@@ -260,7 +261,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
 
         formData.append("projectData", JSON.stringify(projectData));
 
-        fetch("/api/dashboard/save-tfg", {
+        fetch("/api/dashboard/tfg/save", {
             method: "PUT",
             body: formData,
         })
@@ -869,15 +870,13 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                     </div>
                     <div
                         className={clsx(
-                            "flex-1 absolute h-full md:h-auto md:relative bg-nova-darker-2 border-1  min-h-[600px] border-l-0 border-white/10 w-full left-0 top-0 transition-transform rounded-large md:rounded-r-xl md:rounded-l-none md:translate-x-0 shadow-dark overflow-hidden",
+                            "flex-1 absolute h-full md:h-auto md:relative bg-nova-darker-2 border-1 border-l-0 border-white/10 w-full left-0 top-0 transition-transform rounded-large md:rounded-r-xl md:rounded-l-none md:translate-x-0 shadow-dark overflow-hidden",
                             showPreview ? "translate-x-0 " : "translate-x-[105%]",
                             "z-20"
                         )}>
-                            <div className="absolute top-0 bottom-0 left-0 right-0 w-full bg-grid">
-                                <SimpleBar autoHide={false} className="h-full pr-4">
-                                    <TFG_Details TFG={TFG} />
-                                </SimpleBar>
-                            </div>
+                        <SimpleBarAbs className="bg-grid">
+                            <TFG_Details TFG={TFG} />
+                        </SimpleBarAbs>
                     </div>
                     <NextUIButton
                         onClick={() => setShowPreview((preview) => !preview)}

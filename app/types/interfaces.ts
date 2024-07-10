@@ -11,7 +11,7 @@ export interface iTFG {
     pages: number;
     createdAt?: Date;
 }
-export interface iFullTFG {
+export interface iDetailsTFG {
     id: number;
     thumbnail: string;
     banner: string;
@@ -19,7 +19,7 @@ export interface iFullTFG {
     description: string;
     author: User[];
     tutors: User[];
-    department: Department | null;
+    department: FullDepartment | null;
     contentBlocks: string;
     pages: number;
     documentLink: string;
@@ -43,7 +43,7 @@ export interface ProjectFormData {
     contentBlocks: BlockInfo[];
     documentLink: string;
     tags: string[];
-};
+}
 
 export interface ProjectFromDataSend {
     title: string;
@@ -206,13 +206,10 @@ export type MessageError = {
     tutors: string;
 };
 
-
-
 export type dimension = {
     width: number;
     height: number;
 };
-
 
 export interface ReviewMessageType {
     readonly id: number;
@@ -221,4 +218,33 @@ export interface ReviewMessageType {
     readonly createdAt: Date;
     readonly edited: boolean;
     readonly readBy: number[];
+}
+
+export interface iPublishCheck {
+    id: number;
+    thumbnail: string;
+    banner: string;
+    title: string;
+    contentBlocks: string;
+    pages: number;
+    documentLink: string;
+    tags: string[];
+    description: string;
+    categoryId: number;
+    departmentId: number | null;
+    titulationId: number;
+}
+
+export interface iDashboardProject {
+    id: number;
+    thumbnail: string;
+    title: string;
+    views: number;
+    score: number;
+    createdAt: Date;
+    description: string;
+    status: number;
+    authors: {
+        name: string;
+    }[];
 }

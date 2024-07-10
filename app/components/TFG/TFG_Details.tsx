@@ -1,5 +1,5 @@
 import { montserrat } from "../../lib/fonts";
-import { iFullTFG } from "../../types/interfaces";
+import { iDetailsTFG } from "../../types/interfaces";
 import TFG_BasicInfo from "./BasicInfo";
 import Image from "next/image";
 import InfoBlocks from "./InfoBlocks";
@@ -8,7 +8,7 @@ import { DEF_BANNER } from "@/app/types/defaultData";
 import { TFG_BLockElement } from "../TFG_BlockDefinitions/BlockDefs";
 
 type Props = {
-    TFG: iFullTFG;
+    TFG: iDetailsTFG;
 };
 
 export default function TFG_Details({ TFG }: Props) {

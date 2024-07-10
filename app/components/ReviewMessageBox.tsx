@@ -65,7 +65,7 @@ export default function ReviewMessageBox({ messageData, own, className, deleteMe
                         )}
                         {message}
                     </div>
-                    <div className="text-right text-tiny text-nova-gray"><span>{edited && "editado" }</span> {`${hours}:${minutes}`}</div>
+                    <div className="text-right text-tiny text-nova-gray"><span className="inline-block pr-1">{edited && "editado" }</span> {`${hours}:${minutes}`}</div>
                 </div>
             </div>
         </div>

@@ -1,9 +1,5 @@
-import TFG_Details from "@/app/components/TFG/TFG_Details";
 import prisma from "@/app/lib/db";
-import { iFullTFG } from "@/app/types/interfaces";
-import clsx from "clsx";
-import { useState } from "react";
-import SimpleBar from "simplebar-react";
+import { iDetailsTFG } from "@/app/types/interfaces";
 import TutorPanel from "./tutorPanel";
 import { Role, TFGStatus, TFGStatusText } from "@/app/lib/enums";
 import { getServerSession } from "next-auth";
@@ -57,12 +53,14 @@ export default async function ProjectReview({ params }: Props) {
             },
             department: {
                 select: {
+                    id: true,
                     name: true,
                     link: true,
                 },
             },
             college: {
                 select: {
+                    id: true,
                     name: true,
                     image: true,
                 },
@@ -123,19 +121,6 @@ export default async function ProjectReview({ params }: Props) {
         );
     }
 
-    if (tfgRaw.status !== TFGStatus.SENT_FOR_REVIEW) {
-        return (
-            <div className="w-full h-full flex flex-col items-center justify-center text-center text-xl bg-grid">
-                <div className="text-3xl flex gap-2">
-                    ID:<span className="text-yellow-500">{tfgRaw.id}</span>
-                </div>
-                Project not sent for review
-                <div className="mt-3 text-sm text-nova-gray">Current status</div>
-                <div>{TFGStatusText[tfgRaw.status as TFGStatus]}</div>
-            </div>
-        );
-    }
-
     if (!tfgRaw.tutors.find((tutor) => tutor.user.id === userId)) {
         return (
             <div className="w-full h-full flex flex-col items-center justify-center text-center text-xl bg-grid">
@@ -145,7 +130,7 @@ export default async function ProjectReview({ params }: Props) {
         );
     }
 
-    const TFG: iFullTFG = {
+    const TFG: iDetailsTFG = {
         id: tfgRaw.id,
         thumbnail: tfgRaw.thumbnail,
         banner: tfgRaw.thumbnail,

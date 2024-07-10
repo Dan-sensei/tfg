@@ -13,7 +13,7 @@ export default function CreateProjectButton({ toast, onCreate }: Props) {
 
     const createProject = () => {
         setIsLoading(true);
-        fetch("/api/dashboard/save-tfg", {
+        fetch("/api/dashboard/tfg/save", {
             method: "POST",
             cache: "no-store",
         })

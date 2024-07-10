@@ -74,6 +74,7 @@ const config: Config = {
                 left: "linear-gradient(to right, transparent, black 100%)",
                 right: "linear-gradient(to right, black, transparent 100%)",
                 "bottom-10": "linear-gradient(to bottom, black 80%, transparent 100%)",
+                "top-10": "linear-gradient(to top, black 80%, transparent 100%)",
             },
             backgroundImage: {
                 sketch: "repeating-linear-gradient(-45deg, rgba(0, 111, 238, 0.5), rgba(0, 111, 238, 0.5) 2px, transparent 2px, transparent 15px)",

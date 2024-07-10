@@ -1,11 +1,11 @@
-import { iFullTFG } from "@/app/types/interfaces";
+import { iDetailsTFG } from "@/app/types/interfaces";
 import { Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
 import { IconChevronRight, IconDownload, IconEye } from "@tabler/icons-react";
 import Link from "next/link";
 import React from "react";
 
-export default function TFG_BasicInfo({ TFG }: { TFG: iFullTFG }) {
+export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
     return (
         <>
             <section className="text-3xl lg:text-5xl text-center md:text-left font-semibold uppercase whitespace-pre-wrap">{TFG.title}</section>

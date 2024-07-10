@@ -135,7 +135,7 @@ export const sameArrays = (a: any[], b: any[]) => {
 
 export const isNullOrEmpty = (str: string) => str == null || str.trim() === "";
 
-export const toFirstLetterUppercase = (str: string) => str.charAt(0) + str.substring(1).toLowerCase();
+export const toFirstLetterUppercase = (str: string) => str.charAt(0).toUpperCase() + str.substring(1).toLowerCase();
 
 export const roundTwoDecimals = (number: number) => Math.round((number + Number.EPSILON) * 100) / 100;
 export const blobToBase64 = (blob: Blob): Promise<string> => {

@@ -1,6 +1,6 @@
 import { increaseTFGViews } from "@/app/lib/actions/tfg";
 import { redirect } from "next/navigation";
-import { iFullTFG } from "@/app/types/interfaces";
+import { iDetailsTFG } from "@/app/types/interfaces";
 import prisma from "@/app/lib/db";
 import TFG_Details from "@/app/components/TFG/TFG_Details";
 import { BLOCKTYPE, TFG_BLockElement } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
@@ -61,7 +61,7 @@ const getTFGData = async (id: number) => {
 
     if (!tfgRaw) return null;
 
-    const tfg: iFullTFG = {
+    const tfg: iDetailsTFG = {
         id: tfgRaw.id,
         thumbnail: tfgRaw.thumbnail,
         banner: tfgRaw.banner,
