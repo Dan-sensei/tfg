@@ -42,7 +42,7 @@ export default function Categoria({ params }: { params: { id: string } }) {
                 });
         };
         fetchData(currentPage);
-    }, [currentPage]);
+    }, [currentPage, router, params.id]);
 
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);

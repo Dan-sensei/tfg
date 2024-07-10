@@ -32,7 +32,7 @@ export default function Favoritos() {
             .finally(() => {
                 setIsMounted(true);
             });
-    }, [isInitialized]);
+    }, [isInitialized, getAllLikes]);
 
     const removeFromFavorites = (id: number) => {
         favorites.splice(

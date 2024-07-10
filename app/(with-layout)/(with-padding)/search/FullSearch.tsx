@@ -56,31 +56,32 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     const { replace } = useRouter();
     const searchParams = useSearchParams();
 
-    const paramKeys: Array<keyof QueryParams> = [
-        "q",
-        "tags",
-        "category",
-        "titulation",
-        "fromdate",
-        "todate",
-        "minpages",
-        "maxpages",
-        "minviews",
-        "maxviews",
-        "minscore",
-        "maxscore",
-        "sortby",
-        "sortorder",
-        "page",
-    ];
+   
 
     const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
         setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
     }, []);
     useEffect(() => {
+        const paramKeys: Array<keyof QueryParams> = [
+            "q",
+            "tags",
+            "category",
+            "titulation",
+            "fromdate",
+            "todate",
+            "minpages",
+            "maxpages",
+            "minviews",
+            "maxviews",
+            "minscore",
+            "maxscore",
+            "sortby",
+            "sortorder",
+            "page",
+        ];
         const params: QueryParams = Object.fromEntries(paramKeys.map((key) => [key, searchParams.get(key) || undefined]));
         updateFilters(params);
-    }, [searchParams]);
+    }, [searchParams, updateFilters]);
 
     const fetchResults = useCallback(() => {
         const params = createDefinedFilters(filters);
@@ -110,7 +111,7 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     }, [filters, pathname, replace]);
 
     // Avoid problems when changing filters too fast
-    const debouncedFetchResults = useCallback(useDebouncedCallback(fetchResults, SEARCH_INPUT_DELAY), [fetchResults]);
+    const debouncedFetchResults = useDebouncedCallback(fetchResults, SEARCH_INPUT_DELAY);
 
     useEffect(() => {
         if (!hasParams(filters)) {

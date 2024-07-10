@@ -91,6 +91,7 @@ export default async function TutorArea() {
             thumbnail: true,
             reviewMessages: {
                 select: {
+                    id: true,
                     message: true,
                     createdAt: true,
                     edited: true,
@@ -219,7 +220,7 @@ export default async function TutorArea() {
                                                                     ? { src: message.user.image }
                                                                     : { name: message.user?.name?.slice(0, 2) ?? "-" };
                                                                 return (
-                                                                    <div className={clsx("w-full flex gap-1", showAvatarAndName && "mt-1")}>
+                                                                    <div key={message.id} className={clsx("w-full flex gap-1", showAvatarAndName && "mt-1")}>
                                                                         <div className="w-8 flex flex-col justify-end">
                                                                             {!own && showAvatarAndName && <Avatar {...avatarProp} size="sm" />}
                                                                         </div>

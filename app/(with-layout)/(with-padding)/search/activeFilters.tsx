@@ -77,7 +77,7 @@ export default function ActiveFilters({ filters, updateFilters, titulations, cat
         if (!sameArrays(tags, selectedTags)) {
             setSelectedTags(tags);
         }
-    }, [filters]);
+    }, [filters, selectedTags]);
     const categoryFilter = categories?.find((c) => c.id == parseInt(filters.category || "-1"))?.name || null;
     const titulationFilter = titulations?.find((c) => c.id == parseInt(filters.titulation || "-1"))?.name || null;
     const dateFilter = getRangeFilter({ onlyFrom: "Desde", onlyTo: "Hasta", both: "Entre" }, filters.fromdate, filters.todate);

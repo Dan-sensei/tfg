@@ -39,6 +39,7 @@ const getTFGData = async (id: number) => {
             },
             department: {
                 select: {
+                    id: true,
                     name: true,
                     link: true,
                 },

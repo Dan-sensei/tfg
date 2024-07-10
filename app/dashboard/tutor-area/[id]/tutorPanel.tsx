@@ -119,7 +119,7 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                                             <div className="flex justify-center pb-5">
                                                 <IconArchiveFilled className="" size={70}></IconArchiveFilled>
                                             </div>
-                                            Al hacer clic en "<span className="text-warning-400">Revertir</span>," se ocultará el proyecto de la parte
+                                            Al hacer clic en &quot;<span className="text-warning-400">Revertir</span>,&quot; se ocultará el proyecto de la parte
                                             pública y el alumno <span className="text-teal-500">podrá modificarlo</span>
                                         </div>
                                         <div className="text-center pt-5">¿Estás seguro de que quieres continuar?</div>
@@ -135,9 +135,9 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                                             <div className="flex justify-center pb-5">
                                                 <IconBookUpload className="" size={70}></IconBookUpload>
                                             </div>
-                                            Al hacer clic en "<span className="text-teal-500">Publicar</span>", el trabajo será visible públicamente y
+                                            Al hacer clic en &quot;<span className="text-teal-500">Publicar</span>&quot;, el trabajo será visible públicamente y
                                             el alumno <span className="text-warning-400">no podrá modificarlo</span>. Solo un tutor, manager o
-                                            administrador podrá marcarlo nuevamente como "Borrador" para permitir modificaciones.
+                                            administrador podrá marcarlo nuevamente como &quot;Borrador&quot; para permitir modificaciones.
                                         </div>
                                         <div className="text-center pt-5">¿Estás seguro de que quieres continuar?</div>
                                         <div className="flex justify-center">
