@@ -1,4 +1,4 @@
-import { Category, CategoryWithTFGCount, Department, FullDepartment, PopularTag, Titulation, TitulationWithTFGCount } from "../types/interfaces";
+import { Category, CategoryWithTFGCount, Department, DepartmentWithTFGCount, FullDepartment, PopularTag, Titulation, TitulationWithTFGCount } from "../types/interfaces";
 import { getValidLimit } from "../utils/util";
 import prisma from "./db";
 
@@ -52,7 +52,20 @@ export const getAllDepartments = async (collegeId?: number) => {
     })) as FullDepartment[];
     return titulations;
 };
+export const getAllDepartmentsWithProjectCount= async (collegeId?: number): Promise<DepartmentWithTFGCount[]>  => {
+    const departments = (await prisma.department.findMany({
+        where: collegeId ? { collegeId: collegeId } : {},
+        select: { id: true, name: true, link: true, _count: { select: { tfgs: true } } },
+        orderBy: { name: "asc" },
+    }));
 
+    return departments.map(titulation => ({
+        id: titulation.id,
+        name: titulation.name,
+        link: titulation.link,
+        totalProjects: titulation._count.tfgs,
+    }));
+};
 export const getTopTags = async (number_of_tags: number) => {
     const popularTags = await prisma.$queryRaw<Array<{ tag: string; count: BigInt }>>`
         SELECT unnest(tags) as tag, COUNT(*) as count

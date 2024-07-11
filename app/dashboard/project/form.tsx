@@ -139,22 +139,28 @@ export default function ProjectForm({ college, departments, tutors, titulations,
     };
 
     useEffect(() => {
+        if (!defaultData.current) return;
         const tfgSavedData = localStorage.getItem(`tfg-data-${tfg?.id}`);
         const existingImages: string[] = [];
         if (tfgSavedData) {
             try {
                 const data = JSON.parse(tfgSavedData) as ProjectFormData;
+                const department = departments.find((d) => d.id === data.department?.id);
+                const titulation = titulations.find((t) => t.id === data.titulation?.id);
+                const category = categories.find((c) => c.id === data.category?.id);
+                const _tutors = data.tutors.map((t) => tutors.find((u) => u.id === t.id)).filter((tutor) => tutor!== undefined);
+
                 setForm((current) => ({
                     ...current,
                     title: data.title ?? "",
                     banner: data.banner,
                     thumbnail: data.thumbnail,
                     description: data.description ?? "",
-                    departmentId: data.department ?? categories[0]?.id ?? null,
+                    department: department ?? departments[0] ?? null,
                     pages: data.pages ?? 0,
-                    category: data.category ?? categories[0] ?? null,
-                    titulation: data.titulation ?? titulations[0] ?? null,
-                    tutors: data.tutors ?? [],
+                    category: category ?? categories[0] ?? null,
+                    titulation: titulation ?? titulations[0] ?? null,
+                    tutors: _tutors,
                     contentBlocks: data.contentBlocks ?? "",
                     documentLink: data.documentLink ?? "",
                     tags: data.tags ?? [],

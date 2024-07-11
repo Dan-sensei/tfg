@@ -26,3 +26,20 @@ export async function checkAuthorization(requiredRoles?: Role[]): Promise<Author
     }
     return { session: session, response: null };
 }
+
+export type CanModify = {
+    canModify: boolean;
+    response: NextResponse<{
+        success: boolean;
+        response: string;
+    }> | null;
+};
+export function canModifyCollege(role: Role, sessionCollege: number, collegeId: any) {
+    const _collegeId = parseInt(collegeId);
+    if (isNaN(_collegeId)) return { canModifyCollege: false, response: badResponse("Invalid college id", 400) };
+    // If the user is a MANAGER it can't change other college's departments info, just it's own
+    else if (role === Role.MANAGER && sessionCollege !== _collegeId)
+        return { canModifyCollege: false, response: badResponse("You are not authorized to modify this college", 403) };
+
+    return { canModifyCollege: true, response: null };
+}

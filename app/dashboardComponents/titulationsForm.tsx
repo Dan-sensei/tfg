@@ -9,8 +9,9 @@ import { BasicButton, DangerButton, HeadlessComplete } from "../lib/headlessUISt
 import { produce } from "immer";
 import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
-import { IconSchoolOff } from "@tabler/icons-react";
+import { IconSchool } from "@tabler/icons-react";
 import { isNullOrEmpty } from "../utils/util";
+import { useSession } from "next-auth/react";
 
 type Props = {
     className?: string;
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export default function TitulationsForm({ titulations, className }: Props) {
+    const { data: session } = useSession();
     const [titulationsList, setTitulationsList] = useState<TitulationWithTFGCount[]>(titulations);
     const [selectedTitulation, setSelectedTitulation] = useState<TitulationWithTFGCount | null>(null);
     const [fallbackTitulation, setFallbackTitulation] = useState<TitulationWithTFGCount | null>(null);
@@ -51,12 +53,14 @@ export default function TitulationsForm({ titulations, className }: Props) {
             (request.method = "PUT"),
                 (request.body = JSON.stringify({
                     newTitulationName: newTitulationName,
-                    TitulationId: selectedTitulation.id,
+                    titulationId: selectedTitulation.id,
+                    collegeId: session?.user.collegeId,
                 }));
         } else {
             (request.method = "POST"),
                 (request.body = JSON.stringify({
                     newTitulationName: newTitulationName,
+                    collegeId: session?.user.collegeId,
                 }));
         }
 
@@ -65,25 +69,25 @@ export default function TitulationsForm({ titulations, className }: Props) {
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    const Titulation = data.response;
+                    const titulation = { ...data.response, totalProjects: 0 };
                     setTitulationsList(
                         produce((draft) => {
-                            const target = draft.find((c) => c.id === Titulation.id);
+                            const target = draft.find((c) => c.id === titulation.id);
                             if (target) {
-                                target.name = Titulation.name;
+                                target.name = titulation.name;
                             } else {
-                                draft.push(Titulation);
+                                draft.push(titulation);
                             }
                         })
                     );
-                    setSelectedTitulation(Titulation);
-                    toast.success("Categoría guardada");
+                    setSelectedTitulation(titulation);
+                    toast.success("Titulación guardada");
                 } else {
                     toast.error(data.response);
                 }
             })
             .catch((err) => {
-                toast.error(err);
+                toast.error("Se ha producido un error inesperado");
                 console.error(err);
             })
             .finally(() => setIsUpdating((prev) => ({ ...prev, saving: false })));
@@ -100,12 +104,15 @@ export default function TitulationsForm({ titulations, className }: Props) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                TitulationId: selectedTitulation.id,
+                titulationId: selectedTitulation.id,
                 fallbackTitulationId: fallbackTitulation.id,
+                projectCount: selectedTitulation.totalProjects,
+                collegeId: session?.user.collegeId,
             }),
         })
             .then((res) => res.json())
             .then((data) => {
+                console.log(data);
                 if (data.success) {
                     const newList = produce(titulationsList, (draft) => {
                         const _deletedTitulation = draft.find((c) => c.id === selectedTitulation.id);
@@ -113,7 +120,7 @@ export default function TitulationsForm({ titulations, className }: Props) {
                         if (_deletedTitulation && _fallbackTitulation) {
                             _fallbackTitulation.totalProjects += _deletedTitulation.totalProjects;
                         }
-                        const index = draft.findIndex((Titulation) => Titulation.id === selectedTitulation.id);
+                        const index = draft.findIndex((titulation) => titulation.id === selectedTitulation.id);
                         if (index !== -1) {
                             draft.splice(index, 1);
                         }
@@ -121,13 +128,13 @@ export default function TitulationsForm({ titulations, className }: Props) {
                     setTitulationsList(newList);
                     setSelectedTitulation(newList[0]);
                     setNewTitulationName(newList[0].name);
-                    toast.success("Categoría eliminada");
+                    toast.success("Titulación eliminada");
                 } else {
                     toast.error(data.response);
                 }
             })
             .catch((err) => {
-                toast.error(err);
+                toast.error("Se ha producido un error inesperado");
                 console.error(err);
             })
             .finally(() => setIsUpdating((prev) => ({ ...prev, deleting: false })));
@@ -150,7 +157,7 @@ export default function TitulationsForm({ titulations, className }: Props) {
                             <Button className=" rounded-full border-1 border-white/15 px-3 py-1 text-tiny">Editar</Button>
                         </div>
                     )}
-                    displayValue={(Titulation: Titulation | null) => (Titulation ? Titulation.name : "")}
+                    displayValue={(titulation: Titulation | null) => (titulation ? titulation.name : "")}
                     defaultValue={<div className="text-sm/6 text-default-600">(Nueva titulación)</div>}
                     label=""
                 />
@@ -181,12 +188,19 @@ export default function TitulationsForm({ titulations, className }: Props) {
                     <div className="flex justify-end gap-1 mt-3">
                         <NextUIButon
                             onClick={saveTitulation}
-                            className={clsx(BasicButton, isNullOrEmpty(newTitulationName) || newTitulationName === selectedTitulation?.name && "opacity-50 pointer-events-none")}
+                            className={clsx(
+                                BasicButton,
+                                isNullOrEmpty(newTitulationName) ||
+                                    (newTitulationName === selectedTitulation?.name && "opacity-50 pointer-events-none")
+                            )}
                             variant="flat">
                             {isUpdating.saving ? <Spinner size="sm" color="white" /> : "Guardar"}
                         </NextUIButon>
                         {selectedTitulation && (
-                            <NextUIButon className={clsx(BasicButton, DangerButton, titulationsList.length <= 1 && "opacity-50 pointer-events-none")} variant="flat" onClick={openDeleteDialog}>
+                            <NextUIButon
+                                className={clsx(BasicButton, DangerButton, titulationsList.length <= 1 && "opacity-50 pointer-events-none")}
+                                variant="flat"
+                                onClick={openDeleteDialog}>
                                 {isUpdating.deleting ? <Spinner size="sm" color="white" /> : "Borrar"}
                             </NextUIButon>
                         )}
@@ -211,7 +225,7 @@ export default function TitulationsForm({ titulations, className }: Props) {
                             transition
                             className="w-full max-w-2xl rounded-xl bg-white/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0">
                             <div className="text-center flex flex-col items-center">
-                                <IconSchoolOff size={100} className="opacity-50 mb-2" />
+                                <IconSchool size={100} className="opacity-50 mb-2" />
                                 <p>
                                     Estás a punto de eliminar la titulación "
                                     <span className="text-nova-error font-semibold">{selectedTitulation?.name}</span>"{" "}
@@ -220,7 +234,9 @@ export default function TitulationsForm({ titulations, className }: Props) {
                                 {selectedTitulation && selectedTitulation.totalProjects > 0 && (
                                     <>
                                         <p className="py-1">
-                                            <span className="font-semibold text-nova-error text-xl">{selectedTitulation?.totalProjects} proyectos</span>
+                                            <span className="font-semibold text-nova-error text-xl">
+                                                {selectedTitulation?.totalProjects} proyectos
+                                            </span>
                                         </p>
 
                                         <p className="pt-1">Por favor, selecciona otra titulación para reasignarlos.</p>
@@ -228,7 +244,7 @@ export default function TitulationsForm({ titulations, className }: Props) {
                                             <Autocomplete
                                                 required
                                                 className="max-w-full w-96"
-                                                data={titulationsList.filter((Titulation) => Titulation.id !== selectedTitulation?.id)}
+                                                data={titulationsList.filter((titulation) => titulation.id !== selectedTitulation?.id)}
                                                 value={fallbackTitulation}
                                                 placeholder="Buscar..."
                                                 onChange={(value) => {
@@ -240,9 +256,9 @@ export default function TitulationsForm({ titulations, className }: Props) {
                                                         <Button className=" rounded-full border-1 border-white/15 px-3 py-1 text-tiny">Editar</Button>
                                                     </div>
                                                 )}
-                                                displayValue={(Titulation: Titulation | null) => (Titulation ? Titulation.name : "")}
+                                                displayValue={(titulation: Titulation | null) => (titulation ? titulation.name : "")}
                                                 defaultValue={<div className="text-sm/6 text-default-600">(Nueva titulación)</div>}
-                                                label="Categoria"
+                                                label="Titulación"
                                             />
                                         </div>
                                     </>

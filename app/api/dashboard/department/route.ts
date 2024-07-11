@@ -2,31 +2,37 @@ import { badResponse, isNullOrEmpty, successResponse } from "@/app/utils/util";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
 import { canModifyCollege, checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
+import { Role } from "@/app/lib/enums";
 
+// Create
 export async function POST(request: NextRequest) {
     const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
     if (!session) return response;
 
     try {
         const body = await request.json();
+        // Check collegeId and user permissions on college
         const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
         if (!canModify.canModifyCollege) return canModify.response;
 
-        
-        const { newCategoryName } = body;
+        const { newDepartmentName, collegeId, newLink } = body;
 
-        const newCategory = await prisma.category.create({
+        if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
+        const newDepartment = await prisma.department.create({
             data: {
-                name: newCategoryName,
+                name: newDepartmentName,
+                collegeId: parseInt(collegeId),
+                link: newLink && typeof newLink === "string" ? newLink : null,
             },
         });
-        return successResponse(newCategory, 201);
+        return successResponse(newDepartment, 201);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating category", 500);
+        return badResponse("Error creating department", 500);
     }
 }
 
+// Update
 export async function PUT(request: NextRequest) {
     const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
     if (!session) return response;
@@ -35,27 +41,29 @@ export async function PUT(request: NextRequest) {
         const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
         if (!canModify.canModifyCollege) return canModify.response;
 
-        const { categoryId, newCategoryName } = body;
+        const { departmentId, newDepartmentName, newDepartmentLink } = body;
 
-        const id = parseInt(categoryId);
+        const id = parseInt(departmentId);
+        if (isNaN(id)) return badResponse("Invalid department id", 400);
+        else if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
 
-        if (isNaN(id) || isNullOrEmpty(newCategoryName)) return badResponse("Invalid category name or id", 400);
-
-        const updated = await prisma.category.update({
+        const updated = await prisma.department.update({
             where: {
                 id,
             },
             data: {
-                name: newCategoryName,
+                name: newDepartmentName,
+                link: newDepartmentLink && typeof newDepartmentLink === "string" ? newDepartmentLink : null,
             },
         });
         return successResponse(updated, 200);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating category", 500);
+        return badResponse("Error creating department", 500);
     }
 }
 
+// Delete
 export async function DELETE(request: NextRequest) {
     const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
     if (!session) return response;
@@ -65,37 +73,35 @@ export async function DELETE(request: NextRequest) {
         const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
         if (!canModify.canModifyCollege) return canModify.response;
 
-        const { categoryId, fallbackCategoryId, projectCount } = body;
+        const { departmentId, fallbackDepartmentId, projectCount } = body;
 
-        const id = parseInt(categoryId);
-        const fallbackId = parseInt(fallbackCategoryId);
+        const id = parseInt(departmentId);
+        const fallbackId = parseInt(fallbackDepartmentId);
         const count = parseInt(projectCount);
 
-        if (isNaN(id)) return badResponse("Invalid id", 400);
-        else if (count > 0 && isNaN(fallbackId)) return badResponse("Invalid fallback category id", 400);
-
+        if (isNaN(id)) return badResponse("Invalid department id", 400);
         await prisma.$transaction(async (prismaTransaction) => {
-            if (count > 0) {
+            if (count > 0 && fallbackId) {
                 await prismaTransaction.tfg.updateMany({
                     where: {
-                        categoryId: id,
+                        departmentId: id,
                     },
                     data: {
-                        categoryId: fallbackId,
+                        departmentId: fallbackId,
                     },
                 });
             }
 
-            await prismaTransaction.category.delete({
+            await prismaTransaction.department.delete({
                 where: {
                     id,
                 },
             });
         });
 
-        return successResponse("Category deleted", 200);
+        return successResponse("Department deleted", 200);
     } catch (error) {
         console.error(error);
-        return badResponse("Error deleting category", 500);
+        return badResponse("Error deleting department", 500);
     }
 }

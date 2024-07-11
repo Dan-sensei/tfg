@@ -77,6 +77,10 @@ export interface FullDepartment extends Department {
     id: number;
 }
 
+export interface DepartmentWithTFGCount extends FullDepartment {
+    totalProjects: number
+}
+
 export interface SimplifiedUser {
     id: number;
     name: string;

@@ -11,6 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import { IconCategoryMinus } from "@tabler/icons-react";
 import { isNullOrEmpty } from "../utils/util";
+import { useSession } from "next-auth/react";
 
 type Props = {
     className?: string;
@@ -18,6 +19,8 @@ type Props = {
 };
 
 export default function CategoriesForm({ categories, className }: Props) {
+    const { data: session } = useSession();
+    
     const [categoriesList, setCategoriesList] = useState<CategoryWithTFGCount[]>(categories);
     const [selectedCategory, setSelectedCategory] = useState<CategoryWithTFGCount | null>(null);
     const [fallbackCategory, setFallbackCategory] = useState<CategoryWithTFGCount | null>(null);
@@ -52,11 +55,13 @@ export default function CategoriesForm({ categories, className }: Props) {
                 (request.body = JSON.stringify({
                     newCategoryName: newCategoryName,
                     categoryId: selectedCategory.id,
+                    collegeId: session?.user.collegeId
                 }));
         } else {
             (request.method = "POST"),
                 (request.body = JSON.stringify({
                     newCategoryName: newCategoryName,
+                    collegeId: session?.user.collegeId
                 }));
         }
 
@@ -65,7 +70,7 @@ export default function CategoriesForm({ categories, className }: Props) {
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    const category = data.response;
+                    const category = {...data.response, totalProjects: 0};
                     setCategoriesList(
                         produce((draft) => {
                             const target = draft.find((c) => c.id === category.id);
@@ -83,7 +88,7 @@ export default function CategoriesForm({ categories, className }: Props) {
                 }
             })
             .catch((err) => {
-                toast.error(err);
+                toast.error("Se ha producido un error inesperado");
                 console.error(err);
             })
             .finally(() => setIsUpdating((prev) => ({ ...prev, saving: false })));
@@ -102,6 +107,8 @@ export default function CategoriesForm({ categories, className }: Props) {
             body: JSON.stringify({
                 categoryId: selectedCategory.id,
                 fallbackCategoryId: fallbackCategory.id,
+                projectCount: selectedCategory.totalProjects,
+                collegeId: session?.user.collegeId
             }),
         })
             .then((res) => res.json())
@@ -127,7 +134,7 @@ export default function CategoriesForm({ categories, className }: Props) {
                 }
             })
             .catch((err) => {
-                toast.error(err);
+                toast.error("Se ha producido un error inesperado");
                 console.error(err);
             })
             .finally(() => setIsUpdating((prev) => ({ ...prev, deleting: false })));
@@ -181,12 +188,18 @@ export default function CategoriesForm({ categories, className }: Props) {
                     <div className="flex justify-end gap-1 mt-3">
                         <NextUIButon
                             onClick={saveCategory}
-                            className={clsx(BasicButton, isNullOrEmpty(newCategoryName) || newCategoryName === selectedCategory?.name && "opacity-50 pointer-events-none")}
+                            className={clsx(
+                                BasicButton,
+                                isNullOrEmpty(newCategoryName) || (newCategoryName === selectedCategory?.name && "opacity-50 pointer-events-none")
+                            )}
                             variant="flat">
                             {isUpdating.saving ? <Spinner size="sm" color="white" /> : "Guardar"}
                         </NextUIButon>
                         {selectedCategory && (
-                            <NextUIButon className={clsx(BasicButton, DangerButton, categoriesList.length <= 1 && "opacity-50 pointer-events-none")} variant="flat" onClick={openDeleteDialog}>
+                            <NextUIButon
+                                className={clsx(BasicButton, DangerButton, categoriesList.length <= 1 && "opacity-50 pointer-events-none")}
+                                variant="flat"
+                                onClick={openDeleteDialog}>
                                 {isUpdating.deleting ? <Spinner size="sm" color="white" /> : "Borrar"}
                             </NextUIButon>
                         )}

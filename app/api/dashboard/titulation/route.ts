@@ -12,18 +12,18 @@ export async function POST(request: NextRequest) {
         const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
         if (!canModify.canModifyCollege) return canModify.response;
 
-        
-        const { newCategoryName } = body;
+        const { newTitulationName } = body;
 
-        const newCategory = await prisma.category.create({
+        const newTitulation = await prisma.titulation.create({
             data: {
-                name: newCategoryName,
+                collegeId: session.user.collegeId,
+                name: newTitulationName,
             },
         });
-        return successResponse(newCategory, 201);
+        return successResponse(newTitulation, 201);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating category", 500);
+        return badResponse("Error creating titulation", 500);
     }
 }
 
@@ -35,24 +35,25 @@ export async function PUT(request: NextRequest) {
         const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
         if (!canModify.canModifyCollege) return canModify.response;
 
-        const { categoryId, newCategoryName } = body;
 
-        const id = parseInt(categoryId);
+        const { titulationId, newTitulationName } = body;
 
-        if (isNaN(id) || isNullOrEmpty(newCategoryName)) return badResponse("Invalid category name or id", 400);
+        const id = parseInt(titulationId);
 
-        const updated = await prisma.category.update({
+        if (isNaN(id) || isNullOrEmpty(newTitulationName)) return badResponse("Invalid titulation name or id", 400);
+
+        const updated = await prisma.titulation.update({
             where: {
                 id,
             },
             data: {
-                name: newCategoryName,
+                name: newTitulationName,
             },
         });
         return successResponse(updated, 200);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating category", 500);
+        return badResponse("Error creating titulation", 500);
     }
 }
 
@@ -64,11 +65,11 @@ export async function DELETE(request: NextRequest) {
         const body = await request.json();
         const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
         if (!canModify.canModifyCollege) return canModify.response;
+        
+        const { titulationId, fallbackTitulationId, projectCount } = body;
 
-        const { categoryId, fallbackCategoryId, projectCount } = body;
-
-        const id = parseInt(categoryId);
-        const fallbackId = parseInt(fallbackCategoryId);
+        const id = parseInt(titulationId);
+        const fallbackId = parseInt(fallbackTitulationId);
         const count = parseInt(projectCount);
 
         if (isNaN(id)) return badResponse("Invalid id", 400);
@@ -78,24 +79,25 @@ export async function DELETE(request: NextRequest) {
             if (count > 0) {
                 await prismaTransaction.tfg.updateMany({
                     where: {
-                        categoryId: id,
+                        titulationId: id,
+                        collegeId: session.user.collegeId,
                     },
                     data: {
-                        categoryId: fallbackId,
+                        titulationId: fallbackId,
                     },
                 });
             }
 
-            await prismaTransaction.category.delete({
+            await prismaTransaction.titulation.delete({
                 where: {
                     id,
                 },
             });
         });
 
-        return successResponse("Category deleted", 200);
+        return successResponse("Titulation deleted", 200);
     } catch (error) {
         console.error(error);
-        return badResponse("Error deleting category", 500);
+        return badResponse("Error deleting titulation", 500);
     }
 }
