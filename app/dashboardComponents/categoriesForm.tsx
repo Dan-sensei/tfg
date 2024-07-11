@@ -44,29 +44,18 @@ export default function CategoriesForm({ categories, className }: Props) {
     const saveCategory = () => {
         if (!newCategoryName || selectedCategory?.name === newCategoryName) return;
 
-        let request: any = {
+        setIsUpdating((prev) => ({ ...prev, saving: true }));
+        fetch("/api/dashboard/category", {
+            method: selectedCategory ? "PUT" : "POST",
             cache: "no-store",
             headers: {
                 "Content-Type": "application/json",
             },
-        };
-        if (selectedCategory) {
-            (request.method = "PUT"),
-                (request.body = JSON.stringify({
-                    newCategoryName: newCategoryName,
-                    categoryId: selectedCategory.id,
-                    collegeId: session?.user.collegeId
-                }));
-        } else {
-            (request.method = "POST"),
-                (request.body = JSON.stringify({
-                    newCategoryName: newCategoryName,
-                    collegeId: session?.user.collegeId
-                }));
-        }
-
-        setIsUpdating((prev) => ({ ...prev, saving: true }));
-        fetch("/api/dashboard/category", request)
+            body: JSON.stringify({
+                newCategoryName: newCategoryName,
+                ...(selectedCategory && { categoryId: selectedCategory.id }),
+            })
+        })
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
@@ -107,8 +96,6 @@ export default function CategoriesForm({ categories, className }: Props) {
             body: JSON.stringify({
                 categoryId: selectedCategory.id,
                 fallbackCategoryId: fallbackCategory.id,
-                projectCount: selectedCategory.totalProjects,
-                collegeId: session?.user.collegeId
             }),
         })
             .then((res) => res.json())
@@ -226,8 +213,8 @@ export default function CategoriesForm({ categories, className }: Props) {
                             <div className="text-center flex flex-col items-center">
                                 <IconCategoryMinus size={100} className="opacity-50 mb-2" />
                                 <p>
-                                    Estás a punto de eliminar la categoría "
-                                    <span className="text-nova-error font-semibold">{selectedCategory?.name}</span>"{" "}
+                                    Estás a punto de eliminar la categoría &quot;
+                                    <span className="text-nova-error font-semibold">{selectedCategory?.name}</span>&quot;{" "}
                                     {selectedCategory && selectedCategory.totalProjects > 0 && "que contiene"}{" "}
                                 </p>
                                 {selectedCategory && selectedCategory.totalProjects > 0 && (

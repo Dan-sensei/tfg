@@ -96,13 +96,12 @@ export default function ImageDrop({
         // lastImage = defaultImage when cropped or deleted within the component
         // if it doesn't match that means it was changed from the reset button of the form
         if (defaultImage != lastImage.current) {
-            console.log("resetting image");
             lastImage.current = defaultImage ?? null;
             setDisplayImage(defaultImage ?? null);
             setUncroppedImage(defaultImage ?? null);
             localStorage.removeItem(id + "-cropper-data");
         }
-    }, [defaultImage]);
+    }, [defaultImage, id]);
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();

@@ -1,7 +1,8 @@
 import { badResponse, isNullOrEmpty, successResponse } from "@/app/utils/util";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
-import { canModifyCollege, checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
+import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
+import { Role } from "@/app/lib/enums";
 
 export async function POST(request: NextRequest) {
     const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
@@ -9,9 +10,6 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
-
         
         const { newCategoryName } = body;
 
@@ -32,14 +30,21 @@ export async function PUT(request: NextRequest) {
     if (!session) return response;
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
-
         const { categoryId, newCategoryName } = body;
 
         const id = parseInt(categoryId);
 
         if (isNaN(id) || isNullOrEmpty(newCategoryName)) return badResponse("Invalid category name or id", 400);
+
+        if (session.user.role !== Role.ADMIN) {
+            // Check if user is trying to modify a category of another college unless it's ADMIN
+            const category = await prisma.category.findFirst({
+                where: {
+                    id,
+                },
+            });
+            if (!category) return badResponse("Category does not exist", 404);
+        }
 
         const updated = await prisma.category.update({
             where: {
@@ -62,20 +67,38 @@ export async function DELETE(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
 
-        const { categoryId, fallbackCategoryId, projectCount } = body;
+        const { categoryId, fallbackCategoryId } = body;
 
         const id = parseInt(categoryId);
         const fallbackId = parseInt(fallbackCategoryId);
-        const count = parseInt(projectCount);
 
         if (isNaN(id)) return badResponse("Invalid id", 400);
-        else if (count > 0 && isNaN(fallbackId)) return badResponse("Invalid fallback category id", 400);
-
+        
+        let projectCount = 0;
+        if (session.user.role !== Role.ADMIN) {
+            // Check if user is trying to modify a category of another college unless it's ADMIN
+            // and get the number of projects that are using the category
+            const category = await prisma.category.findFirst({
+                where: {
+                    id: id,
+                },
+                select: {
+                    _count: {
+                        select: {
+                            tfgs: true,
+                        },
+                    }
+                }
+            });
+            if (!category) return badResponse("Category doesn't exist", 403);
+            projectCount = category._count.tfgs;
+        }
+        
+        if (projectCount > 0 && isNaN(fallbackId)) return badResponse("Invalid fallback category id", 400);
+        
         await prisma.$transaction(async (prismaTransaction) => {
-            if (count > 0) {
+            if (projectCount > 0) {
                 await prismaTransaction.tfg.updateMany({
                     where: {
                         categoryId: id,

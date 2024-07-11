@@ -1,8 +1,21 @@
 import { badResponse, isNullOrEmpty, successResponse } from "@/app/utils/util";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
-import { canModifyCollege, checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
+import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
 import { Role } from "@/app/lib/enums";
+
+const checkIfCanModify = async (role: Role, departmentId: number, collegeId: number) => {
+    if (role !== Role.ADMIN) {
+        const department = await prisma.department.findFirst({
+            where: {
+                id: departmentId,
+                collegeId: collegeId,
+            },
+        });
+        return !!department;
+    }
+    return true;
+};
 
 // Create
 export async function POST(request: NextRequest) {
@@ -11,17 +24,15 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        // Check collegeId and user permissions on college
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
 
-        const { newDepartmentName, collegeId, newLink } = body;
+        const { newDepartmentName, newLink } = body;
 
         if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
+        
         const newDepartment = await prisma.department.create({
             data: {
                 name: newDepartmentName,
-                collegeId: parseInt(collegeId),
+                collegeId: session.user.collegeId,
                 link: newLink && typeof newLink === "string" ? newLink : null,
             },
         });
@@ -38,14 +49,23 @@ export async function PUT(request: NextRequest) {
     if (!session) return response;
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
 
         const { departmentId, newDepartmentName, newDepartmentLink } = body;
 
         const id = parseInt(departmentId);
         if (isNaN(id)) return badResponse("Invalid department id", 400);
         else if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
+
+        if (session.user.role !== Role.ADMIN) {
+            // Check if user is trying to modify a department of another college
+            const department = await prisma.department.findFirst({
+                where: {
+                    id: departmentId,
+                    collegeId: session.user.collegeId,
+                },
+            });
+            if (!department) return badResponse("You are not authorized to update this department or it does not exist", 403);
+        }
 
         const updated = await prisma.department.update({
             where: {
@@ -70,21 +90,39 @@ export async function DELETE(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
+        const { departmentId, fallbackDepartmentId } = body;
 
-        const { departmentId, fallbackDepartmentId, projectCount } = body;
-
-        const id = parseInt(departmentId);
+        const _departmentId = parseInt(departmentId);
         const fallbackId = parseInt(fallbackDepartmentId);
-        const count = parseInt(projectCount);
 
-        if (isNaN(id)) return badResponse("Invalid department id", 400);
+        if (isNaN(_departmentId)) return badResponse("Invalid department id", 400);
+
+        let projectCount = 0;
+        if (session.user.role !== Role.ADMIN) {
+            // Check if user is trying to modify a department of another college
+            // and get the number of projects that are using the department
+            const department = await prisma.department.findFirst({
+                where: {
+                    id: departmentId,
+                    collegeId: session.user.collegeId,
+                },
+                select: {
+                    _count: {
+                        select: {
+                            tfgs: true,
+                        },
+                    }
+                }
+            });
+            if (!department) return badResponse("You are not authorized to update this department or it does not exist", 403);
+            projectCount = department._count.tfgs;
+        }
+        
         await prisma.$transaction(async (prismaTransaction) => {
-            if (count > 0 && fallbackId) {
+            if (projectCount > 0 && fallbackId) {
                 await prismaTransaction.tfg.updateMany({
                     where: {
-                        departmentId: id,
+                        departmentId: _departmentId,
                     },
                     data: {
                         departmentId: fallbackId,
@@ -94,7 +132,7 @@ export async function DELETE(request: NextRequest) {
 
             await prismaTransaction.department.delete({
                 where: {
-                    id,
+                    id: _departmentId,
                 },
             });
         });

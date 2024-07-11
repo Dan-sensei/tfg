@@ -17,7 +17,7 @@ function FavButton({id, updateCallback}: FavButtonProps) {
         if(isInitialized && isFavorite(id)) {
             setFavorite(true);
         }
-    }, [isInitialized]);
+    }, [isInitialized, isFavorite, id]);
 
     const toggleFavorite = () => {
         const fav = !favorite;

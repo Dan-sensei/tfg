@@ -67,7 +67,6 @@ export default function DepartmentsForm({ departments, className }: Props) {
             body: JSON.stringify({
                 newDepartmentName: newDepartmentData.name,
                 newDepartmentLink: isNullOrEmpty(newDepartmentData.link) ? null : newDepartmentData.link,
-                collegeId: session?.user.collegeId,
                 ...(selectedDepartment && { departmentId: selectedDepartment.id }),
             }),
         })
@@ -110,9 +109,7 @@ export default function DepartmentsForm({ departments, className }: Props) {
             },
             body: JSON.stringify({
                 departmentId: selectedDepartment.id,
-                fallbackDepartmentId: fallbackDepartment ? fallbackDepartment.id : null,
-                projectCount: selectedDepartment.totalProjects,
-                collegeId: session?.user.collegeId,
+                fallbackDepartmentId: fallbackDepartment ? fallbackDepartment.id : null
             }),
         })
             .then((res) => res.json())
@@ -251,8 +248,8 @@ export default function DepartmentsForm({ departments, className }: Props) {
                             <div className="text-center flex flex-col items-center">
                                 <IconMicroscope size={100} className="opacity-50 mb-2" />
                                 <p>
-                                    Estás a punto de eliminar el departamento "
-                                    <span className="text-nova-error font-semibold">{selectedDepartment?.name}</span>"{" "}
+                                    Estás a punto de eliminar el departamento &quot;
+                                    <span className="text-nova-error font-semibold">{selectedDepartment?.name}</span>&quot;{" "}
                                     {selectedDepartment && selectedDepartment.totalProjects > 0 && "que contiene"}{" "}
                                 </p>
                                 {selectedDepartment && selectedDepartment.totalProjects > 0 && (

@@ -43,29 +43,18 @@ export default function TitulationsForm({ titulations, className }: Props) {
     const saveTitulation = () => {
         if (!newTitulationName || selectedTitulation?.name === newTitulationName) return;
 
-        let request: any = {
+        setIsUpdating((prev) => ({ ...prev, saving: true }));
+        fetch("/api/dashboard/titulation", {
+            method: selectedTitulation ? "PUT" : "POST",
             cache: "no-store",
             headers: {
                 "Content-Type": "application/json",
             },
-        };
-        if (selectedTitulation) {
-            (request.method = "PUT"),
-                (request.body = JSON.stringify({
-                    newTitulationName: newTitulationName,
-                    titulationId: selectedTitulation.id,
-                    collegeId: session?.user.collegeId,
-                }));
-        } else {
-            (request.method = "POST"),
-                (request.body = JSON.stringify({
-                    newTitulationName: newTitulationName,
-                    collegeId: session?.user.collegeId,
-                }));
-        }
-
-        setIsUpdating((prev) => ({ ...prev, saving: true }));
-        fetch("/api/dashboard/titulation", request)
+            body: JSON.stringify({
+                newTitulationName: newTitulationName,
+                ...(selectedTitulation && { titulationId: selectedTitulation.id }),
+            }),
+        })
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
@@ -227,8 +216,8 @@ export default function TitulationsForm({ titulations, className }: Props) {
                             <div className="text-center flex flex-col items-center">
                                 <IconSchool size={100} className="opacity-50 mb-2" />
                                 <p>
-                                    Estás a punto de eliminar la titulación "
-                                    <span className="text-nova-error font-semibold">{selectedTitulation?.name}</span>"{" "}
+                                    Estás a punto de eliminar la titulación &quot;
+                                    <span className="text-nova-error font-semibold">{selectedTitulation?.name}</span>&quot;{" "}
                                     {selectedTitulation && selectedTitulation.totalProjects > 0 && "que contiene"}{" "}
                                 </p>
                                 {selectedTitulation && selectedTitulation.totalProjects > 0 && (

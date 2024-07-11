@@ -1,7 +1,8 @@
 import { badResponse, isNullOrEmpty, successResponse } from "@/app/utils/util";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
-import { canModifyCollege, checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
+import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
+import { Role } from "@/app/lib/enums";
 
 export async function POST(request: NextRequest) {
     const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
@@ -9,9 +10,6 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
-
         const { newTitulationName } = body;
 
         const newTitulation = await prisma.titulation.create({
@@ -32,15 +30,21 @@ export async function PUT(request: NextRequest) {
     if (!session) return response;
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
-
-
         const { titulationId, newTitulationName } = body;
-
         const id = parseInt(titulationId);
-
         if (isNaN(id) || isNullOrEmpty(newTitulationName)) return badResponse("Invalid titulation name or id", 400);
+
+        if (session.user.role !== Role.ADMIN) {
+            // Check if user is trying to modify a department of another college
+            // and get the number of projects that are using the department
+            const titulation = await prisma.titulation.findFirst({
+                where: {
+                    id: titulationId,
+                    collegeId: session.user.collegeId,
+                },
+            });
+            if (!titulation) return badResponse("You are not authorized to update this titulation or it does not exist", 403);
+        }
 
         const updated = await prisma.titulation.update({
             where: {
@@ -63,24 +67,39 @@ export async function DELETE(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const canModify = canModifyCollege(session.user.role, session.user.collegeId, body.collegeId);
-        if (!canModify.canModifyCollege) return canModify.response;
-        
-        const { titulationId, fallbackTitulationId, projectCount } = body;
-
+        const { titulationId, fallbackTitulationId } = body;
         const id = parseInt(titulationId);
         const fallbackId = parseInt(fallbackTitulationId);
-        const count = parseInt(projectCount);
 
         if (isNaN(id)) return badResponse("Invalid id", 400);
-        else if (count > 0 && isNaN(fallbackId)) return badResponse("Invalid fallback category id", 400);
+        
+        let projectCount = 0;
+        if (session.user.role !== Role.ADMIN) {
+            // Check if user is trying to modify a titulation of another college unless it's ADMIN
+            // and get the number of projects that are using the titulation
+            const titulation = await prisma.titulation.findFirst({
+                where: {
+                    id: id,
+                },
+                select: {
+                    _count: {
+                        select: {
+                            tfgs: true,
+                        },
+                    }
+                }
+            });
+            if (!titulation) return badResponse("Category doesn't exist", 403);
+            projectCount = titulation._count.tfgs;
+        }
+        
+        if (projectCount > 0 && isNaN(fallbackId)) return badResponse("Invalid fallback titulation id", 400);
 
         await prisma.$transaction(async (prismaTransaction) => {
-            if (count > 0) {
+            if (projectCount > 0) {
                 await prismaTransaction.tfg.updateMany({
                     where: {
                         titulationId: id,
-                        collegeId: session.user.collegeId,
                     },
                     data: {
                         titulationId: fallbackId,

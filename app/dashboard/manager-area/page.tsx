@@ -1,5 +1,6 @@
 import Autocomplete from "@/app/components/Autocomplete";
 import CategoriesForm from "@/app/dashboardComponents/categoriesForm";
+import DefenseForm from "@/app/dashboardComponents/defenseForm";
 import DepartmentsForm from "@/app/dashboardComponents/departmentsForm";
 import TitulationsForm from "@/app/dashboardComponents/titulationsForm";
 import { authOptions } from "@/app/lib/authOptions";

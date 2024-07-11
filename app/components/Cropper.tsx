@@ -248,7 +248,7 @@ export default function CropperComponent({ imageSrc, onCrop, onClose, type, maxD
             cropper.current?.destroy();
             window.removeEventListener("resize", recalculateCropboxSize);
         };
-    }, [imageSrc]);
+    }, [imageSrc, aspectRatioCropper, maxDimensions, id]);
 
     const handleCrop = () => {
         if (cropper.current) {
