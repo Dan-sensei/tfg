@@ -23,7 +23,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
-import { CategoryLink, LinkProps, MobileLinkProps } from "@/app/types/interfaces"
+import { CategoryLink, LinkProps, MobileLinkProps } from "@/app/types/interfaces";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/dropdown";
 import Search from "./QuickSearch";
 import { useSession } from "next-auth/react";
@@ -112,7 +112,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
 };
 
 const links: LinkProps[] = [
-    { name: "Inicio", href: "/" },
+    { name: "Inicio", href: "/home" },
     { name: "Trending", href: "/trending" },
     { name: "Categorias", href: "/categoria", isCategories: true },
     { name: "Próximas defensas", href: "/defensas" },
@@ -120,7 +120,7 @@ const links: LinkProps[] = [
 ];
 
 const mobile_links: MobileLinkProps[] = [
-    { name: "Inicio", href: "/", icon: <IconHomeFilled size={DEF_ICON_SIZE} /> },
+    { name: "Inicio", href: "/home", icon: <IconHomeFilled size={DEF_ICON_SIZE} /> },
     { name: "Trending", href: "/trending", icon: <IconTrendingUp size={DEF_ICON_SIZE} /> },
     { name: "Categorias", href: "/categoria", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
     {
@@ -145,15 +145,13 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
     const [showSelectArrow, setShowSelectArrow] = useState(false);
     const { data: session } = useSession();
 
-    const handleLinkClick = (target: HTMLDivElement) => {
-        if (!showSelectArrow) setShowSelectArrow(true);
-        if (target.parentElement) setSelectionDisplay(target.parentElement);
-    };
-
     useEffect(() => {
-        setShowSelectArrow(true);
-        findSelectedLink();
-    }, []);
+        if (!findSelectedLink()) {
+            setShowSelectArrow(false);
+        } else {
+            setShowSelectArrow(true);
+        }
+    }, [pathName]);
 
     const setSelectionDisplay = (element: HTMLElement) => {
         setTranslateLeft(element.offsetLeft + (element.offsetWidth - SELECTED_ICON_SIZE) / 2);
@@ -169,7 +167,9 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
         const activeLinkElement = linkRefs.current[activeLinkIndex]?.parentElement;
         if (activeLinkElement) {
             setSelectionDisplay(activeLinkElement);
+            return true;
         }
+        return false;
     };
 
     useEffect(() => {
@@ -231,9 +231,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
 
                     <NavbarContent className="hidden lg:flex gap-4" justify="center">
                         <NavbarBrand className="py-2">
-                            <Link
-                                href={links[0].href}
-                                onClick={() => linkRefs.current && linkRefs.current[0] && handleLinkClick(linkRefs.current[0])}>
+                            <Link href={links[0].href}>
                                 <Image src={Logo} alt="Logo" height={50} />
                             </Link>
                         </NavbarBrand>
@@ -243,7 +241,6 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                                     ref={(link) => {
                                         linkRefs.current[index] = link;
                                     }}
-                                    onClick={(event) => handleLinkClick(event.currentTarget)}
                                     className={`flex items-center h-full ${
                                         isCurrentPath(link.href) ? "text-violet-50 hover:text-nova-link" : "text-gray-400 hover:text-nova-link"
                                     }`}>
