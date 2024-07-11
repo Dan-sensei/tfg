@@ -148,10 +148,17 @@ export type Category = {
     id: number;
     name: string;
 };
+export interface CategoryWithTFGCount extends Category {
+    totalProjects: number;
+};
 export type Titulation = {
     id: number;
     name: string;
 };
+
+export interface TitulationWithTFGCount extends Titulation {
+    totalProjects: number
+}
 export type RedisCategoryData = {
     name: string;
     totalElements: number;

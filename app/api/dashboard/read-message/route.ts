@@ -1,12 +1,12 @@
-import { authOptions } from "@/app/lib/authOptions";
 import { badResponse, successResponse } from "@/app/utils/util";
-import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
+import { checkAuthorization } from "@/app/lib/auth";
 
 export async function POST(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
+    const {session, response} = await checkAuthorization();
+    if(!session) return response;
+    
     const userId = session.user.uid;
     const body = await request.json();
     const { tfgId, messageIds } = body;

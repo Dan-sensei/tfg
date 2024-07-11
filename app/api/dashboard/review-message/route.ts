@@ -4,12 +4,13 @@ import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
 import { ReviewMessageType } from "@/app/types/interfaces";
+import { checkAuthorization } from "@/app/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
+    const {session, response} = await checkAuthorization();
+    if(!session) return response;
 
     const userId = session.user.uid;
     const tfgId = parseInt(request.nextUrl.searchParams.get("tfgId") ?? "-1");
@@ -70,8 +71,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
+    const {session, response} = await checkAuthorization();
+    if(!session) return response;
+
     const userId = session.user.uid;
     try {
         const body = await request.json();
@@ -112,8 +114,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
+    const {session, response} = await checkAuthorization();
+    if(!session) return response;
+
     const userId = session.user.uid;
     try {
         const body = await request.json();
@@ -136,8 +139,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
+    const {session, response} = await checkAuthorization();
+    if(!session) return response;
+    
     const userId = session.user.uid;
     try {
         const body = await request.json();

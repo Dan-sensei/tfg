@@ -14,7 +14,7 @@ import { getYoutubeVideoId, isNullOrEmpty } from "@/app/utils/util";
 import { Description, Field, Input, Label, Radio, RadioGroup, Tab, TabGroup, TabList, TabPanel, TabPanels, Textarea } from "@headlessui/react";
 import ImageViewer from "../ImageViewer";
 import { iFile, localStorageBlob } from "./BlockDefs";
-import { CharacterCounter } from "../BasicComponentes";
+import { CharacterCounter } from "../BasicComponents";
 import { HeadlessBasic, HeadlessComplete } from "@/app/lib/headlessUIStyle";
 import { BlockMethods } from "./Forms";
 

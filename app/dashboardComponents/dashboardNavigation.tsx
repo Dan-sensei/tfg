@@ -49,7 +49,7 @@ const TutorLinks: MobileLinkProps[] = [...CommonLinks, { name: "Área tutor", hr
 
 const ManagerLinks: MobileLinkProps[] = [
     ...TutorLinks,
-    { name: "Área gestión", href: "/dashboard/manager", icon: <IconSitemap className={iconStyles} /> },
+    { name: "Área gestión", href: "/dashboard/manager-area", icon: <IconSitemap className={iconStyles} /> },
 ];
 
 const AdminLinks: MobileLinkProps[] = [

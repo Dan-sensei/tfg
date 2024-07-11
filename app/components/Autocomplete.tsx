@@ -2,20 +2,24 @@
 import React, { useState } from "react";
 import clsx from "clsx";
 import { Combobox, ComboboxInput, ComboboxButton, ComboboxOptions, ComboboxOption, Field, Label } from "@headlessui/react";
-import { Required } from "../components/BasicComponentes";
+import { Required } from "./BasicComponents";
 import { IconCheck, IconChevronDown } from "@tabler/icons-react";
 
 type ComboboxFieldProps<T> = {
+    className?: string;
     label: string;
     placeholder: string;
     data: T[];
     value: T | null;
     onChange: (value: T | null) => void;
-    displayValue: (item: T) => string;
+    displayValue: (item: T | null) => string;
+    optionsDisplay?: (item: T) => string | JSX.Element;
     required?: boolean;
+    defaultValue?: string | JSX.Element;
 };
 
 export default function Autocomplete<T extends { id: number; name: string }>({
+    className,
     label,
     placeholder,
     data,
@@ -23,14 +27,23 @@ export default function Autocomplete<T extends { id: number; name: string }>({
     required = false,
     onChange,
     displayValue,
+    optionsDisplay,
+    defaultValue,
 }: ComboboxFieldProps<T>) {
     const [query, setQuery] = useState("");
-
+    const defaulOptionsDisplay = (item: T) => {
+        return (
+            <>
+                <IconCheck className="invisible size-4 fill-white group-data-[selected]:visible" />
+                <div className="text-sm/6 text-white">{item.name}</div>
+            </>
+        );
+    };
     const filteredData = query === "" ? data : data.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
 
     return (
-        <Field className="mt-3">
-            <Label className="text-sm text-default-600">
+        <Field className={clsx("mt-3", className)}>
+            <Label className="text-sm text-default-600 flex">
                 {label}
                 {required && <Required />}
             </Label>
@@ -38,6 +51,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
                 immediate
                 value={value}
                 onChange={(value) => {
+                    if (required && value === null) return;
                     onChange(value);
                 }}
                 onClose={() => setQuery("")}>
@@ -59,7 +73,8 @@ export default function Autocomplete<T extends { id: number; name: string }>({
                     anchor="bottom"
                     transition
                     className={clsx(
-                        "w-[var(--input-width)] rounded-xl border border-white/5 bg-black/85 backdrop-blur-md p-1 [--anchor-gap:var(--spacing-1)] empty:invisible",
+                        "z-[400]",
+                        "w-[var(--input-width)] rounded-xl border border-white/5 bg-black/50 backdrop-blur-md p-1 [--anchor-gap:var(--spacing-1)] empty:invisible",
                         "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
                     )}>
                     {!required && (
@@ -67,8 +82,14 @@ export default function Autocomplete<T extends { id: number; name: string }>({
                             key={-1}
                             value={null}
                             className="hover:cursor-pointer group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10">
-                            <IconCheck className="invisible size-4 fill-white group-data-[selected]:visible" />
-                            <div className="text-sm/6 text-default-600">(Ninguno)</div>
+                            {defaultValue ? (
+                                defaultValue
+                            ) : (
+                                <>
+                                    <IconCheck className="invisible size-4 fill-white group-data-[selected]:visible" />
+                                    <div className="text-sm/6 text-default-600">(Ninguno)</div>
+                                </>
+                            )}
                         </ComboboxOption>
                     )}
                     {filteredData.map((item) => (
@@ -76,8 +97,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
                             key={item.id}
                             value={item}
                             className="hover:cursor-pointer group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10">
-                            <IconCheck className="invisible size-4 fill-white group-data-[selected]:visible" />
-                            <div className="text-sm/6 text-white">{item.name}</div>
+                            {optionsDisplay ? optionsDisplay(item) : defaulOptionsDisplay(item)}
                         </ComboboxOption>
                     ))}
                 </ComboboxOptions>

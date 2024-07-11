@@ -75,6 +75,7 @@ model department {
   tfgs tfg[]
   collegeId Int
   college college @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  @@unique([name, collegeId])
 }
 
 model user {
@@ -100,6 +101,7 @@ model titulation {
   collegeId Int
   tfgs      tfg[]
   college   college @relation(fields: [collegeId], references: [id], map: "GradeMaster_collegeId_fkey", onDelete: Cascade)
+  @@unique([name, collegeId])
 }
 
 model college {
@@ -127,7 +129,7 @@ model TutorTFG {
 
 model category {
   id   Int    @id(map: "Category_pkey") @default(autoincrement())
-  name String
+  name String @unique
   icon String?
   tfgs tfg[]
 }
@@ -160,6 +162,7 @@ model location {
   collegeId Int
   defenses  defense[]
   college   college   @relation(fields: [collegeId], references: [id], map: "Location_collegeId_fkey", onDelete: Cascade)
+  @@unique([name, collegeId])
 }
 
 model daily_tfg_view {

@@ -7,3 +7,6 @@ export const HeadlessInvalid =
     "data-[invalid]:outline-2 data-[invalid]:outline data-[invalid]:-outline-offset-2 data-[invalid]:outline-nova-error/75";
 
 export const HeadlessComplete = [...HeadlessBasic, HeadlessInvalid];
+
+export const BasicButton = "inline-flex items-center gap-2 rounded-md py-1.5 px-7 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[focus]:outline-none";
+export const DangerButton = "bg-nova-red data-[hover]:bg-nova-light-red transition-colors";

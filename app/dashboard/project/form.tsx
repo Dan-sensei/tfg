@@ -40,7 +40,7 @@ import { produce } from "immer";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { BLOCKSCHEMA, BlockInfo, FormSchema, iFile, localStorageBlob } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
-import { CharacterCounter, Required } from "@/app/components/BasicComponentes";
+import { CharacterCounter, Required } from "@/app/components/BasicComponents";
 import * as v from "valibot";
 import { HeadlessComplete } from "@/app/lib/headlessUIStyle";
 import { useDebouncedCallback } from "use-debounce";
@@ -187,11 +187,11 @@ export default function ProjectForm({ college, departments, tutors, titulations,
             description: form.description,
             documentLink: form.documentLink,
             thumbnail: thumbnailFile ?? form.thumbnail,
-            departmentId: form.department?.id ?? null,
+            departmentId: form.department ? form.department.id : null,
             collegeId: college.id,
-            categoryId: 0,
+            categoryId: form.category.id,
             pages: form.pages,
-            titulationId: 0,
+            titulationId: form.titulation.id,
             tags: form.tags,
             tutors: form.tutors.map((t) => t.id),
         });
@@ -214,8 +214,10 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                 }
             });
         });
-        updateForm({ contentBlocks: updatedBlocks });
-        if (!result.success || foundErrorsInBlocks) return null;
+        if (!result.success || foundErrorsInBlocks) {
+            updateForm({ contentBlocks: updatedBlocks });
+            return;
+        }
         return { ...result.output, contentBlocks: updatedBlocks };
     };
 
@@ -270,6 +272,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                 if (json.success) {
                     toast.success("TFG guardado con éxito");
                     const newState = json.response as ProjectFormData;
+                    console.log(json.response);
                     // We just receive the id of each property
                     for (const emptyTutor of newState.tutors) {
                         const t = tutors.find((tutor) => tutor.id === emptyTutor.id);
@@ -309,9 +312,9 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                     newState.titulation.name = ti.name;
 
                     defaultData.current = newState;
-                    localStorage.removeItem(`tfg-data-${tfg?.id}`);
                     deleteNonExistentImagesFromIndexedDB([]);
                     setForm(newState);
+                    localStorage.removeItem(`tfg-data-${tfg?.id}`);
                 } else {
                     toast.error(json.response);
                 }
@@ -581,7 +584,9 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                             onChange={(value) => {
                                                 if (value) updateForm({ titulation: value });
                                             }}
-                                            displayValue={(titulation: Titulation) => titulation?.name}
+                                            displayValue={(titulation: Titulation | null) =>
+                                                titulation ? titulation.name : "Selecciona una titulación"
+                                            }
                                         />
                                     )}
                                     {categories.length > 0 && (
@@ -594,7 +599,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                             onChange={(value) => {
                                                 if (value) updateForm({ category: value });
                                             }}
-                                            displayValue={(category: Category) => category?.name}
+                                            displayValue={(category: Category | null) => (category ? category.name : "Selecciona una categoría")}
                                         />
                                     )}
                                     {departments.length > 0 && (
@@ -606,7 +611,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
                                             onChange={(value) => {
                                                 updateForm({ department: value });
                                             }}
-                                            displayValue={(category: Category) => category?.name}
+                                            displayValue={(department: FullDepartment | null) => (department ? department.name : "(Ninguno)")}
                                         />
                                     )}
                                     {tutors.length > 0 && (

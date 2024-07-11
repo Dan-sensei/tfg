@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
-import { writeFile, unlink, stat } from "fs/promises";
+import { writeFile } from "fs/promises";
 import sharp from "sharp";
 import prisma from "@/app/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/lib/authOptions";
 import {
     MAX_BANNER_DIMENSIONS,
     MAX_BANNER_SIZE,
@@ -20,6 +18,7 @@ import { badResponse, getFileType, isNullOrEmpty, roundTwoDecimals, sleep, succe
 import * as v from "valibot";
 import { BLOCKSCHEMA, FormSchema } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
 import fs from "fs";
+import { checkAuthorization } from "@/app/lib/auth";
 
 const USER_FOLDER_PATH = "public/assets/users/";
 const DISPLAY_PATH = "/assets/users/";
@@ -131,8 +130,8 @@ const checkAndCreateUserFolder = (user: string) => {
 };
 
 export async function PUT(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
+    const {session, response} = await checkAuthorization();
+    if(!session) return response;
 
     const user = await prisma.user.findUnique({
         where: { id: session.user.uid },
@@ -305,6 +304,7 @@ export async function PUT(request: NextRequest) {
         return badResponse("Error saving project", 500);
     }
 
+    console.log(projectData);
     const newTFG: ProjectFormData = {
         id: user.personalProjectId,
         thumbnail: projectData.thumbnail,
@@ -342,8 +342,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function POST() {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
+    const {session, response} = await checkAuthorization();
+    if(!session) return response;
+
 
     try {
         const user = await prisma.user.findUnique({

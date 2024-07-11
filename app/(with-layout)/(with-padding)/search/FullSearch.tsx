@@ -56,11 +56,10 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     const { replace } = useRouter();
     const searchParams = useSearchParams();
 
-   
-
     const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
         setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
     }, []);
+    
     useEffect(() => {
         const paramKeys: Array<keyof QueryParams> = [
             "q",

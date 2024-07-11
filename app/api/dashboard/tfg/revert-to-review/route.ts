@@ -4,13 +4,14 @@ import { badResponse, successResponse } from "@/app/utils/util";
 import { getServerSession } from "next-auth";
 import prisma from "@/app/lib/db";
 import { NextRequest } from "next/server";
+import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
 
 export async function PUT(request: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return badResponse("Not signed in", 400);
-    if (![Role.TUTOR, Role.MANAGER, Role.ADMIN].includes(session.user.role as Role))
-        return badResponse("You don't have the permissions to do that", 400);
+    const {session, response} = await checkAuthorization(REQUIRED_ROLES.MINIMUM_TUTOR);
+    if(!session) return response;
+    
     const userId = session.user.uid;
+    
     try {
         const { tfgId } = await request.json();
 

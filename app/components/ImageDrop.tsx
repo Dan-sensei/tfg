@@ -8,7 +8,7 @@ import { Modal, ModalContent, ModalBody, useDisclosure } from "@nextui-org/modal
 import { deleteImageFromIndexedDB, loadImagesFromIndexedDB, saveImageToIndexedDB } from "../lib/indexedDBHelper";
 import CropperComponent, { AutoCrop } from "./Cropper";
 import { dimension } from "../types/interfaces";
-import { Required } from "./BasicComponentes";
+import { Required } from "./BasicComponents";
 
 type Props = {
     className?: string;
@@ -57,7 +57,6 @@ export default function ImageDrop({
         if (defaultImage) {
             return;
         }
-        console.log("loading from indexedDB " + id);
         let ignore = false;
         const requestImages = async () => {
             const keys = [id, `u${id}`];

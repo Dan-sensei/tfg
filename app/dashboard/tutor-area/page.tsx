@@ -4,26 +4,20 @@ import {
     IconBox,
     IconCactus,
     IconCircleDashedCheck,
-    IconEye,
     IconMailbox,
     IconMessageFilled,
-    IconStarFilled,
     IconWriting,
 } from "@tabler/icons-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import prisma from "@/app/lib/db";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { formatViews } from "@/app/utils/util";
-import { Divider } from "@nextui-org/divider";
 import React from "react";
 import Link from "next/link";
 import { Tooltip } from "@nextui-org/tooltip";
 import { Button } from "@nextui-org/button";
-import SimpleBar from "simplebar-react";
 import SimpleBarAbs from "@/app/components/SimpleBarAbs";
-import DashboardProjectCard from "@/app/components/DashboardProjectCard";
-import ReviewMessageBox from "@/app/components/ReviewMessageBox";
+import DashboardProjectCard from "@/app/dashboardComponents/DashboardProjectCard";
 import clsx from "clsx";
 import { Avatar } from "@nextui-org/avatar";
 

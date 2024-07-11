@@ -3,7 +3,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import { ReviewMessageType } from "../types/interfaces";
 import SimpleBar from "simplebar-react";
-import ReviewMessageBox from "./ReviewMessageBox";
+import ReviewMessageBox from "../dashboardComponents/ReviewMessageBox";
 import TextareaAutosize from "react-textarea-autosize";
 import { IconCheck, IconSend2, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
