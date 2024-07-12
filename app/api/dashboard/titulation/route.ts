@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { newTitulationName } = body;
 
+        // TODO: admin can change any college
         const newTitulation = await prisma.titulation.create({
             data: {
                 collegeId: session.user.collegeId,
@@ -34,6 +35,7 @@ export async function PUT(request: NextRequest) {
         const id = parseInt(titulationId);
         if (isNaN(id) || isNullOrEmpty(newTitulationName)) return badResponse("Invalid titulation name or id", 400);
 
+        // TODO: admin can change any college
         if (session.user.role !== Role.ADMIN) {
             // Check if user is trying to modify a department of another college
             // and get the number of projects that are using the department
@@ -57,7 +59,7 @@ export async function PUT(request: NextRequest) {
         return successResponse(updated, 200);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating titulation", 500);
+        return badResponse("Error updating titulation", 500);
     }
 }
 

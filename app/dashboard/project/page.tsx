@@ -55,7 +55,6 @@ export default async function Project() {
             },
         },
     });
-
     const tfgRaw = await prisma.tfg.findFirst({
         where: {
             authors: {

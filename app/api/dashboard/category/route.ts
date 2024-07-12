@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         
         const { newCategoryName } = body;
-
+        
         const newCategory = await prisma.category.create({
             data: {
                 name: newCategoryName,
@@ -36,16 +36,6 @@ export async function PUT(request: NextRequest) {
 
         if (isNaN(id) || isNullOrEmpty(newCategoryName)) return badResponse("Invalid category name or id", 400);
 
-        if (session.user.role !== Role.ADMIN) {
-            // Check if user is trying to modify a category of another college unless it's ADMIN
-            const category = await prisma.category.findFirst({
-                where: {
-                    id,
-                },
-            });
-            if (!category) return badResponse("Category does not exist", 404);
-        }
-
         const updated = await prisma.category.update({
             where: {
                 id,
@@ -57,7 +47,7 @@ export async function PUT(request: NextRequest) {
         return successResponse(updated, 200);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating category", 500);
+        return badResponse("Error updating category", 500);
     }
 }
 
@@ -74,26 +64,21 @@ export async function DELETE(request: NextRequest) {
         const fallbackId = parseInt(fallbackCategoryId);
 
         if (isNaN(id)) return badResponse("Invalid id", 400);
-        
-        let projectCount = 0;
-        if (session.user.role !== Role.ADMIN) {
-            // Check if user is trying to modify a category of another college unless it's ADMIN
-            // and get the number of projects that are using the category
-            const category = await prisma.category.findFirst({
-                where: {
-                    id: id,
-                },
-                select: {
-                    _count: {
-                        select: {
-                            tfgs: true,
-                        },
-                    }
+
+        const category = await prisma.category.findFirst({
+            where: {
+                id: id,
+            },
+            select: {
+                _count: {
+                    select: {
+                        tfgs: true,
+                    },
                 }
-            });
-            if (!category) return badResponse("Category doesn't exist", 403);
-            projectCount = category._count.tfgs;
-        }
+            }
+        });
+        if (!category) return badResponse("Category doesn't exist", 403);
+        const projectCount = category._count.tfgs;
         
         if (projectCount > 0 && isNaN(fallbackId)) return badResponse("Invalid fallback category id", 400);
         

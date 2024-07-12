@@ -145,9 +145,9 @@ export default function ProjectForm({ college, departments, tutors, titulations,
         if (tfgSavedData) {
             try {
                 const data = JSON.parse(tfgSavedData) as ProjectFormData;
-                const department = departments.find((d) => d.id === data.department?.id);
-                const titulation = titulations.find((t) => t.id === data.titulation?.id);
-                const category = categories.find((c) => c.id === data.category?.id);
+                const department = departments.find((d) => d.id === data.department?.id) ?? departments.find((d) => d.id === defaultData.current?.department?.id);
+                const titulation = titulations.find((t) => t.id === data.titulation?.id) ?? titulations.find((t) => t.id === defaultData.current?.titulation?.id);
+                const category = categories.find((c) => c.id === data.category?.id) ?? categories.find((c) => c.id === defaultData.current?.category?.id);
                 const _tutors = data.tutors.map((t) => tutors.find((u) => u.id === t.id)).filter((tutor) => tutor!== undefined);
 
                 setForm((current) => ({

@@ -158,7 +158,7 @@ model defense {
 model location {
   id        Int       @id(map: "Location_pkey") @default(autoincrement())
   name      String
-  mapLink   String
+  mapLink   String?
   collegeId Int
   defenses  defense[]
   college   college   @relation(fields: [collegeId], references: [id], map: "Location_collegeId_fkey", onDelete: Cascade)

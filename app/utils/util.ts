@@ -133,6 +133,7 @@ export const sameArrays = (a: any[], b: any[]) => {
     return true;
 };
 
+
 export const isNullOrEmpty = (str: string) => str == null || str.trim() === "";
 
 export const toFirstLetterUppercase = (str: string) => str.charAt(0).toUpperCase() + str.substring(1).toLowerCase();

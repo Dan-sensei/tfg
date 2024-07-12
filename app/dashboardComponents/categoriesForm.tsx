@@ -3,15 +3,13 @@ import { useState } from "react";
 import Autocomplete from "../components/Autocomplete";
 import { Category, CategoryWithTFGCount } from "../types/interfaces";
 import clsx from "clsx";
-import { Button, Dialog, DialogBackdrop, DialogPanel, DialogTitle, Field, Input, Label } from "@headlessui/react";
-import { Button as NextUIButon } from "@nextui-org/button";
+import { Button, Dialog, DialogBackdrop, DialogPanel, Field, Input, Label } from "@headlessui/react";
 import { BasicButton, DangerButton, HeadlessComplete } from "../lib/headlessUIStyle";
 import { produce } from "immer";
 import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import { IconCategoryMinus } from "@tabler/icons-react";
 import { isNullOrEmpty } from "../utils/util";
-import { useSession } from "next-auth/react";
 
 type Props = {
     className?: string;
@@ -19,7 +17,6 @@ type Props = {
 };
 
 export default function CategoriesForm({ categories, className }: Props) {
-    const { data: session } = useSession();
     
     const [categoriesList, setCategoriesList] = useState<CategoryWithTFGCount[]>(categories);
     const [selectedCategory, setSelectedCategory] = useState<CategoryWithTFGCount | null>(null);
@@ -173,23 +170,21 @@ export default function CategoriesForm({ categories, className }: Props) {
                         />
                     </Field>
                     <div className="flex justify-end gap-1 mt-3">
-                        <NextUIButon
-                            onClick={saveCategory}
-                            className={clsx(
-                                BasicButton,
-                                isNullOrEmpty(newCategoryName) || (newCategoryName === selectedCategory?.name && "opacity-50 pointer-events-none")
-                            )}
-                            variant="flat">
-                            {isUpdating.saving ? <Spinner size="sm" color="white" /> : "Guardar"}
-                        </NextUIButon>
                         {selectedCategory && (
-                            <NextUIButon
-                                className={clsx(BasicButton, DangerButton, categoriesList.length <= 1 && "opacity-50 pointer-events-none")}
-                                variant="flat"
+                            <Button
+                                className={clsx(BasicButton, DangerButton, "rounded-md", categoriesList.length <= 1 && "opacity-50 pointer-events-none")}
                                 onClick={openDeleteDialog}>
                                 {isUpdating.deleting ? <Spinner size="sm" color="white" /> : "Borrar"}
-                            </NextUIButon>
+                            </Button>
                         )}
+                        <Button
+                            onClick={saveCategory}
+                            className={clsx(
+                                BasicButton, "rounded-md",
+                                (isNullOrEmpty(newCategoryName) || newCategoryName === selectedCategory?.name) && "opacity-50 pointer-events-none"
+                            )}>
+                            {isUpdating.saving ? <Spinner size="sm" color="white" /> : "Guardar"}
+                        </Button>
                     </div>
                 </section>
                 <Toaster
@@ -204,7 +199,7 @@ export default function CategoriesForm({ categories, className }: Props) {
                 />
             </div>
             <Dialog open={isOpen} as="div" className="relative z-10 focus:outline-none" onClose={closeDeleteDialog}>
-                <DialogBackdrop className="fixed inset-0 bg-black/30" />
+                <DialogBackdrop className="fixed inset-0 bg-black/50" />
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4">
                         <DialogPanel
@@ -249,14 +244,14 @@ export default function CategoriesForm({ categories, className }: Props) {
                                 )}
                             </div>
                             <div className="mt-4 flex justify-center">
-                                <NextUIButon
+                                <Button
                                     className={clsx(BasicButton, DangerButton)}
                                     onClick={() => {
                                         closeDeleteDialog();
                                         deleteCategory();
                                     }}>
                                     Borrar
-                                </NextUIButon>
+                                </Button>
                             </div>
                         </DialogPanel>
                     </div>

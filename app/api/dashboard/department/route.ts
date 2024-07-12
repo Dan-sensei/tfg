@@ -4,19 +4,6 @@ import prisma from "@/app/lib/db";
 import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
 import { Role } from "@/app/lib/enums";
 
-const checkIfCanModify = async (role: Role, departmentId: number, collegeId: number) => {
-    if (role !== Role.ADMIN) {
-        const department = await prisma.department.findFirst({
-            where: {
-                id: departmentId,
-                collegeId: collegeId,
-            },
-        });
-        return !!department;
-    }
-    return true;
-};
-
 // Create
 export async function POST(request: NextRequest) {
     const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
@@ -28,7 +15,8 @@ export async function POST(request: NextRequest) {
         const { newDepartmentName, newLink } = body;
 
         if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
-        
+
+        // TODO: admin can change any college
         const newDepartment = await prisma.department.create({
             data: {
                 name: newDepartmentName,
@@ -56,6 +44,7 @@ export async function PUT(request: NextRequest) {
         if (isNaN(id)) return badResponse("Invalid department id", 400);
         else if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
 
+        // TODO: admin can change any college
         if (session.user.role !== Role.ADMIN) {
             // Check if user is trying to modify a department of another college
             const department = await prisma.department.findFirst({
@@ -79,7 +68,7 @@ export async function PUT(request: NextRequest) {
         return successResponse(updated, 200);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating department", 500);
+        return badResponse("Error updating department", 500);
     }
 }
 

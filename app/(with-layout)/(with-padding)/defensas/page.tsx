@@ -1,12 +1,6 @@
 import {
     startOfMonth,
     endOfMonth,
-    startOfWeek,
-    endOfWeek,
-    eachDayOfInterval,
-    subMonths,
-    addMonths,
-    formatRelative,
     addDays,
     format,
     subDays,
@@ -29,6 +23,7 @@ import { es } from "date-fns/locale";
 import { IconCactus, IconMapPin } from "@tabler/icons-react";
 import GlimmerSpot from "@/app/components/GlimmerSpot"
 import { Divider } from "@nextui-org/divider";
+import { DefenseData } from "@/app/types/interfaces";
 
 type Props = {
     searchParams?: {
@@ -38,20 +33,14 @@ type Props = {
     };
 };
 
-interface DefenseData {
-    title: string;
-    startTime: Date;
-    endTime: Date;
-    location: {
-        name: string;
-        mapLink: string;
-    };
-}
+
 
 const getMonthDefenses = cache(
     async (from: Date, to: Date) => {
         const defenses = (await prisma.defense.findMany({
             select: {
+                id: true,
+                collegeId: true,
                 title: true,
                 startTime: true,
                 endTime: true,

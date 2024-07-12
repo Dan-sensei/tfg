@@ -211,20 +211,20 @@ export default function DepartmentsForm({ departments, className }: Props) {
                         />
                     </Field>
                     <div className="flex justify-end gap-1 mt-3">
-                        <NextUIButon
-                            onClick={saveDepartment}
-                            className={clsx(BasicButton, !canSave && "opacity-50 pointer-events-none")}
-                            variant="flat">
-                            {isUpdating.saving ? <Spinner size="sm" color="white" /> : "Guardar"}
-                        </NextUIButon>
                         {selectedDepartment && (
                             <NextUIButon
-                                className={clsx(BasicButton, DangerButton, departmentsList.length <= 1 && "opacity-50 pointer-events-none")}
+                                className={clsx(BasicButton, DangerButton, "rounded-md", departmentsList.length <= 1 && "opacity-50 pointer-events-none")}
                                 variant="flat"
                                 onClick={openDeleteDialog}>
                                 {isUpdating.deleting ? <Spinner size="sm" color="white" /> : "Borrar"}
                             </NextUIButon>
                         )}
+                        <NextUIButon
+                            onClick={saveDepartment}
+                            className={clsx(BasicButton, "rounded-md", !canSave && "opacity-50 pointer-events-none")}
+                            variant="flat">
+                            {isUpdating.saving ? <Spinner size="sm" color="white" /> : "Guardar"}
+                        </NextUIButon>
                     </div>
                 </section>
                 <Toaster
@@ -239,7 +239,7 @@ export default function DepartmentsForm({ departments, className }: Props) {
                 />
             </div>
             <Dialog open={isOpen} as="div" className="relative z-10 focus:outline-none" onClose={closeDeleteDialog}>
-                <DialogBackdrop className="fixed inset-0 bg-black/30" />
+                <DialogBackdrop className="fixed inset-0 bg-black/50" />
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4">
                         <DialogPanel

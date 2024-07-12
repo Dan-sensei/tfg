@@ -40,6 +40,8 @@ export const MAX_BLOCK_IMAGE_SIZE = 3 * 1024 * 1024;
 export const MAX_BLOCK_IMAGE_DIMENSIONS = { width: 1000, height: MAX_IMAGE_BLOCK_HEIGHT };
 export const MIN_IMAGE_BLOCK_HEIGHT = 100;
 
+export const MAX_DEFENSE_TITLE_LENGTH = 50;
+
 export const partialDefaultProjectData = {
     id: -1,
     thumbnail: "",

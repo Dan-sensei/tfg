@@ -78,7 +78,7 @@ export interface FullDepartment extends Department {
 }
 
 export interface DepartmentWithTFGCount extends FullDepartment {
-    totalProjects: number
+    totalProjects: number;
 }
 
 export interface SimplifiedUser {
@@ -154,14 +154,14 @@ export type Category = {
 };
 export interface CategoryWithTFGCount extends Category {
     totalProjects: number;
-};
+}
 export type Titulation = {
     id: number;
     name: string;
 };
 
 export interface TitulationWithTFGCount extends Titulation {
-    totalProjects: number
+    totalProjects: number;
 }
 export type RedisCategoryData = {
     name: string;
@@ -258,4 +258,19 @@ export interface iDashboardProject {
     authors: {
         name: string;
     }[];
+}
+
+export interface Location {
+    id: number;
+    name: string;
+    mapLink: string | null;
+}
+
+export interface DefenseData {
+    id: number;
+    collegeId: number;
+    title: string;
+    startTime: Date;
+    endTime: Date;
+    location: Location;
 }

@@ -6,6 +6,7 @@ import { MobileLinkProps } from "@/app/types/interfaces";
 import {
     IconArrowLeft,
     IconBox,
+    IconCalendarClock,
     IconCalendarUser,
     IconCategoryFilled,
     IconEyeUp,
@@ -50,6 +51,7 @@ const TutorLinks: MobileLinkProps[] = [...CommonLinks, { name: "Área tutor", hr
 const ManagerLinks: MobileLinkProps[] = [
     ...TutorLinks,
     { name: "Área gestión", href: "/dashboard/manager-area", icon: <IconSitemap className={iconStyles} /> },
+    { name: "Defensas", href: "/dashboard/defense-area", icon: <IconCalendarClock className={iconStyles} /> },
 ];
 
 const AdminLinks: MobileLinkProps[] = [
