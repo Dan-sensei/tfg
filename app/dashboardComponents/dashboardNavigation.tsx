@@ -2,7 +2,7 @@
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenu, NavbarMenuItem, NavbarMenuToggle } from "@nextui-org/navbar";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { MobileLinkProps } from "@/app/types/interfaces";
+import { FullCollege, MobileLinkProps } from "@/app/types/interfaces";
 import {
     IconArrowLeft,
     IconBox,
@@ -13,6 +13,7 @@ import {
     IconHeartFilled,
     IconHome,
     IconHomeFilled,
+    IconListDetails,
     IconPasswordUser,
     IconSchool,
     IconSitemap,
@@ -27,12 +28,12 @@ import { Role } from "../lib/enums";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./SignOutButton";
 import { Button } from "@nextui-org/button";
-import { Tooltip } from "@nextui-org/tooltip";
 import { Divider } from "@nextui-org/divider";
 import clsx from "clsx";
 
-import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+import { useDashboard } from "../contexts/DashboardContext";
+import Autocomplete from "../components/Autocomplete";
 
 interface Props {
     className?: string;
@@ -43,33 +44,33 @@ const iconStyles = "stroke-2 w-5 h-5 mx-0";
 const CommonLinks: MobileLinkProps[] = [
     { name: "Home", href: "/dashboard", icon: <IconHome className={iconStyles} /> },
     { name: "Perfil", href: "/dashboard/profile", icon: <IconUserScan className={iconStyles} /> },
-    { name: "Proyecto", href: "/dashboard/project", icon: <IconBox className={iconStyles} /> }
+    { name: "Proyecto", href: "/dashboard/project", icon: <IconBox className={iconStyles} /> },
 ];
 
-const TutorLinks: MobileLinkProps[] = [...CommonLinks, { name: "Área tutor", href: "/dashboard/tutor-area", icon: <IconSchool className={iconStyles} /> }];
+const TutorLinks: MobileLinkProps[] = [
+    ...CommonLinks,
+    { name: "Área tutor", href: "/dashboard/tutor-area", icon: <IconSchool className={iconStyles} /> },
+];
 
 const ManagerLinks: MobileLinkProps[] = [
     ...TutorLinks,
     { name: "Área gestión", href: "/dashboard/manager-area", icon: <IconSitemap className={iconStyles} /> },
     { name: "Defensas", href: "/dashboard/defense-area", icon: <IconCalendarClock className={iconStyles} /> },
-];
-
-const AdminLinks: MobileLinkProps[] = [
-    ...ManagerLinks,
-    { name: "Admin", href: "/dashboard/admin", icon: <IconPasswordUser className={iconStyles} /> },
+    { name: "Todos los proyectos", href: "/dashboard/all-projects", icon: <IconListDetails className={iconStyles} /> },
 ];
 
 const LinksByRole = {
     [Role.STUDENT]: CommonLinks,
     [Role.TUTOR]: TutorLinks,
     [Role.MANAGER]: ManagerLinks,
-    [Role.ADMIN]: AdminLinks,
+    [Role.ADMIN]: ManagerLinks,
 };
 
 export default function DashboardNavigation({ className }: Props) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { data: session } = useSession();
     const pathName = usePathname();
+    const { collegeId, setCollege, allColleges } = useDashboard();
 
     const avatarProp = useMemo(() => {
         return session?.user?.image ? { src: session.user.image } : { name: session?.user?.name?.slice(0, 2) ?? "-" };
@@ -109,6 +110,20 @@ export default function DashboardNavigation({ className }: Props) {
                             </div>
                             <h1 className="pt-2 text-sm">{session.user.name}</h1>
                             <h1 className="text-tiny text-gray-400">{ROLE_NAMES[session.user.role as Role]}</h1>
+                            {session?.user.role === Role.ADMIN && (
+                                <Autocomplete
+                                    required
+                                    className="max-w-full w-96"
+                                    data={allColleges}
+                                    value={allColleges.find((c) => c.id === collegeId) ?? allColleges[0]}
+                                    placeholder="Buscar..."
+                                    onChange={(value) => {
+                                        if (value) setCollege(value);
+                                    }}
+                                    displayValue={(c: FullCollege | null) => (c ? c.name : "fg")}
+                                    defaultValue={<div className="text-sm/6 text-default-600">(Nueva localización)</div>}
+                                />
+                            )}
                         </section>
                         <section className="flex flex-col gap-2 py-10">
                             {links.map((link, index) => (
@@ -149,7 +164,21 @@ export default function DashboardNavigation({ className }: Props) {
                 </NavbarContent>
 
                 <NavbarContent className="xl:hidden pr-3" justify="center">
-                    <NavbarBrand className="text-white font-semibold text-xl uppercase">
+                    <NavbarBrand className="text-white font-semibold text-xl uppercase flex items-center gap-3 ">
+                        {session?.user.role === Role.ADMIN && (
+                            <Autocomplete
+                                required
+                                className="max-w-full w-56"
+                                data={allColleges}
+                                value={allColleges.find((c) => c.id === collegeId) ?? allColleges[0]}
+                                placeholder="Buscar..."
+                                onChange={(value) => {
+                                    if (value) setCollege(value);
+                                }}
+                                displayValue={(c: FullCollege | null) => (c ? c.name : "fg")}
+                                defaultValue={<div className="text-sm/6 text-default-600">(Nueva localización)</div>}
+                            />
+                        )}
                         Dashboard
                     </NavbarBrand>
                 </NavbarContent>

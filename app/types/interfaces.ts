@@ -265,6 +265,9 @@ export interface Location {
     name: string;
     mapLink: string | null;
 }
+export interface LocationWithDefenseCount extends Location {
+    totalDefenses: number;
+}
 
 export interface DefenseData {
     id: number;

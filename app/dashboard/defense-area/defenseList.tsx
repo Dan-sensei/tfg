@@ -36,11 +36,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MAX_DEFENSE_TITLE_LENGTH } from "@/app/types/defaultData";
 import * as v from "valibot";
 import { DefenseDataSchema } from "@/app/lib/schemas";
+import { useDashboard } from "@/app/contexts/DashboardContext";
 
 type Props = {
     className?: string;
-    defenses: DefenseData[];
-    defLocations: Location[];
     year: number;
     month: number;
 };
@@ -67,18 +66,20 @@ const months: { [key: number]: string } = {
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear + 3 - 2024 }, (v, i) => 2023 + i);
 
-export default function DefenseList({ className, defenses, defLocations, year, month }: Props) {
-    const [defenseList, setDefenseList] = useState<DefenseData[]>(defenses);
-    const [locations, setLocations] = useState(defLocations);
+export default function DefenseList({ className, year, month }: Props) {
+    const [defenseList, setDefenseList] = useState<DefenseData[]>([]);
+    const [locations, setLocations] = useState<Location[]>([]);
     const [selectedDefense, setSelectedDefense] = useState<DefenseData | null>(null);
+    const { collegeId } = useDashboard();
     const [isUpdating, setIsUpdating] = useState({
         saving: false,
         deleting: false,
     });
-    const [titleErrorMesasge, setTitleErrorMessage] = useState("");
+    const [errorMessages, setErroMessages] = useState({ title: "", locationName: "" });
     const pathname = usePathname();
     const { replace } = useRouter();
     const searchParams = useSearchParams();
+    const [isFetching, setIsFetching] = useState(true);
 
     const [dates, setDates] = useState<datesType>({
         start: parseAbsoluteToLocal(new Date().toISOString()),
@@ -94,15 +95,56 @@ export default function DefenseList({ className, defenses, defLocations, year, m
             })
         );
     };
+
     useEffect(() => {
-        setDefenseList(defenses);
-    }, [defenses]);
+        fetch(`/api/dashboard/location?collegeId=${collegeId}`, {
+            method: "GET",
+            cache: "no-store",
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    setLocations(data.response);
+                }
+            })
+            .catch((err) => {
+                toast.error("Error la lista de localizaciones");
+                console.error(err);
+            });
+    }, [collegeId]);
+
+    useEffect(() => {
+        setIsFetching(true);
+        const params = new URLSearchParams(searchParams);
+        params.set("collegeId", collegeId.toString());
+        fetch(`/api/dashboard/defense?${params.toString()}`, {
+            method: "GET",
+            cache: "no-store",
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    const loadedDefenses = data.response.map((defense: DefenseData) => ({
+                        ...defense,
+                        startTime: new Date(defense.startTime),
+                        endTime: new Date(defense.endTime),
+                    }));
+                    setDefenseList(loadedDefenses);
+                }
+            })
+            .catch((err) => {
+                toast.error("Error al cargar los datos de las defensas");
+                console.error(err);
+            })
+            .finally(() => setIsFetching(false));
+    }, [searchParams, collegeId]);
+
     const closeDeleteDialog = () => {
         setIsDeleteDialogOpen(false);
     };
 
     const saveDefense = () => {
-        if (!selectedDefense) return;
+        if (!selectedDefense || isUpdating.saving) return;
         setIsUpdating((prev) => ({ ...prev, saving: true }));
         fetch("/api/dashboard/defense", {
             method: selectedDefense.id < 0 ? "POST" : "PUT",
@@ -134,6 +176,14 @@ export default function DefenseList({ className, defenses, defLocations, year, m
                             }
                         })
                     );
+                    if (!locations.find((l) => l.id === newDefense.location.id)) {
+                        setLocations(
+                            produce((draft) => {
+                                draft.push(newDefense.location);
+                                draft.sort((a, b) => a.name.localeCompare(b.name));
+                            })
+                        );
+                    }
                     setSelectedDefense(newDefense);
                 } else {
                     toast.error(data.response);
@@ -149,31 +199,30 @@ export default function DefenseList({ className, defenses, defLocations, year, m
     };
 
     const deleteDefense = () => {
-        if (selectedDefense) {
-            setIsUpdating((prev) => ({ ...prev, deleting: true }));
-            fetch("/api/dashboard/defense", {
-                method: "DELETE",
-                cache: "no-store",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ defenseId: selectedDefense.id }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success) {
-                        toast.success("Defensa eliminada correctamente");
-                        setDefenseList(produce((draft) => draft.filter((defense) => defense.id !== selectedDefense.id)));
-                        setSelectedDefense(null);
-                    } else {
-                        toast.error("Error al eliminar la defensa");
-                    }
-                })
-                .catch(() => {
+        if (!selectedDefense || isUpdating.deleting) return;
+        setIsUpdating((prev) => ({ ...prev, deleting: true }));
+        fetch("/api/dashboard/defense", {
+            method: "DELETE",
+            cache: "no-store",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ defenseId: selectedDefense.id }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    toast.success("Defensa eliminada correctamente");
+                    setDefenseList(produce((draft) => draft.filter((defense) => defense.id !== selectedDefense.id)));
+                    setSelectedDefense(null);
+                } else {
                     toast.error("Error al eliminar la defensa");
-                })
-                .finally(() => setIsUpdating((prev) => ({ ...prev, deleting: false })));
-        }
+                }
+            })
+            .catch(() => {
+                toast.error("Error al eliminar la defensa");
+            })
+            .finally(() => setIsUpdating((prev) => ({ ...prev, deleting: false })));
     };
 
     const canSave = () => {
@@ -276,7 +325,11 @@ export default function DefenseList({ className, defenses, defLocations, year, m
                                     collegeId: -1,
                                     endTime: new Date(),
                                     startTime: new Date(),
-                                    location: locations[0],
+                                    location: {
+                                        id: -1,
+                                        name: "",
+                                        mapLink: null,
+                                    },
                                 });
                                 setDates({
                                     start: parseAbsoluteToLocal(new Date().toISOString()),
@@ -290,7 +343,13 @@ export default function DefenseList({ className, defenses, defLocations, year, m
                         </Button>
                     </div>
                     <div className="relative flex-1 min-h-96 md:h-auto">
-                        {defenseList.length > 0 ? (
+                        {isFetching ? (
+                            <div className="w-full h-full md:pr-8">
+                                <div className="w-full h-full flex items-center justify-center gap-1 bg-black/50 rounded-lg">
+                                    <Spinner color="white" size="lg" />
+                                </div>
+                            </div>
+                        ) : defenseList.length > 0 ? (
                             <SimpleBarAbs className="pr-3">
                                 <ul className="relative flex flex-col gap-2 pr-5">
                                     {defenseList.map((defense) => (
@@ -317,11 +376,13 @@ export default function DefenseList({ className, defenses, defLocations, year, m
                                 </ul>
                             </SimpleBarAbs>
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center gap-1">
-                                No hay defensas para
-                                <span className="text-yellow-500">
-                                    {months[month]} {year}
-                                </span>
+                            <div className="w-full h-full md:pr-8">
+                                <div className="w-full h-full flex items-center justify-center gap-1 bg-black/50 rounded-lg">
+                                    No hay defensas para
+                                    <span className="text-yellow-500">
+                                        {months[month]} {year}
+                                    </span>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -350,14 +411,18 @@ export default function DefenseList({ className, defenses, defLocations, year, m
                                     invalid={selectedDefense.title.length > MAX_DEFENSE_TITLE_LENGTH || selectedDefense.title.length === 0}
                                     onChange={(e) => {
                                         const result = v.safeParse(DefenseDataSchema.entries.title, e.target.value);
-                                        setTitleErrorMessage(result.issues?.[0].message ?? "");
+                                        setErroMessages(
+                                            produce((draft) => {
+                                                draft.title = result.issues?.[0].message ?? "";
+                                            })
+                                        );
 
                                         updateDefense({ title: e.target.value });
                                     }}
                                     value={selectedDefense.title}
                                     className={clsx(HeadlessComplete, "rounded-md")}
                                 />
-                                <span className="error-message">{titleErrorMesasge}</span>
+                                <span className="error-message">{errorMessages.title}</span>
                             </Field>
                             <DatePicker
                                 onChange={(e) => {
@@ -429,7 +494,6 @@ export default function DefenseList({ className, defenses, defLocations, year, m
                                 />
                             </div>
                             <Autocomplete
-                                required
                                 className="max-w-full w-96"
                                 data={locations}
                                 value={selectedDefense.location}
@@ -441,12 +505,61 @@ export default function DefenseList({ className, defenses, defLocations, year, m
                                                 if (draft) draft.location = value;
                                             })
                                         );
+                                    } else {
+                                        setSelectedDefense(
+                                            produce((draft) => {
+                                                if (draft) draft.location = { id: -1, name: "", mapLink: null };
+                                            })
+                                        );
                                     }
                                 }}
                                 displayValue={(location: Location | null) => (location ? location.name : "")}
-                                defaultValue={<div className="text-sm/6 text-default-600">(Nueva categoria)</div>}
+                                defaultValue={<div className="text-sm/6 text-default-600">(Nueva localización)</div>}
                                 label="Localización"
                             />
+                            {selectedDefense.location.id < 0 && (
+                                <div className="mt-3 p-3 rounded-lg border-dashed border-blue-500 border-1">
+                                    Nueva localización
+                                    <Field>
+                                        <Label className={"text-tiny"}>
+                                            Nombre <Required />
+                                        </Label>
+                                        <Input
+                                            invalid={errorMessages.locationName.length > 0}
+                                            onChange={(e) => {
+                                                const result = v.safeParse(DefenseDataSchema.entries.location.entries.name, e.target.value);
+                                                setErroMessages(
+                                                    produce((draft) => {
+                                                        draft.locationName = result.issues?.[0].message ?? "";
+                                                    })
+                                                );
+
+                                                setSelectedDefense(
+                                                    produce((draft) => {
+                                                        if (draft) draft.location.name = e.target.value;
+                                                    })
+                                                );
+                                            }}
+                                            value={selectedDefense.location.name}
+                                            className={clsx(HeadlessComplete, "rounded-md")}></Input>
+                                    </Field>
+                                    <span className="error-message">{errorMessages.locationName}</span>
+                                    <Field className={"mt-2"}>
+                                        <Label className={"text-tiny"}>Link de la localización</Label>
+                                        <Input
+                                            onChange={(e) =>
+                                                setSelectedDefense(
+                                                    produce((draft) => {
+                                                        if (draft) draft.location.mapLink = e.target.value ?? null;
+                                                    })
+                                                )
+                                            }
+                                            value={selectedDefense.location.mapLink ?? ""}
+                                            placeholder="(Opcional)"
+                                            className={clsx(HeadlessComplete, "rounded-md")}></Input>
+                                    </Field>
+                                </div>
+                            )}
                             <div className="flex justify-end mt-4 gap-1">
                                 {selectedDefense.id >= 0 && (
                                     <Button

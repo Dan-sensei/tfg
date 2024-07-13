@@ -1,18 +1,31 @@
 import { badResponse, isNullOrEmpty, successResponse } from "@/app/utils/util";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
-import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
-import { Role } from "@/app/lib/enums";
+import { checkAuthorization, getAuthorizedCollegeId, REQUIRED_ROLES } from "@/app/lib/auth";
+import * as v from "valibot";
+import { DeleteSchema } from "@/app/lib/schemas";
+import { getAllCategoriesWithProjectCount } from "@/app/lib/fetchData";
+
+export async function GET() {
+    try {
+        const { session, response } = await checkAuthorization(REQUIRED_ROLES.ONLY_ADMIN);
+        if (!session) return response;
+        const categories = await getAllCategoriesWithProjectCount();
+        return successResponse(categories);
+    } catch (error) {
+        console.error(error);
+        return badResponse("Error getting locations", 500);
+    }
+}
 
 export async function POST(request: NextRequest) {
-    const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
+    const { session, response } = await checkAuthorization(REQUIRED_ROLES.ONLY_ADMIN);
     if (!session) return response;
 
     try {
         const body = await request.json();
-        
+
         const { newCategoryName } = body;
-        
         const newCategory = await prisma.category.create({
             data: {
                 name: newCategoryName,
@@ -26,7 +39,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-    const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
+    const { session, response } = await checkAuthorization(REQUIRED_ROLES.ONLY_ADMIN);
     if (!session) return response;
     try {
         const body = await request.json();
@@ -52,41 +65,39 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
+    const { session, response } = await checkAuthorization(REQUIRED_ROLES.ONLY_ADMIN);
     if (!session) return response;
 
     try {
         const body = await request.json();
+        const { deleteData } = body;
 
-        const { categoryId, fallbackCategoryId } = body;
-
-        const id = parseInt(categoryId);
-        const fallbackId = parseInt(fallbackCategoryId);
-
-        if (isNaN(id)) return badResponse("Invalid id", 400);
+        const validateResult = v.safeParse(DeleteSchema, deleteData);
+        if (!validateResult.success) return badResponse("Datos incorrectos", 400);
+        const { targetId, fallbackId } = validateResult.output;
 
         const category = await prisma.category.findFirst({
             where: {
-                id: id,
+                id: targetId,
             },
             select: {
                 _count: {
                     select: {
                         tfgs: true,
                     },
-                }
-            }
+                },
+            },
         });
         if (!category) return badResponse("Category doesn't exist", 403);
         const projectCount = category._count.tfgs;
-        
-        if (projectCount > 0 && isNaN(fallbackId)) return badResponse("Invalid fallback category id", 400);
-        
+
+        if (projectCount > 0 && !fallbackId) return badResponse("Invalid fallback category id", 400);
+
         await prisma.$transaction(async (prismaTransaction) => {
-            if (projectCount > 0) {
+            if (projectCount > 0 && fallbackId) {
                 await prismaTransaction.tfg.updateMany({
                     where: {
-                        categoryId: id,
+                        categoryId: targetId,
                     },
                     data: {
                         categoryId: fallbackId,
@@ -96,7 +107,7 @@ export async function DELETE(request: NextRequest) {
 
             await prismaTransaction.category.delete({
                 where: {
-                    id,
+                    id: targetId,
                 },
             });
         });

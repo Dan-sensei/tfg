@@ -61,7 +61,7 @@ type Props = {
     tfg: ProjectFormData | null;
 };
 
-export default function ProjectForm({ college, departments, tutors, titulations, categories, popularTags, tfg }: Props) {
+export default function ProjectForm({ college, authors, departments, tutors, titulations, categories, popularTags, tfg }: Props) {
     const [isMounted, setIsMounted] = useState(false);
     const defaultData = useRef<ProjectFormData | null>(tfg);
     const [bannerFile, setBannerFile] = useState<Blob | null>(null);
@@ -123,7 +123,7 @@ export default function ProjectForm({ college, departments, tutors, titulations,
     const TFG: iDetailsTFG = {
         ...form,
         id: 0,
-        author: [],
+        author: authors,
         tutors: form.tutors,
         department: form.department,
         pages: 0,

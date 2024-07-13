@@ -163,7 +163,7 @@ export default async function TutorArea() {
                             ) : (
                                 <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2 pr-[6px]">
                                     {pendingProjects.map((project) => (
-                                        <li key={project.id} className="relative rounded-md text-sm/6 transition border-1 border-white/5 bg-white/5">
+                                        <li key={project.id} className="relative rounded-md text-sm/6 border-1 border-white/5 bg-white/5">
                                             <DashboardProjectCard project={project} />
                                         </li>
                                     ))}
@@ -183,7 +183,7 @@ export default async function TutorArea() {
                                         return (
                                             <li
                                                 key={project.id}
-                                                className="relative rounded-md text-sm/6 transition border-1 border-white/5 bg-white/5">
+                                                className="relative rounded-md text-sm/6  border-1 border-white/5 bg-white/5">
                                                 <div className="p-3">
                                                     <section className="flex gap-2">
                                                         <div className="h-20 text-center">
@@ -267,7 +267,7 @@ export default async function TutorArea() {
                             ) : (
                                 <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2 pr-[6px]">
                                     {publishedProjects.map((project) => (
-                                        <li key={project.id} className="relative rounded-md text-sm/6 transition border-1 border-white/5 bg-white/5">
+                                        <li key={project.id} className="relative rounded-md text-sm/6 border-1 border-white/5 bg-white/5">
                                             <DashboardProjectCard project={project} />
                                         </li>
                                     ))}

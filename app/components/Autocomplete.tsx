@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import { Combobox, ComboboxInput, ComboboxButton, ComboboxOptions, ComboboxOption, Field, Label } from "@headlessui/react";
 import { Required } from "./BasicComponents";
@@ -7,7 +7,7 @@ import { IconCheck, IconChevronDown } from "@tabler/icons-react";
 
 type ComboboxFieldProps<T> = {
     className?: string;
-    label: string;
+    label?: string;
     placeholder: string;
     data: T[];
     value: T | null;
@@ -30,6 +30,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
     optionsDisplay,
     defaultValue,
 }: ComboboxFieldProps<T>) {
+    const [dataList, setDataList] = useState(data);
     const [query, setQuery] = useState("");
     const defaulOptionsDisplay = (item: T) => {
         return (
@@ -39,13 +40,20 @@ export default function Autocomplete<T extends { id: number; name: string }>({
             </>
         );
     };
-    const filteredData = query === "" ? data : data.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
+    useEffect(() => {
+        setDataList(data);
+    }, [data]);
 
+    const filteredData = query === "" ? dataList : dataList.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
     return (
         <Field className={clsx("mt-3", className)}>
             <Label className="text-sm text-default-600 flex">
-                {label}
-                {required && <Required />}
+                {label && (
+                    <>
+                        {label}
+                        {required && <Required />}
+                    </>
+                )}
             </Label>
             <Combobox
                 immediate

@@ -17,8 +17,12 @@ export const DefenseDataSchema = v.object({
     location: LocationSchema,
 });
 
-
 export const YearMonthSchema = v.object({
     year: v.fallback(v.number(), new Date().getFullYear()),
     month: v.fallback(v.pipe(v.number(), v.minValue(1), v.maxValue(12)), new Date().getMonth() + 1),
+});
+
+export const DeleteSchema = v.object({
+    targetId: v.number("Id inválido"),
+    fallbackId: v.nullable(v.number()),
 });

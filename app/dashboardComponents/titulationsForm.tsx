@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Autocomplete from "../components/Autocomplete";
 import { Titulation, TitulationWithTFGCount } from "../types/interfaces";
 import clsx from "clsx";
@@ -11,16 +11,14 @@ import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import { IconSchool } from "@tabler/icons-react";
 import { isNullOrEmpty } from "../utils/util";
-import { useSession } from "next-auth/react";
+import { useDashboard } from "../contexts/DashboardContext";
 
 type Props = {
     className?: string;
-    titulations: TitulationWithTFGCount[];
 };
 
-export default function TitulationsForm({ titulations, className }: Props) {
-    const { data: session } = useSession();
-    const [titulationsList, setTitulationsList] = useState<TitulationWithTFGCount[]>(titulations);
+export default function TitulationsForm({ className }: Props) {
+    const [titulationsList, setTitulationsList] = useState<TitulationWithTFGCount[]>([]);
     const [selectedTitulation, setSelectedTitulation] = useState<TitulationWithTFGCount | null>(null);
     const [fallbackTitulation, setFallbackTitulation] = useState<TitulationWithTFGCount | null>(null);
     const [newTitulationName, setNewTitulationName] = useState("");
@@ -28,11 +26,34 @@ export default function TitulationsForm({ titulations, className }: Props) {
         saving: false,
         deleting: false,
     });
+    const { collegeId } = useDashboard();
+    const [isFetching, setIsFetching] = useState(true);
+
+    useEffect(() => {
+        setIsFetching(true);
+        fetch(`/api/dashboard/titulation?collegeId=${collegeId}`, {
+            method: "GET",
+            cache: "no-store",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    setTitulationsList(data.response);
+                    setSelectedTitulation(data.response[0] ?? null);
+                }
+                else toast.error(data.response);
+            })
+            .catch((err) => toast.error(err.message))
+            .finally(() => setIsFetching(false));
+    }, [collegeId]);
 
     let [isOpen, setIsOpen] = useState(false);
 
     const openDeleteDialog = () => {
-        if (titulationsList.length > 1 && selectedTitulation) {
+        if (selectedTitulation) {
             setIsOpen(true);
             const defReplace = titulationsList.filter((titulation) => titulation.id !== selectedTitulation.id)[0];
             setFallbackTitulation(defReplace);
@@ -51,6 +72,7 @@ export default function TitulationsForm({ titulations, className }: Props) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
+                collegeId,
                 newTitulationName: newTitulationName,
                 ...(selectedTitulation && { titulationId: selectedTitulation.id }),
             }),
@@ -83,7 +105,7 @@ export default function TitulationsForm({ titulations, className }: Props) {
     };
 
     const deleteTitulation = () => {
-        if (!selectedTitulation || !fallbackTitulation || titulationsList.length <= 1) return;
+        if (!selectedTitulation || !fallbackTitulation) return;
         setIsUpdating((prev) => ({ ...prev, deleting: true }));
 
         fetch("/api/dashboard/titulation", {
@@ -93,10 +115,11 @@ export default function TitulationsForm({ titulations, className }: Props) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                titulationId: selectedTitulation.id,
-                fallbackTitulationId: fallbackTitulation.id,
-                projectCount: selectedTitulation.totalProjects,
-                collegeId: session?.user.collegeId,
+                collegeId,
+                deleteData: {
+                    targetId: selectedTitulation.id,
+                    fallbackId: fallbackTitulation.id,
+                },
             }),
         })
             .then((res) => res.json())
@@ -131,7 +154,8 @@ export default function TitulationsForm({ titulations, className }: Props) {
 
     return (
         <>
-            <div className={clsx(className)}>
+            <div className={clsx(className, isFetching && "opacity-50 pointer-events-none")}>
+                {isFetching && <Spinner color="white" className="absolute top-3 right-3 " />}
                 <Autocomplete
                     data={titulationsList}
                     value={selectedTitulation}
@@ -177,7 +201,11 @@ export default function TitulationsForm({ titulations, className }: Props) {
                     <div className="flex justify-end gap-1 mt-3">
                         {selectedTitulation && (
                             <NextUIButon
-                                className={clsx(BasicButton, DangerButton, "rounded-md", titulationsList.length <= 1 && "opacity-50 pointer-events-none")}
+                                className={clsx(
+                                    BasicButton,
+                                    DangerButton,
+                                    "rounded-md"
+                                )}
                                 variant="flat"
                                 onClick={openDeleteDialog}>
                                 {isUpdating.deleting ? <Spinner size="sm" color="white" /> : "Borrar"}
@@ -186,7 +214,8 @@ export default function TitulationsForm({ titulations, className }: Props) {
                         <NextUIButon
                             onClick={saveTitulation}
                             className={clsx(
-                                BasicButton, "rounded-md",
+                                BasicButton,
+                                "rounded-md",
                                 (isNullOrEmpty(newTitulationName) || newTitulationName === selectedTitulation?.name) &&
                                     "opacity-50 pointer-events-none"
                             )}

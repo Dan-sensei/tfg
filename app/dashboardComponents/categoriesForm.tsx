@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Autocomplete from "../components/Autocomplete";
 import { Category, CategoryWithTFGCount } from "../types/interfaces";
 import clsx from "clsx";
@@ -10,15 +10,14 @@ import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import { IconCategoryMinus } from "@tabler/icons-react";
 import { isNullOrEmpty } from "../utils/util";
+import { useDashboard } from "../contexts/DashboardContext";
 
 type Props = {
     className?: string;
-    categories: CategoryWithTFGCount[];
 };
 
-export default function CategoriesForm({ categories, className }: Props) {
-    
-    const [categoriesList, setCategoriesList] = useState<CategoryWithTFGCount[]>(categories);
+export default function CategoriesForm({ className }: Props) {
+    const [categoriesList, setCategoriesList] = useState<CategoryWithTFGCount[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<CategoryWithTFGCount | null>(null);
     const [fallbackCategory, setFallbackCategory] = useState<CategoryWithTFGCount | null>(null);
     const [newCategoryName, setNewCategoryName] = useState("");
@@ -26,8 +25,32 @@ export default function CategoriesForm({ categories, className }: Props) {
         saving: false,
         deleting: false,
     });
+    const [isFetching, setIsFetching] = useState(true);
 
     let [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        setIsFetching(true);
+        fetch("/api/dashboard/category", {
+            method: "GET",
+            cache: "no-store",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    setCategoriesList(data.response);
+                } else {
+                    toast.error("Error fetching categories");
+                }
+            })
+            .catch((err) => {
+                toast.error(err.message);
+            })
+            .finally(() => setIsFetching(false));
+    }, []);
 
     const openDeleteDialog = () => {
         if (categoriesList.length > 1 && selectedCategory) {
@@ -51,12 +74,12 @@ export default function CategoriesForm({ categories, className }: Props) {
             body: JSON.stringify({
                 newCategoryName: newCategoryName,
                 ...(selectedCategory && { categoryId: selectedCategory.id }),
-            })
+            }),
         })
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    const category = {...data.response, totalProjects: 0};
+                    const category = { ...data.response, totalProjects: 0 };
                     setCategoriesList(
                         produce((draft) => {
                             const target = draft.find((c) => c.id === category.id);
@@ -91,8 +114,10 @@ export default function CategoriesForm({ categories, className }: Props) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                categoryId: selectedCategory.id,
-                fallbackCategoryId: fallbackCategory.id,
+                deleteData: {
+                    targetId: selectedCategory.id,
+                    fallbackId: fallbackCategory.id,
+                },
             }),
         })
             .then((res) => res.json())
@@ -126,7 +151,8 @@ export default function CategoriesForm({ categories, className }: Props) {
 
     return (
         <>
-            <div className={clsx(className)}>
+            <div className={clsx(className, isFetching && "opacity-50 pointer-events-none")}>
+                {isFetching && <Spinner color="white" className="absolute top-3 right-3 " />}
                 <Autocomplete
                     data={categoriesList}
                     value={selectedCategory}
@@ -172,7 +198,12 @@ export default function CategoriesForm({ categories, className }: Props) {
                     <div className="flex justify-end gap-1 mt-3">
                         {selectedCategory && (
                             <Button
-                                className={clsx(BasicButton, DangerButton, "rounded-md", categoriesList.length <= 1 && "opacity-50 pointer-events-none")}
+                                className={clsx(
+                                    BasicButton,
+                                    DangerButton,
+                                    "rounded-md",
+                                    categoriesList.length <= 1 && "opacity-50 pointer-events-none"
+                                )}
                                 onClick={openDeleteDialog}>
                                 {isUpdating.deleting ? <Spinner size="sm" color="white" /> : "Borrar"}
                             </Button>
@@ -180,7 +211,8 @@ export default function CategoriesForm({ categories, className }: Props) {
                         <Button
                             onClick={saveCategory}
                             className={clsx(
-                                BasicButton, "rounded-md",
+                                BasicButton,
+                                "rounded-md",
                                 (isNullOrEmpty(newCategoryName) || newCategoryName === selectedCategory?.name) && "opacity-50 pointer-events-none"
                             )}>
                             {isUpdating.saving ? <Spinner size="sm" color="white" /> : "Guardar"}

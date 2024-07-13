@@ -1,5 +1,4 @@
-import { Category, CategoryWithTFGCount, Department, DepartmentWithTFGCount, FullDepartment, PopularTag, Titulation, TitulationWithTFGCount } from "../types/interfaces";
-import { getValidLimit } from "../utils/util";
+import { Category, CategoryWithTFGCount, DepartmentWithTFGCount, FullCollege, FullDepartment, LocationWithDefenseCount, PopularTag, Titulation, TitulationWithTFGCount } from "../types/interfaces";
 import prisma from "./db";
 
 export const getAllCategories = async () => {
@@ -81,4 +80,29 @@ export const getTopTags = async (number_of_tags: number) => {
     })) as PopularTag[];
 
     return serializedTags;
+};
+
+
+export const getAllLocationsWithDefenseCount= async (collegeId?: number): Promise<LocationWithDefenseCount[]>  => {
+    const locations = (await prisma.location.findMany({
+        where: collegeId ? { collegeId: collegeId } : {},
+        select: { id: true, name: true, mapLink: true, _count: { select: { defenses: true } } },
+        orderBy: { name: "asc" },
+    }));
+
+    return locations.map(location => ({
+        id: location.id,
+        name: location.name,
+        mapLink: location.mapLink,
+        totalDefenses: location._count.defenses,
+    }));
+};
+
+
+export const getAllColleges = async () => {
+    const colleges = (await prisma.college.findMany({
+        select: { id: true, name: true, image: true },
+        orderBy: { name: "asc" },
+    })) as FullCollege[];
+    return colleges;
 };

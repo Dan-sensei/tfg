@@ -304,7 +304,6 @@ export async function PUT(request: NextRequest) {
         return badResponse("Error saving project", 500);
     }
 
-    console.log(projectData);
     const newTFG: ProjectFormData = {
         id: user.personalProjectId,
         thumbnail: projectData.thumbnail,
@@ -341,10 +340,10 @@ export async function PUT(request: NextRequest) {
     return successResponse(newTFG, 200);
 }
 
+// New Project
 export async function POST() {
     const {session, response} = await checkAuthorization();
     if(!session) return response;
-
 
     try {
         const user = await prisma.user.findUnique({

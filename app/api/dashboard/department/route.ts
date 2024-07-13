@@ -1,8 +1,32 @@
 import { badResponse, isNullOrEmpty, successResponse } from "@/app/utils/util";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
-import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
+import {
+    checkAuthorization,
+    checkCanModifyInCollege,
+    checkCanModifyInCollegeWithCount,
+    CheckType,
+    getAuthorizedCollegeId,
+    REQUIRED_ROLES,
+} from "@/app/lib/auth";
 import { Role } from "@/app/lib/enums";
+import * as v from "valibot";
+import { DeleteSchema } from "@/app/lib/schemas";
+import { getAllDepartmentsWithProjectCount } from "@/app/lib/fetchData";
+
+export async function GET(request: NextRequest) {
+    try {
+        const { session, response } = await checkAuthorization(REQUIRED_ROLES.MINIMUM_MANAGER);
+        if (!session) return response;
+
+        const collegeId = getAuthorizedCollegeId(session, request.nextUrl.searchParams.get("collegeId"));
+        const departments = await getAllDepartmentsWithProjectCount(collegeId);
+        return successResponse(departments);
+    } catch (error) {
+        console.error(error);
+        return badResponse("Error getting locations", 500);
+    }
+}
 
 // Create
 export async function POST(request: NextRequest) {
@@ -15,12 +39,11 @@ export async function POST(request: NextRequest) {
         const { newDepartmentName, newLink } = body;
 
         if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
-
-        // TODO: admin can change any college
+        const collegeId = getAuthorizedCollegeId(session, body.collegeId);
         const newDepartment = await prisma.department.create({
             data: {
                 name: newDepartmentName,
-                collegeId: session.user.collegeId,
+                collegeId: collegeId,
                 link: newLink && typeof newLink === "string" ? newLink : null,
             },
         });
@@ -44,17 +67,8 @@ export async function PUT(request: NextRequest) {
         if (isNaN(id)) return badResponse("Invalid department id", 400);
         else if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
 
-        // TODO: admin can change any college
-        if (session.user.role !== Role.ADMIN) {
-            // Check if user is trying to modify a department of another college
-            const department = await prisma.department.findFirst({
-                where: {
-                    id: departmentId,
-                    collegeId: session.user.collegeId,
-                },
-            });
-            if (!department) return badResponse("You are not authorized to update this department or it does not exist", 403);
-        }
+        if (!checkCanModifyInCollege(session, CheckType.DEPARTMENT, id, body.collegeId))
+            return badResponse("You are not authorized to update this department or it does not exist", 403);
 
         const updated = await prisma.department.update({
             where: {
@@ -79,39 +93,20 @@ export async function DELETE(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { departmentId, fallbackDepartmentId } = body;
+        const { deleteData } = body;
 
-        const _departmentId = parseInt(departmentId);
-        const fallbackId = parseInt(fallbackDepartmentId);
+        const validateResult = v.safeParse(DeleteSchema, deleteData);
+        if (!validateResult.success) return badResponse("Datos incorrectos", 400);
+        const { targetId, fallbackId } = validateResult.output;
 
-        if (isNaN(_departmentId)) return badResponse("Invalid department id", 400);
+        const projectCount = await checkCanModifyInCollegeWithCount(session, CheckType.DEPARTMENT, targetId, body.collegeId);
+        if (projectCount === null) return badResponse("You are not authorized to update this department or it does not exist", 403);
 
-        let projectCount = 0;
-        if (session.user.role !== Role.ADMIN) {
-            // Check if user is trying to modify a department of another college
-            // and get the number of projects that are using the department
-            const department = await prisma.department.findFirst({
-                where: {
-                    id: departmentId,
-                    collegeId: session.user.collegeId,
-                },
-                select: {
-                    _count: {
-                        select: {
-                            tfgs: true,
-                        },
-                    }
-                }
-            });
-            if (!department) return badResponse("You are not authorized to update this department or it does not exist", 403);
-            projectCount = department._count.tfgs;
-        }
-        
         await prisma.$transaction(async (prismaTransaction) => {
             if (projectCount > 0 && fallbackId) {
                 await prismaTransaction.tfg.updateMany({
                     where: {
-                        departmentId: _departmentId,
+                        departmentId: targetId,
                     },
                     data: {
                         departmentId: fallbackId,
@@ -121,7 +116,7 @@ export async function DELETE(request: NextRequest) {
 
             await prismaTransaction.department.delete({
                 where: {
-                    id: _departmentId,
+                    id: targetId,
                 },
             });
         });
