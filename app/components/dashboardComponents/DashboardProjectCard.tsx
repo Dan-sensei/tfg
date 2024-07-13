@@ -1,7 +1,7 @@
 "use client";
 import { IconEye, IconStarFilled, IconWriting } from "@tabler/icons-react";
-import { iDashboardProject } from "../types/interfaces";
-import { formatViews } from "../utils/util";
+import { iDashboardProject } from "../../types/interfaces";
+import { formatViews } from "../../utils/util";
 import { Tooltip } from "@nextui-org/tooltip";
 import { Button } from "@nextui-org/button";
 import Link from "next/link";

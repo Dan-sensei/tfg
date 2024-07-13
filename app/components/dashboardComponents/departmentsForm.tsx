@@ -1,18 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-import Autocomplete from "../components/Autocomplete";
-import { Department, DepartmentWithTFGCount, FullDepartment } from "../types/interfaces";
+import Autocomplete from "../Autocomplete";
+import { Department, DepartmentWithTFGCount, FullDepartment } from "../../types/interfaces";
 import clsx from "clsx";
 import { Button, Dialog, DialogBackdrop, DialogPanel, Field, Input, Label } from "@headlessui/react";
 import { Button as NextUIButon } from "@nextui-org/button";
-import { BasicButton, DangerButton, HeadlessComplete } from "../lib/headlessUIStyle";
+import { BasicButton, DangerButton, HeadlessComplete } from "../../lib/headlessUIStyle";
 import { produce } from "immer";
 import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import { IconMicroscope } from "@tabler/icons-react";
-import { isNullOrEmpty } from "../utils/util";
+import { isNullOrEmpty } from "../../utils/util";
 import { useSession } from "next-auth/react";
-import { useDashboard } from "../contexts/DashboardContext";
+import { useDashboard } from "../../contexts/DashboardContext";
 
 type Props = {
     className?: string;

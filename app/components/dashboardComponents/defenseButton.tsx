@@ -3,7 +3,7 @@
 import { Button } from "@headlessui/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { BasicButton } from "../lib/headlessUIStyle";
+import { BasicButton } from "../../lib/headlessUIStyle";
 
 type Props = {
     className?: string;

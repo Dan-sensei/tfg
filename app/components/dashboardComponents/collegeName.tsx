@@ -1,6 +1,6 @@
 "use client";
 
-import { useDashboard } from "../contexts/DashboardContext";
+import { useDashboard } from "../../contexts/DashboardContext";
 
 export default function CollegeName (){
     const { collegeName } = useDashboard();

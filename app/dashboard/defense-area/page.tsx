@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import prisma from "@/app/lib/db";
 import { Role } from "@/app/lib/enums";
-import DefenseButton from "@/app/dashboardComponents/defenseButton";
+import DefenseButton from "@/app/components/dashboardComponents/defenseButton";
 import DefenseList from "./defenseList";
 import { DefenseData, Location } from "@/app/types/interfaces";
 import * as v from "valibot";

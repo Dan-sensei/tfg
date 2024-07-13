@@ -24,7 +24,7 @@ import {
 import { DEF_ICON_SIZE, ROLE_NAMES } from "@/app/types/defaultData";
 import { useSession } from "next-auth/react";
 import { Avatar } from "@nextui-org/avatar";
-import { Role } from "../lib/enums";
+import { Role } from "../../lib/enums";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./SignOutButton";
 import { Button } from "@nextui-org/button";
@@ -32,8 +32,8 @@ import { Divider } from "@nextui-org/divider";
 import clsx from "clsx";
 
 import "simplebar-react/dist/simplebar.min.css";
-import { useDashboard } from "../contexts/DashboardContext";
-import Autocomplete from "../components/Autocomplete";
+import { useDashboard } from "../../contexts/DashboardContext";
+import Autocomplete from "../Autocomplete";
 
 interface Props {
     className?: string;

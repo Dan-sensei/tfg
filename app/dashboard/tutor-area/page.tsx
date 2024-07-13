@@ -17,7 +17,7 @@ import Link from "next/link";
 import { Tooltip } from "@nextui-org/tooltip";
 import { Button } from "@nextui-org/button";
 import SimpleBarAbs from "@/app/components/SimpleBarAbs";
-import DashboardProjectCard from "@/app/dashboardComponents/DashboardProjectCard";
+import DashboardProjectCard from "@/app/components/dashboardComponents/DashboardProjectCard";
 import clsx from "clsx";
 import { Avatar } from "@nextui-org/avatar";
 

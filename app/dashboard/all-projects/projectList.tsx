@@ -2,7 +2,7 @@
 import Autocomplete from "@/app/components/Autocomplete";
 import SimpleBarAbs from "@/app/components/SimpleBarAbs";
 import { useDashboard } from "@/app/contexts/DashboardContext";
-import DashboardProjectCard from "@/app/dashboardComponents/DashboardProjectCard";
+import DashboardProjectCard from "@/app/components/dashboardComponents/DashboardProjectCard";
 import { Role } from "@/app/lib/enums";
 import { FullCollege, iDashboardProject } from "@/app/types/interfaces";
 import { Spinner } from "@nextui-org/spinner";

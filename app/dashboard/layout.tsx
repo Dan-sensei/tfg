@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import DashboardNavigation from "../dashboardComponents/dashboardNavigation";
+import DashboardNavigation from "../components/dashboardComponents/dashboardNavigation";
 import { DashboardProvider } from "../contexts/DashboardContext";
 import { getAllColleges } from "../lib/fetchData";
 

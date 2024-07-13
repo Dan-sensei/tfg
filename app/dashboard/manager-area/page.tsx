@@ -1,8 +1,8 @@
-import CategoriesForm from "@/app/dashboardComponents/categoriesForm";
-import CollegeName from "@/app/dashboardComponents/collegeName";
-import DepartmentsForm from "@/app/dashboardComponents/departmentsForm";
-import LocationsForm from "@/app/dashboardComponents/locationsForm.tsx";
-import TitulationsForm from "@/app/dashboardComponents/titulationsForm";
+import CategoriesForm from "@/app/components/dashboardComponents/categoriesForm";
+import CollegeName from "@/app/components/dashboardComponents/collegeName";
+import DepartmentsForm from "@/app/components/dashboardComponents/departmentsForm";
+import LocationsForm from "@/app/components/dashboardComponents/locationsForm.tsx";
+import TitulationsForm from "@/app/components/dashboardComponents/titulationsForm";
 import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
 import { Role } from "@/app/lib/enums";
 import { Divider } from "@nextui-org/divider";

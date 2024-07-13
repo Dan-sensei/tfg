@@ -2,7 +2,7 @@
 import { Button } from "@nextui-org/button";
 import { IconLogout } from "@tabler/icons-react";
 import { signOut } from "next-auth/react";
-import { DEF_ICON_SIZE } from "../types/defaultData";
+import { DEF_ICON_SIZE } from "../../types/defaultData";
 
 export default function SignOutButton() {
     return (

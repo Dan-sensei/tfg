@@ -47,7 +47,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { SEARCH_INPUT_DELAY } from "@/app/lib/config";
 import toast, { Toaster } from "react-hot-toast";
 import Autocomplete from "@/app/components/Autocomplete";
-import CreateProjectButton from "@/app/components/dashboard/createProject";
+import CreateProjectButton from "@/app/components/dashboardComponents/createProject";
 import SimpleBarAbs from "@/app/components/SimpleBarAbs";
 
 type Props = {

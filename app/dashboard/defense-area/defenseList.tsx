@@ -1,7 +1,7 @@
 "use client";
 
 import SimpleBarAbs from "@/app/components/SimpleBarAbs";
-import DefenseButton from "@/app/dashboardComponents/defenseButton";
+import DefenseButton from "@/app/components/dashboardComponents/defenseButton";
 import { BasicButton, DangerButton, HeadlessBasic, HeadlessComplete, InfoButton, PrimaryButton, SuccessButton } from "@/app/lib/headlessUIStyle";
 import { DefenseData, Location } from "@/app/types/interfaces";
 import {
