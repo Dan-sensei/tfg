@@ -1,9 +1,19 @@
 import { Role } from "../lib/enums";
 
 
+
 export const DAY = 86400;
 
 export const DEF_ICON_SIZE = 18;
+
+export const PAGINATION_SIZE = 30;
+
+
+
+
+
+
+
 
 export const ROLE_NAMES = {
     [Role.STUDENT]: "Estudiante",
@@ -11,6 +21,7 @@ export const ROLE_NAMES = {
     [Role.MANAGER]: "Manager",
     [Role.ADMIN]: "Admin",
 };
+
 
 // Dashboard
 export const MAX_LINK_LENGTH = 350;

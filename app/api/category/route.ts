@@ -1,64 +1,66 @@
 import prisma from "@/app/lib/db";
 import { tfgFields } from "@/app/types/prismaFieldDefs";
-import iRedis from "@/app/lib/iRedis";
 import { badResponse, successResponse } from "@/app/utils/util";
+import { PAGINATION_SIZE } from "@/app/types/defaultData";
+import { TFGStatus } from "@/app/lib/enums";
+import * as v from "valibot";
+import { PaginationSchema } from "@/app/lib/schemas";
+import { NextRequest } from "next/server";
 
-export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const targetId = parseInt(searchParams.get("target") || "", 10);
-    const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
-    const pageSize = Math.max(
-        parseInt(searchParams.get("pageSize") || "3", 10),
-        1
-    );
+export async function GET(request: NextRequest) {
 
-    if (isNaN(targetId)) {
-        return badResponse("Not found", 404);
-    }
+    // Validate input with valibot
+    const validateResult = v.safeParse(PaginationSchema, {
+        currentPage: request.nextUrl.searchParams.get("currentPage"),
+        id: request.nextUrl.searchParams.get("categoryId"),
+    });
+    if (!validateResult.success) return badResponse("Invalid id", 400);
 
-    let result: any = await iRedis.hGetAll(`category:${targetId}`);
-    let categoryData =
-        result && Object.keys(result).length
-            ? {
-                  name: result.name,
-                  totalElements: parseInt(result.totalElements, 10),
-              }
-            : null;
+    const { currentPage, id: CategoryId } = validateResult.output;
 
-    if (!categoryData) {
-        const [category, totalElements] = await Promise.all([
-            prisma.category.findUnique({
-                where: { id: targetId },
-                select: { name: true },
-            }),
-            prisma.tfg.count({ where: { categoryId: targetId } }),
-        ]);
-        if (!category) {
-            throw new Error("Category not found");
-        }
+    try {
+        // Get category name and project count
+        const categoryWithProjectCount = await prisma.category.findUnique({
+            where: { id: CategoryId },
+            select: {
+                name: true,
+                _count: {
+                    select: {
+                        tfgs: {
+                            where: { status: TFGStatus.PUBLISHED },
+                        },
+                    },
+                },
+            },
+        });
 
-        categoryData = {
-            name: category.name,
+        // Category does not exist
+        if (!categoryWithProjectCount) return badResponse("Category not found", 404);
+
+        const {
+            name: categoryName,
+            _count: { tfgs: totalElements },
+        } = categoryWithProjectCount;
+
+        const totalPages = Math.ceil(totalElements / PAGINATION_SIZE);
+        const pageAdjusted = Math.min(currentPage, totalPages) || 1;
+
+        const tfgs = await prisma.tfg.findMany({
+            where: { categoryId: CategoryId, status: TFGStatus.PUBLISHED },
+            select: tfgFields,
+            take: PAGINATION_SIZE,
+            skip: (pageAdjusted - 1) * PAGINATION_SIZE,
+        });
+        
+        return successResponse({
+            tfgs,
+            currentPage: pageAdjusted,
+            pageSize: PAGINATION_SIZE,
             totalElements: totalElements,
-        };
-        await iRedis.hSet(`category:${targetId}`, categoryData);
+            totalPages,
+            title: categoryName,
+        });
+    } catch (e) {
+        return badResponse("Error al cargar la categoria", 500);
     }
-
-    const totalPages = Math.ceil(categoryData.totalElements / pageSize);
-    const pageAdjusted = Math.min(page, totalPages) || 1;
-
-    const tfgs = await prisma.tfg.findMany({
-        where: { categoryId: targetId },
-        select: tfgFields,
-        take: pageSize,
-        skip: (pageAdjusted - 1) * pageSize,
-    });
-    return successResponse({
-        tfgs,
-        page: pageAdjusted,
-        pageSize,
-        totalElements: categoryData.totalElements,
-        totalPages,
-        title: categoryData.name,
-    });
 }

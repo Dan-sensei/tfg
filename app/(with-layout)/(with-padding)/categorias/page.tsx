@@ -3,7 +3,6 @@ import { Category } from "@/app/types/interfaces";
 import { IconBuildingBank } from "@tabler/icons-react";
 import { getAllCategories } from "@/app/lib/fetchData";
 
-
 export default async function Categorias() {
     const categories: Category[] = await getAllCategories();
     return (
@@ -15,17 +14,8 @@ export default async function Categorias() {
                         <Link
                             key={i}
                             href={`/categoria/${c.id}`}
-                            className="rounded-xl flex items-center justify-center text-center transition-all aspect-square border-1 border-white/50 hover:bg-white/10"
-                        >
-                            <div>
-                                <div className="text-center py-4">
-                                    <IconBuildingBank
-                                        className="stroke-1 mx-auto"
-                                        size={64}
-                                    />
-                                </div>
-                                <div className="pb-3">{c.name}</div>
-                            </div>
+                            className="rounded-xl  bg-[#07090c] font-semibold flex items-center justify-center text-center transition-all py-10 border-1 border-white/5 hover:bg-white/10">
+                            <div>{c.name}</div>
                         </Link>
                     );
                 })}

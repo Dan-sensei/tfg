@@ -7,7 +7,7 @@ export enum Social {
     twitter = "twitter",
     youtube = "youtube",
     discord = "discord",
-    facebook = "facebook"
+    facebook = "facebook",
 }
 
 export type SocialsType = v.InferInput<typeof SocialsSchema>;
@@ -23,10 +23,16 @@ export const SocialsSchema = v.object({
     [Social.facebook]: SocialValueSchema,
 });
 
+// Id will be converted to number, if it returns NaN fail validation
+export const PaginationSchema = v.object({
+    currentPage: v.fallback(v.pipe(v.number(), v.toMinValue(1)), 1),
+    id: v.pipe(v.unknown(), v.transform(Number), v.number("Id inválido")),
+});
+
 export const UserProfileSchema = v.object({
     showImage: v.boolean(),
     socials: SocialsSchema,
-    personalPage: SocialValueSchema
+    personalPage: SocialValueSchema,
 });
 
 export const LocationSchema = v.object({
