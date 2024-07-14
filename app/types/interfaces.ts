@@ -92,6 +92,7 @@ export interface User {
     socials?: string | null;
     personalPage?: string | null;
     image: string | null;
+    showImage?: boolean;
 }
 
 export interface FullUser extends User {

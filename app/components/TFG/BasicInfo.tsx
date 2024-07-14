@@ -1,4 +1,7 @@
+import { Social, SocialsType } from "@/app/lib/schemas";
+import { socialsWithIcon } from "@/app/types/defaultComponents";
 import { iDetailsTFG } from "@/app/types/interfaces";
+import { isNullOrEmpty } from "@/app/utils/util";
 import { Button } from "@nextui-org/button";
 import { Divider } from "@nextui-org/divider";
 import { IconChevronRight, IconDownload, IconEye } from "@tabler/icons-react";
@@ -13,13 +16,58 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
                 {TFG.author.length > 0 && (
                     <div className="flex pt-7 ">
                         <div className="font-bold text-xs lg:text-sm text-nova-gray pt-[6px]">AUTOR/ES</div>
-                        <div className="pl-7 font-semibold uppercase text-lg lg:text-xl">
-                            {TFG.author.map((author, index) => (
-                                <React.Fragment key={index}>
-                                    {index != 0 && <Divider className="my-1" />}
-                                    <div>{author.name}</div>
-                                </React.Fragment>
-                            ))}
+                        <div className="pl-7 font-semibold uppercase text-lg lg:text-xl flex flex-col gap-1">
+                            {TFG.author.map((author, index) => {
+                                let socials: SocialsType | null = null;
+                                if (author.socials) {
+                                    try {
+                                        socials = JSON.parse(author.socials);
+                                    } catch (err) {
+                                        console.error(err);
+                                    }
+                                }
+                                const img =
+                                    author.showImage && author.image && author.image.trim() !== "" ? (
+                                        <img className="size-4" src={author.image} alt={author.name} />
+                                    ) : null;
+                                return (
+                                    <div key={index}>
+                                        {index != 0 && <Divider className="my-1" />}
+                                        {author.personalPage ? (
+                                            <Link
+                                                href={author.personalPage}
+                                                className="transition-colors hover:text-nova-link group flex gap-2 items-center"
+                                                target="_blank">
+                                                {img}
+                                                {author.name}
+                                                <IconChevronRight
+                                                    className="inline-block ml-1 mb-1 text-blue-500 stroke-3 duration-400 group-hover:translate-x-1"
+                                                    size={23}
+                                                />
+                                            </Link>
+                                        ) : (
+                                            <div className="flex gap-2">
+                                                {img}
+                                                {author.name}
+                                            </div>
+                                        )}
+                                        <div className="flex gap-2">
+                                            {socials &&
+                                                Object.entries(socials).map(([key, value]) =>
+                                                    isNullOrEmpty(value) ? null : (
+                                                        <a
+                                                            href={value!}
+                                                            key={key}
+                                                            target="_blank"
+                                                            className="transition-colors text-nova-gray hover:text-white">
+                                                            {socialsWithIcon[key as Social]?.icon}
+                                                        </a>
+                                                    )
+                                                )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
@@ -55,7 +103,7 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
                     {TFG.college.name}
                     {TFG.college.image && <img className="ml-2 mb-1" src={TFG.college.image} alt="Universidad de Alicante"></img>}
                 </div>
-              
+
                 {TFG.department && (
                     <div className="flex items-center uppercase font-semibold md:max-w-96">
                         <Link href={TFG.department.link || "#"} target="_blank" className="transition-colors hover:text-nova-link group">

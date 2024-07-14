@@ -1,5 +1,6 @@
 import { Role } from "../lib/enums";
 
+
 export const DAY = 86400;
 
 export const DEF_ICON_SIZE = 18;
@@ -10,7 +11,6 @@ export const ROLE_NAMES = {
     [Role.MANAGER]: "Manager",
     [Role.ADMIN]: "Admin",
 };
-
 
 // Dashboard
 export const MAX_LINK_LENGTH = 350;
@@ -41,6 +41,8 @@ export const MAX_BLOCK_IMAGE_DIMENSIONS = { width: 1000, height: MAX_IMAGE_BLOCK
 export const MIN_IMAGE_BLOCK_HEIGHT = 100;
 
 export const MAX_DEFENSE_TITLE_LENGTH = 50;
+
+export const MAX_SOCIAL_LINK_LENGTH = 70;
 
 export const partialDefaultProjectData = {
     id: -1,

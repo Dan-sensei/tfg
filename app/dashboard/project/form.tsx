@@ -74,6 +74,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
         titulation: titulations[0] ?? null,
     };
 
+
     const filteredTutors =
         tutorQuery === ""
             ? tutors
@@ -139,6 +140,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
     };
 
     useEffect(() => {
+        setIsMounted(true);
         if (!defaultData.current) return;
         const tfgSavedData = localStorage.getItem(`tfg-data-${tfg?.id}`);
         const existingImages: string[] = [];
@@ -183,7 +185,6 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
             }
         }
         deleteNonExistentImagesFromIndexedDB(existingImages);
-        setIsMounted(true);
     }, []);
 
     const validateForm = () => {

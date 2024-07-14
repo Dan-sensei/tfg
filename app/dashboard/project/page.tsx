@@ -40,7 +40,7 @@ export default async function Project() {
                     name: true,
                     image: true,
                     role: true,
-                    personalPage: true,
+                    personalPage: true
                 },
             },
             departments: {
@@ -76,6 +76,8 @@ export default async function Project() {
                     socials: true,
                     image: true,
                     role: true,
+                    showImage: true,
+                    personalPage: true,
                 },
             },
             tutors: {
@@ -157,7 +159,9 @@ export default async function Project() {
             name: author.name,
             image: author.image,
             role: author.role,
-            personalPage: author.socials,
+            socials: author.socials,
+            showImage: author.showImage,
+            personalPage: author.personalPage,
         }));
         tfg = {
             id: tfgRaw.id,

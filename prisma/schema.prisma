@@ -84,6 +84,7 @@ model user {
   image     String?
   email String @unique
   role Int
+  showImage Boolean @default(false)
   socials String?
   personalPage String?
   collegeId Int
