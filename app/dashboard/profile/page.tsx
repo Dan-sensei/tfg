@@ -135,7 +135,7 @@ export default function Profile() {
         <main className="w-full p-5 bg-gray-900 border-white/5 border-1 rounded-lg relative">
             {loading && <Spinner size="md" color="white" className="absolute top-2 right-2 z-10" />}
             <div className="text-3xl">Perfil</div>
-            <div className="text-sm text-nova-gray mb-3">Aquí puedes personalizar tus redes</div>
+            <div className="text-sm text-nova-gray mb-3">Aquí puedes personalizar tus redes. Se actualizarán automáticamente en tu página de proyecto</div>
             <section>
                 <Field className={clsx("flex items-center gap-2 px-3 py-3")}>
                     <Checkbox
