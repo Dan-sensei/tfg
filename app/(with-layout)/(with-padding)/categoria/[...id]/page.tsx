@@ -38,7 +38,6 @@ export default async function Categoria({ params }: { params: { id: string } }) 
                 totalElementsCount={categoryWithProjectCount._count.tfgs}
                 apiRoute="category"
             />
-            ;
         </Suspense>
     );
 }

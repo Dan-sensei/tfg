@@ -6,7 +6,7 @@ export default async function Populars() {
     const projectCount = await getAllPublishedProjectsCount();
     return (
         <Suspense>
-            <ProjectGrid name={"Mejor valorados"} totalElementsCount={projectCount} apiRoute="tfg/most" defOrder="desc" defSortBy="score" />
+            <ProjectGrid showOrderControls={false} name={"Mejor valorados"} totalElementsCount={projectCount} apiRoute="tfg/most" defOrder="desc" defSortBy="score" />
         </Suspense>
     );
 }
