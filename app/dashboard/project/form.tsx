@@ -45,10 +45,10 @@ import * as v from "valibot";
 import { HeadlessComplete } from "@/app/lib/headlessUIStyle";
 import { useDebouncedCallback } from "use-debounce";
 import { SEARCH_INPUT_DELAY } from "@/app/lib/config";
-import toast, { Toaster } from "react-hot-toast";
 import Autocomplete from "@/app/components/Autocomplete";
 import CreateProjectButton from "@/app/components/dashboardComponents/createProject";
 import SimpleBarAbs from "@/app/components/SimpleBarAbs";
+import { useToast } from "@/app/contexts/ToasterContext";
 
 type Props = {
     college: FullCollege;
@@ -73,6 +73,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
         category: categories[0] ?? null,
         titulation: titulations[0] ?? null,
     };
+    const { toast } = useToast();
 
 
     const filteredTutors =
@@ -908,16 +909,6 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                     </NextUIButton>
                 </div>
             )}
-            <Toaster
-                toastOptions={{
-                    className: "border-white/10 border-1 ",
-                    style: {
-                        borderRadius: "10px",
-                        background: "#1a1a1a",
-                        color: "#fff",
-                    },
-                }}
-            />
         </>
     );
 }

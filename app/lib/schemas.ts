@@ -24,9 +24,12 @@ export const SocialsSchema = v.object({
 });
 
 // Id will be converted to number, if it returns NaN fail validation
+export const IdSchema = v.pipe(v.unknown(), v.transform(Number), v.number("Id inválido"));
+
 export const PaginationSchema = v.object({
-    currentPage: v.fallback(v.pipe(v.number(), v.toMinValue(1)), 1),
-    id: v.pipe(v.unknown(), v.transform(Number), v.number("Id inválido")),
+    currentPage: v.fallback(v.pipe(v.unknown(), v.transform(Number), v.number(), v.toMinValue(1)), 1),
+    totalElements: v.pipe(v.unknown(), v.transform(Number), v.number()),
+    id: IdSchema
 });
 
 export const UserProfileSchema = v.object({

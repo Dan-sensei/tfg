@@ -8,7 +8,6 @@ import clsx from "clsx";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
 import * as v from "valibot";
-import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import TFG_BasicInfo from "@/app/components/TFG/BasicInfo";
 import { useSession } from "next-auth/react";
@@ -16,6 +15,7 @@ import { iDetailsTFG, iTFG } from "@/app/types/interfaces";
 import { DEF_BANNER, MAX_SOCIAL_LINK_LENGTH } from "@/app/types/defaultData";
 import { socialsWithIcon } from "@/app/types/defaultComponents";
 import SocialInput from "./socialInput";
+import { useToast } from "@/app/contexts/ToasterContext";
 
 const getSocialValues = (socialWithIcon: Record<Social, { icon: JSX.Element; value: string | null }>) => {
     return Object.keys(socialsWithIcon).reduce((acc, key) => {
@@ -31,6 +31,7 @@ export default function Profile() {
     const [loading, setLoading] = useState(true);
     const [failed, setFailed] = useState(false);
     const [personalPage, setPersonalPage] = useState<string | null>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         fetch("/api/dashboard/user-profile", {
@@ -133,16 +134,6 @@ export default function Profile() {
     return (
         <main className="w-full p-5 bg-gray-900 border-white/5 border-1 rounded-lg relative">
             {loading && <Spinner size="md" color="white" className="absolute top-2 right-2 z-10" />}
-            <Toaster
-                toastOptions={{
-                    className: "border-white/10 border-1 ",
-                    style: {
-                        borderRadius: "10px",
-                        background: "#1a1a1a",
-                        color: "#fff",
-                    },
-                }}
-            />
             <div className="text-3xl">Perfil</div>
             <div className="text-sm text-nova-gray mb-3">Aquí puedes personalizar tus redes</div>
             <section>

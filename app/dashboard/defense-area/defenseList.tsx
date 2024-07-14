@@ -27,7 +27,6 @@ import { DatePicker } from "@nextui-org/date-picker";
 import { Time, parseZonedDateTime, parseAbsoluteToLocal, parseAbsolute, getLocalTimeZone, ZonedDateTime } from "@internationalized/date";
 import { original, produce } from "immer";
 import { IconCalendarMinus, IconCalendarPlus, IconCheck, IconChevronDown, IconClock, IconPlus } from "@tabler/icons-react";
-import toast, { Toaster } from "react-hot-toast";
 import Autocomplete from "@/app/components/Autocomplete";
 import { CharacterCounter, Required } from "@/app/components/BasicComponents";
 import { Spinner } from "@nextui-org/spinner";
@@ -37,6 +36,7 @@ import { MAX_DEFENSE_TITLE_LENGTH } from "@/app/types/defaultData";
 import * as v from "valibot";
 import { DefenseDataSchema } from "@/app/lib/schemas";
 import { useDashboard } from "@/app/contexts/DashboardContext";
+import { useToast } from "@/app/contexts/ToasterContext";
 
 type Props = {
     className?: string;
@@ -80,6 +80,7 @@ export default function DefenseList({ className, year, month }: Props) {
     const { replace } = useRouter();
     const searchParams = useSearchParams();
     const [isFetching, setIsFetching] = useState(true);
+    const { toast } = useToast();
 
     const [dates, setDates] = useState<datesType>({
         start: parseAbsoluteToLocal(new Date().toISOString()),
@@ -623,16 +624,6 @@ export default function DefenseList({ className, year, month }: Props) {
                     </div>
                 </div>
             </Dialog>
-            <Toaster
-                toastOptions={{
-                    className: "border-white/10 border-1 ",
-                    style: {
-                        borderRadius: "10px",
-                        background: "#1a1a1a",
-                        color: "#fff",
-                    },
-                }}
-            />
         </>
     );
 }

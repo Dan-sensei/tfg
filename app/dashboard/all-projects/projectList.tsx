@@ -69,16 +69,6 @@ export default function ProjectList() {
                     </div>
                 )}
             </div>
-            <Toaster
-                toastOptions={{
-                    className: "border-white/10 border-1 ",
-                    style: {
-                        borderRadius: "10px",
-                        background: "#1a1a1a",
-                        color: "#fff",
-                    },
-                }}
-            />
         </>
     );
 }

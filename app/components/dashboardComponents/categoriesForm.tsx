@@ -6,11 +6,10 @@ import clsx from "clsx";
 import { Button, Dialog, DialogBackdrop, DialogPanel, Field, Input, Label } from "@headlessui/react";
 import { BasicButton, DangerButton, HeadlessComplete } from "../../lib/headlessUIStyle";
 import { produce } from "immer";
-import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import { IconCategoryMinus } from "@tabler/icons-react";
 import { isNullOrEmpty } from "../../utils/util";
-import { useDashboard } from "../../contexts/DashboardContext";
+import { useToast } from "@/app/contexts/ToasterContext";
 
 type Props = {
     className?: string;
@@ -26,7 +25,7 @@ export default function CategoriesForm({ className }: Props) {
         deleting: false,
     });
     const [isFetching, setIsFetching] = useState(true);
-
+    const { toast } = useToast();
     let [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
@@ -221,16 +220,6 @@ export default function CategoriesForm({ className }: Props) {
                         </Button>
                     </div>
                 </section>
-                <Toaster
-                    toastOptions={{
-                        className: "border-white/10 border-1 ",
-                        style: {
-                            borderRadius: "10px",
-                            background: "#1a1a1a",
-                            color: "#fff",
-                        },
-                    }}
-                />
             </div>
             <Dialog open={isOpen} as="div" className="relative z-10 focus:outline-none" onClose={closeDeleteDialog}>
                 <DialogBackdrop className="fixed inset-0 bg-black/50" />

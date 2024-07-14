@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Category } from "@/app/types/interfaces";
 import { IconBuildingBank } from "@tabler/icons-react";
 import { getAllCategories } from "@/app/lib/fetchData";
+import { sanitizeString } from "@/app/utils/util";
 
 export default async function Categorias() {
     const categories: Category[] = await getAllCategories();
@@ -13,7 +14,7 @@ export default async function Categorias() {
                     return (
                         <Link
                             key={i}
-                            href={`/categoria/${c.id}`}
+                            href={`/categoria/${c.id}/${sanitizeString(c.name)}`}
                             className="rounded-xl  bg-[#07090c] font-semibold flex items-center justify-center text-center transition-all py-10 border-1 border-white/5 hover:bg-white/10">
                             <div>{c.name}</div>
                         </Link>

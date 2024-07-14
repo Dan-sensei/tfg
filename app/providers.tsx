@@ -2,6 +2,7 @@
 
 import { NextUIProvider } from "@nextui-org/system";
 import { FavoritesProvider } from "./contexts/FavoritesContext";
+import { ToasterdProvider } from "./contexts/ToasterContext";
 
 type Props = {
     children: React.ReactNode;
@@ -11,7 +12,7 @@ export function Providers({ children, className }: Props) {
     return (
         <NextUIProvider locale="es-ES" className={className}>
             <FavoritesProvider>
-                {children}
+                <ToasterdProvider>{children}</ToasterdProvider>
             </FavoritesProvider>
         </NextUIProvider>
     );

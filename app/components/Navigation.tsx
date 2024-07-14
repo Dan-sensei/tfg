@@ -90,7 +90,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
 
                     <div className="col-span-3 flex flex-col gap-4">
                         <div className="flex-1">
-                            <Button href="#" className="w-full h-full font-bold text-nova-link" color="primary" variant="ghost">
+                            <Button as={Link} href="/titulations" className="w-full h-full font-bold text-nova-link" color="primary" variant="ghost">
                                 Titulaciones
                             </Button>
                         </div>

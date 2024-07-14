@@ -15,8 +15,8 @@ import { ChangeEvent, KeyboardEventHandler, useEffect, useState } from "react";
 import SimpleBar from "simplebar-react";
 import { Spinner } from "@nextui-org/spinner";
 import { Modal, ModalBody, ModalContent, useDisclosure } from "@nextui-org/modal";
-import toast, { Toaster } from "react-hot-toast";
 import Chatbox from "@/app/components/dashboardComponents/Chatbox";
+import { useToast } from "@/app/contexts/ToasterContext";
 
 interface ReadonlyExtraInfo {
     readonly status: TFGStatus;
@@ -36,6 +36,7 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [isUpdating, setIsUpdating] = useState(false);
     const [status, setStatus] = useState(extraInfo.status);
+    const { toast } = useToast();
 
     const publish = () => {
         if (status !== TFGStatus.SENT_FOR_REVIEW || isUpdating) return;
@@ -98,16 +99,6 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
 
     return (
         <>
-            <Toaster
-                toastOptions={{
-                    className: "border-white/10 border-1 ",
-                    style: {
-                        borderRadius: "10px",
-                        background: "#1a1a1a",
-                        color: "#fff",
-                    },
-                }}
-            />
             <Modal isOpen={isOpen} placement="top-center" size="4xl" onOpenChange={onOpenChange}>
                 <ModalContent className="bg-transparent">
                     {(onClose) => (

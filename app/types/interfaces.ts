@@ -164,6 +164,12 @@ export type Titulation = {
 export interface TitulationWithTFGCount extends Titulation {
     totalProjects: number;
 }
+export interface TitulationByCollege {
+    collegeId: number;
+    collegeName: string;
+    titulations: Titulation[];
+}
+
 export type RedisCategoryData = {
     name: string;
     totalElements: number;
