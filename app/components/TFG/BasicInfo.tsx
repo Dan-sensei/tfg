@@ -117,7 +117,7 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
                 )}
             </section>
 
-            <section className="pt-3 md:pt-7 flex flex-wrap gap-2 justify-center md:justify-start">
+            <section className="pt-3 md:pt-7 flex flex-wrap gap-2 justify-start">
                 <Button
                     as={Link}
                     href={TFG.documentLink}
@@ -125,7 +125,7 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
                     target="_blank"
                     radius="sm"
                     className="bg-nova-button text-nova-light font-semibold">
-                    <IconEye size={20} /> <span className="hidden md:inline">Ver memoria</span>
+                    <IconEye size={20} /> <span className="">Ver memoria</span>
                 </Button>
             </section>
             <section className="pt-5 flex flex-wrap gap-2 md:max-w-96">

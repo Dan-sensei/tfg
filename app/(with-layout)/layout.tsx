@@ -41,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     const topCategories: CategoryLink[] = await getPopularCategories();
 
     return (
-        <main className="flex flex-col w-full h-full min-h-lvh bg-nova-gradient antialiased">
+        <main className="flex flex-col w-full h-full min-h-lvh bg-nova-gradient antialiased overflow-hidden">
             <Navigation categoriesList={topCategories} />
             <section className="bg-grid flex-1 flex">
                 <div className="w-full">{children}</div>
