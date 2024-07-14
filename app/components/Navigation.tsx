@@ -18,6 +18,7 @@ import {
     IconStarFilled,
     IconEyeUp,
     IconSchool,
+    IconTopologyRing2,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
@@ -224,7 +225,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                     <NavbarContent className="lg:hidden pr-3" justify="center">
                         <NavbarBrand>
                             <Link href={links[0].href}>
-                                <Image src={Logo} alt="Logo" height={55} />
+                                <IconTopologyRing2 className="stroke-[#258fe6]" size={50} />
                             </Link>
                         </NavbarBrand>
                     </NavbarContent>
@@ -232,7 +233,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                     <NavbarContent className="hidden lg:flex gap-4" justify="center">
                         <NavbarBrand className="py-2">
                             <Link href={links[0].href}>
-                                <Image src={Logo} alt="Logo" height={50} />
+                                <IconTopologyRing2 className="stroke-[#258fe6]" size={50} />
                             </Link>
                         </NavbarBrand>
                         {links.map((link, index) => (
