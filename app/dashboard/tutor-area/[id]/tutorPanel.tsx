@@ -9,7 +9,7 @@ import { Avatar } from "@nextui-org/avatar";
 import { Button as NextUIButon } from "@nextui-org/button";
 import TextareaAutosize from "react-textarea-autosize";
 
-import { IconArchiveFilled, IconBookUpload, IconCheck, IconEye, IconEyeX, IconSend2, IconX } from "@tabler/icons-react";
+import { IconArchiveFilled, IconBookUpload, IconCheck, IconCircleFilled, IconEye, IconEyeX, IconSend2, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 import { ChangeEvent, KeyboardEventHandler, useEffect, useState } from "react";
 import SimpleBar from "simplebar-react";
@@ -20,18 +20,17 @@ import { useToast } from "@/app/contexts/ToasterContext";
 
 interface ReadonlyExtraInfo {
     readonly status: TFGStatus;
-    readonly reviewMessages: ReviewMessageType[];
     readonly category: Category;
     readonly titulation: Titulation;
 }
 
 interface TutorPanelProps {
     readonly extraInfo: ReadonlyExtraInfo;
+    readonly hasUnreadMessages: boolean;
     readonly TFG: iDetailsTFG;
-    readonly userId: number;
 }
 
-export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) {
+export default function TutorPanel({ TFG, extraInfo, hasUnreadMessages }: TutorPanelProps) {
     const [showPreview, setShowPreview] = useState(false);
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [isUpdating, setIsUpdating] = useState(false);
@@ -70,9 +69,10 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                     toast.success("TFG publicado");
                     setStatus(TFGStatus.PUBLISHED);
                 } else {
-                    toast.error("La publicación ha fallado");
+                    toast.error(data.response);
                 }
-            }).finally(() => setIsUpdating(false));
+            })
+            .finally(() => setIsUpdating(false));
     };
 
     const revert = () => {
@@ -94,7 +94,8 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                 } else {
                     toast.error("La reversión ha fallado");
                 }
-            }).finally(() => setIsUpdating(false));
+            })
+            .finally(() => setIsUpdating(false));
     };
 
     return (
@@ -110,8 +111,8 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                                             <div className="flex justify-center pb-5">
                                                 <IconArchiveFilled className="" size={70}></IconArchiveFilled>
                                             </div>
-                                            Al hacer clic en &quot;<span className="text-warning-400">Revertir</span>,&quot; se ocultará el proyecto de la parte
-                                            pública y el alumno <span className="text-teal-500">podrá modificarlo</span>
+                                            Al hacer clic en &quot;<span className="text-warning-400">Revertir</span>,&quot; se ocultará el proyecto
+                                            de la parte pública y el alumno <span className="text-teal-500">podrá modificarlo</span>
                                         </div>
                                         <div className="text-center pt-5">¿Estás seguro de que quieres continuar?</div>
                                         <div className="flex justify-center">
@@ -126,9 +127,9 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                                             <div className="flex justify-center pb-5">
                                                 <IconBookUpload className="" size={70}></IconBookUpload>
                                             </div>
-                                            Al hacer clic en &quot;<span className="text-teal-500">Publicar</span>&quot;, el trabajo será visible públicamente y
-                                            el alumno <span className="text-warning-400">no podrá modificarlo</span>. Solo un tutor, manager o
-                                            administrador podrá marcarlo nuevamente como &quot;Borrador&quot; para permitir modificaciones.
+                                            Al hacer clic en &quot;<span className="text-teal-500">Publicar</span>&quot;, el trabajo será visible
+                                            públicamente y el alumno <span className="text-warning-400">no podrá modificarlo</span>. Solo un tutor,
+                                            manager o administrador podrá marcarlo nuevamente como &quot;Borrador&quot; para permitir modificaciones.
                                         </div>
                                         <div className="text-center pt-5">¿Estás seguro de que quieres continuar?</div>
                                         <div className="flex justify-center">
@@ -167,7 +168,8 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                         <Tab className="rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none data-[selected]:bg-white/10 data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-white/10 data-[focus]:outline-1 data-[focus]:outline-white">
                             Información
                         </Tab>
-                        <Tab className="rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none data-[selected]:bg-white/10 data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-white/10 data-[focus]:outline-1 data-[focus]:outline-white">
+                        <Tab className="relative rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none data-[selected]:bg-white/10 data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-white/10 data-[focus]:outline-1 data-[focus]:outline-white">
+                            {hasUnreadMessages && <IconCircleFilled className="text-blue-500 absolute top-0 right-0" size={10} />}
                             Mensajes
                         </Tab>
                     </TabList>
@@ -241,7 +243,7 @@ export default function TutorPanel({ TFG, extraInfo, userId }: TutorPanelProps) 
                             </SimpleBar>
                         </TabPanel>
                         <TabPanel className="h-full flex flex-col">
-                            <Chatbox userId={userId} tfgId={TFG.id} defReviewMessages={extraInfo.reviewMessages} />
+                            <Chatbox tfgId={TFG.id} />
                         </TabPanel>
                     </TabPanels>
                 </TabGroup>

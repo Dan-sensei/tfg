@@ -2,13 +2,11 @@ import { getServerSession } from "next-auth";
 import ProjectForm from "./form";
 import prisma from "@/app/lib/db";
 import { authOptions } from "@/app/lib/authOptions";
-import { Role } from "@/app/lib/enums";
+import { Role, TFGStatus } from "@/app/lib/enums";
 import { Category, Titulation, FullDepartment, FullUser, ProjectFormData } from "@/app/types/interfaces";
 import { getTopTags } from "@/app/lib/fetchData";
 import { redirect } from "next/navigation";
 import { BlockInfo, TFG_BLockElement } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
-
-
 
 export default async function Project() {
     const session = await getServerSession(authOptions);
@@ -40,7 +38,7 @@ export default async function Project() {
                     name: true,
                     image: true,
                     role: true,
-                    personalPage: true
+                    personalPage: true,
                 },
             },
             departments: {
@@ -69,6 +67,7 @@ export default async function Project() {
             banner: true,
             title: true,
             description: true,
+            status: true,
             authors: {
                 select: {
                     id: true,
@@ -195,6 +194,7 @@ export default async function Project() {
             titulations={titulations}
             categories={categories}
             popularTags={popularTags.map((t) => t.tag)}
+            projectStatus={tfgRaw ? tfgRaw.status : null}
         />
     );
 }

@@ -64,7 +64,7 @@ export default function LocationsForm({ className }: Props) {
                 console.log(err);
             })
             .finally(() => setIsFetching(false));
-    }, [collegeId]);
+    }, [collegeId, isInitialized]);
 
     const canSave =
         !isNullOrEmpty(newLocationData.name) &&

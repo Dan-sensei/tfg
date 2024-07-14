@@ -59,7 +59,7 @@ export default function DepartmentsForm({ className }: Props) {
             })
             .catch((err) => toast.error(err.message))
             .finally(() => setIsFetching(false));
-    }, [collegeId]);
+    }, [collegeId, isInitialized]);
 
     const canSave =
         !isNullOrEmpty(newDepartmentData.name) &&

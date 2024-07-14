@@ -50,7 +50,7 @@ export default function TitulationsForm({ className }: Props) {
             })
             .catch((err) => toast.error(err.message))
             .finally(() => setIsFetching(false));
-    }, [collegeId]);
+    }, [collegeId, isInitialized]);
 
     let [isOpen, setIsOpen] = useState(false);
 

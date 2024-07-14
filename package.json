@@ -56,6 +56,7 @@
         "react-textarea-autosize": "^8.5.3",
         "sharp": "^0.33.4",
         "simplebar-react": "^3.2.5",
+        "superjson": "^2.2.1",
         "use-debounce": "^10.0.0",
         "valibot": "^0.35.0",
         "viewerjs": "^1.11.6"

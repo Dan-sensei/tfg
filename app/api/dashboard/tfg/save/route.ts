@@ -34,7 +34,6 @@ interface FileToSave {
 
 const removeFilesExcept = (directoryPath: string, whitelist: string[]) => {
     const files = fs.readdirSync(directoryPath);
-    console.log(files);
     for (const file of files) {
         if (!whitelist.includes(file)) {
             console.log(file);
@@ -67,7 +66,6 @@ function restoreFilesWihoutOverwrite(directoryPath: string, filesToRestore: stri
 
 function restoreUserFolder(directoryPath: string, filesToRestore: string[]) {
     const files = fs.readdirSync(directoryPath);
-    console.log(files.filter((file) => file.startsWith(BACKUP_PREFIX)));
 
     removeFilesExcept(
         directoryPath,
@@ -136,10 +134,18 @@ export async function PUT(request: NextRequest) {
     const user = await prisma.user.findUnique({
         where: { id: session.user.uid },
         select: {
-            personalProjectId: true,
+            personalProject: {
+                select: {
+                    id: true,
+                    status: true
+                }
+            },
         },
     });
-    if (!user || user.personalProjectId === null) return badResponse("Project doesn't exist", 400);
+    if (!user || user.personalProject === null) return badResponse("El proyecto no existe", 400);
+    if(user.personalProject.status === TFGStatus.PUBLISHED){
+        return badResponse("El proyecto ya sido publicado", 400);
+    }
 
     const data = await request.formData();
 
@@ -242,7 +248,7 @@ export async function PUT(request: NextRequest) {
         }));
         // Fetch existing tutors for the TFG
         const existingTutors = await prisma.tutorTFG.findMany({
-            where: { tfgId: user.personalProjectId },
+            where: { tfgId: user.personalProject.id },
             select: { userId: true },
         });
         const existingTutorIds = existingTutors.map((tutor) => tutor.userId);
@@ -250,9 +256,9 @@ export async function PUT(request: NextRequest) {
         const tutorsToRemove = existingTutorIds.filter((id) => !projectData.tutors.includes(id));
         const tutorsToAdd = projectData.tutors.filter((id) => !existingTutorIds.includes(id));
         await prisma.$transaction(async (prismaTransaction) => {
-            const tfgId = user.personalProjectId;
+            const tfgId = user.personalProject?.id;
 
-            if (tfgId === null) {
+            if (!tfgId) {
                 return badResponse(`Project doesn't exist`, 500);
             }
 
@@ -305,7 +311,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const newTFG: ProjectFormData = {
-        id: user.personalProjectId,
+        id: user.personalProject.id,
         thumbnail: projectData.thumbnail,
         banner: projectData.banner,
         title: projectData.title,

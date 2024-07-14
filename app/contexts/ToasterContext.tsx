@@ -13,6 +13,7 @@ export function ToasterdProvider({ children }: { children: React.ReactNode }) {
         <ToastContext.Provider value={{ toast }}>
             <Toaster
                 toastOptions={{
+                    duration: 7000,
                     className: "border-white/10 border-1 ",
                     style: {
                         borderRadius: "10px",

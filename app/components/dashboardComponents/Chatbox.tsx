@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SimpleBar from "simplebar-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { IconCheck, IconSend2, IconX } from "@tabler/icons-react";
@@ -10,7 +10,7 @@ import { Button } from "@headlessui/react";
 import { Spinner } from "@nextui-org/spinner";
 import "simplebar-react/dist/simplebar.min.css";
 import { useDebouncedCallback } from "use-debounce";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, set } from "date-fns";
 import { es } from "date-fns/locale";
 import React from "react";
 import { ReviewMessageType } from "@/app/types/interfaces";
@@ -18,6 +18,7 @@ import { CHATBOX_REFRESH_INTERVAL } from "@/app/types/defaultData";
 import { isNullOrEmpty, toFirstLetterUppercase } from "@/app/utils/util";
 import ReviewMessageBox from "./ReviewMessageBox";
 import { HeadlessBasic } from "@/app/lib/headlessUIStyle";
+import { useSession } from "next-auth/react";
 
 type EditMessage = {
     id: number;
@@ -25,15 +26,13 @@ type EditMessage = {
     newValue: string;
 };
 type Props = {
-    userId: number;
     tfgId: number;
-    defReviewMessages: ReviewMessageType[];
 };
 
 type MessagesByDay = {
     date: string;
     messages: ReviewMessageType[];
-}
+};
 
 const getIdsFromMessages = (messages: ReviewMessageType[]): number[] => {
     return messages.map((message) => message.id).sort((a, b) => a - b);
@@ -46,26 +45,24 @@ const areMessageIdArraysEqual = (arr1: ReviewMessageType[], arr2: ReviewMessageT
     if (ids1.length !== ids2.length) {
         return false;
     }
-    console.log("checking if arrays are equal");
-    console.log(ids1, ids2)
     for (let i = 0; i < ids1.length; i++) {
         if (ids1[i] !== ids2[i]) {
-            console.log("not equal")
+            console.log("not equal");
             return false;
         }
     }
-
-    console.log("equal")
     return true;
 };
 
-export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
+export default function Chatbox({ tfgId }: Props) {
+    const { data: session } = useSession();
     const [message, setMessage] = useState<string>("");
-    const [reviewMessages, setReviewMessages] = useState<ReviewMessageType[]>(defReviewMessages);
+    const [reviewMessages, setReviewMessages] = useState<ReviewMessageType[]>([]);
     const [isSending, setIsSending] = useState(false);
     const [showEdit, setShowEdit] = useState<EditMessage | null>(null);
     const simplebar = useRef<any>(null);
     const abortController = useRef<AbortController | null>(null);
+    const [isFetching, setIsFetching] = useState(true);
 
     useEffect(() => {
         const checkNewMessages = () => {
@@ -78,6 +75,9 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
             })
                 .then((response) => response.json())
                 .then((json) => {
+                    if (isFetching) {
+                        setIsFetching(false);
+                    }
                     if (json.success) {
                         const newMessages: ReviewMessageType[] = json.response;
                         if (!areMessageIdArraysEqual(reviewMessages, newMessages)) {
@@ -92,6 +92,7 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
                 });
         };
 
+        checkNewMessages();
         const intervalId = setInterval(checkNewMessages, CHATBOX_REFRESH_INTERVAL);
         return () => {
             clearInterval(intervalId);
@@ -142,8 +143,8 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
     };
 
     const checkUnreadMessages = useDebouncedCallback(() => {
-        console.log("checking unread messages");
-        const unreadMessages = reviewMessages.filter((message) => message.readBy.includes(userId) === false).map((message) => message.id);
+        if (!session) return;
+        const unreadMessages = reviewMessages.filter((message) => message.readBy.includes(session.user.uid) === false).map((message) => message.id);
         if (unreadMessages.length > 0) {
             fetch(`/api/dashboard/read-message`, {
                 signal: abortController.current?.signal,
@@ -161,7 +162,7 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
                                 unreadMessages.forEach((messageId) => {
                                     const message = draft.find((message) => message.id === messageId);
                                     if (message) {
-                                        message.readBy.push(userId);
+                                        message.readBy.push(session.user.uid);
                                     }
                                 });
                             })
@@ -177,7 +178,6 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
     }, 500);
 
     useEffect(() => {
-        console.log("scrolling to bottom");
         if (simplebar.current) {
             const scrollElement = simplebar.current.contentWrapperEl;
             scrollElement.scrollTop = scrollElement.scrollHeight;
@@ -246,15 +246,7 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Enter") {
-            if (event.shiftKey) {
-                showEdit
-                    ? setShowEdit(
-                          produce((draft) => {
-                              if (draft) draft.newValue = draft.newValue + "\n";
-                          })
-                      )
-                    : setMessage((prevMessage) => prevMessage + "\n");
-            } else {
+            if (!event.shiftKey) {
                 event.preventDefault();
                 showEdit ? editMessage() : sendMessage();
             }
@@ -282,7 +274,7 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
 
     const groupByDay = (messages: ReviewMessageType[]): MessagesByDay[] => {
         const grouped: Record<string, ReviewMessageType[]> = messages.reduce((acc, message) => {
-            const localDate = format(parseISO(message.createdAt.toISOString()), 'MMM d', { locale: es });
+            const localDate = format(parseISO(message.createdAt.toISOString()), "MMM d", { locale: es });
             const formattedDate = toFirstLetterUppercase(localDate);
             if (!acc[formattedDate]) {
                 acc[formattedDate] = [];
@@ -290,20 +282,24 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
             acc[formattedDate].push(message);
             return acc;
         }, {} as Record<string, ReviewMessageType[]>);
-    
-        return Object.keys(grouped).map(date => ({
+
+        return Object.keys(grouped).map((date) => ({
             date,
-            messages: grouped[date]
+            messages: grouped[date],
         }));
     };
 
     const groupedMessages = groupByDay(reviewMessages);
-    
+
     return (
         <>
             <div className="flex-1 rounded-xl bg-dark-grid relative">
                 <div className=" absolute top-0 bottom-0 left-0 right-0">
-                    {reviewMessages.length === 0 ? (
+                    {isFetching ? (
+                        <div className="h-full flex items-center justify-center w-full text-center text-gray-400">
+                            <Spinner color="white" />
+                        </div>
+                    ) : reviewMessages.length === 0 ? (
                         <div className="h-full flex items-center justify-center w-full text-center text-gray-400">Todavía no hay mensajes</div>
                     ) : (
                         <SimpleBar ref={simplebar} autoHide={false} className="h-full pr-4">
@@ -311,15 +307,17 @@ export default function Chatbox({ userId, tfgId, defReviewMessages }: Props) {
                                 {groupedMessages.map((group) => (
                                     <React.Fragment key={group.date}>
                                         <div className="text-gray-400 w-full text-center">
-                                            <div className="text-sm inline-block text-white mt-2 mb-1 py-1 border-1 border-white/20 bg-black/50 rounded-full px-5">{group.date}</div>
+                                            <div className="text-sm inline-block text-white mt-2 mb-1 py-1 border-1 border-white/20 bg-black/50 rounded-full px-5">
+                                                {group.date}
+                                            </div>
                                         </div>
                                         {group.messages.map((message, index) => (
                                             <ReviewMessageBox
                                                 loadEditInterface={loadEditInterface}
-                                                showAvatarAndName={index === 0 || group.messages[index - 1].user?.id!== message.user?.id}
+                                                showAvatarAndName={index === 0 || group.messages[index - 1].user?.id !== message.user?.id}
                                                 key={message.id}
                                                 messageData={message}
-                                                own={message.user?.id === userId}
+                                                own={message.user?.id === session?.user.uid}
                                                 deleteMessage={deleteMessage}
                                             />
                                         ))}

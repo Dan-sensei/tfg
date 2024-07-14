@@ -52,6 +52,7 @@ export default function DashboardProjectCard({ project, extraOptions }: Props) {
             <div className="flex flex-col items-start gap-2">
                 <Tooltip closeDelay={200} content="Revisar proyecto" placement="right">
                     <Button
+                        as={Link}
                         isIconOnly
                         className="rounded-full min-w-0 w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-500"
                         href={`/dashboard/tutor-area/${project.id}`}>

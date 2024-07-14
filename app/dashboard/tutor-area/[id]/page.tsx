@@ -81,32 +81,23 @@ export default async function ProjectReview({ params }: Props) {
             contentBlocks: true,
             pages: true,
             documentLink: true,
+            banner: true,
             tags: true,
             views: true,
             score: true,
             createdAt: true,
             thumbnail: true,
-            reviewMessages: {
+            _count: {
                 select: {
-                    id: true,
-                    message: true,
-                    createdAt: true,
-                    edited: true,
-                    user: {
-                        select: {
-                            id: true,
-                            name: true,
-                            image: true,
+                    reviewMessages: {
+                        where: {
+                            reads: {
+                                none: {
+                                    userId: userId,
+                                },
+                            },
                         },
                     },
-                    reads: {
-                        select: {
-                            userId: true,
-                        },
-                    },
-                },
-                orderBy: {
-                    createdAt: "asc",
                 },
             },
         },
@@ -133,7 +124,7 @@ export default async function ProjectReview({ params }: Props) {
     const TFG: iDetailsTFG = {
         id: tfgRaw.id,
         thumbnail: tfgRaw.thumbnail,
-        banner: tfgRaw.thumbnail,
+        banner: tfgRaw.banner,
         title: tfgRaw.title,
         description: tfgRaw.description,
         author: tfgRaw.authors,
@@ -152,22 +143,12 @@ export default async function ProjectReview({ params }: Props) {
     return (
         <div className="flex relative overflow-hidden w-full">
             <TutorPanel
-                userId={userId}
                 extraInfo={{
                     category: tfgRaw.category,
                     status: tfgRaw.status as TFGStatus,
                     titulation: tfgRaw.titulation,
-                    reviewMessages: tfgRaw.reviewMessages.map((message) => {
-                        return {
-                            id: message.id,
-                            message: message.message,
-                            user: message.user,
-                            createdAt: message.createdAt,
-                            edited: message.edited,
-                            readBy: message.reads.filter((r) => !!r.userId).map((r) => r.userId as number),
-                        };
-                    }),
                 }}
+                hasUnreadMessages={tfgRaw._count.reviewMessages > 0}
                 TFG={TFG}
             />
         </div>

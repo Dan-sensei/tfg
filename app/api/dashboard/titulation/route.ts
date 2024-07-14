@@ -12,6 +12,7 @@ import {
 import * as v from "valibot";
 import { DeleteSchema } from "@/app/lib/schemas";
 import { getAllTitulationsWithProjectCount } from "@/app/lib/fetchData";
+import { revalidateTag } from "next/cache";
 
 export async function GET(request: NextRequest) {
     try {
@@ -42,6 +43,8 @@ export async function POST(request: NextRequest) {
                 name: newTitulationName,
             },
         });
+
+        revalidateTag("all-titulations");
         return successResponse(newTitulation, 201);
     } catch (error) {
         console.error(error);
@@ -71,6 +74,8 @@ export async function PUT(request: NextRequest) {
                 name: newTitulationName,
             },
         });
+
+        revalidateTag("all-titulations");
         return successResponse(updated, 200);
     } catch (error) {
         console.error(error);
@@ -114,6 +119,7 @@ export async function DELETE(request: NextRequest) {
             });
         });
 
+        revalidateTag("all-titulations");
         return successResponse("Titulation deleted", 200);
     } catch (error) {
         console.error(error);

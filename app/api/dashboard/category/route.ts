@@ -5,6 +5,7 @@ import { checkAuthorization, getAuthorizedCollegeId, REQUIRED_ROLES } from "@/ap
 import * as v from "valibot";
 import { DeleteSchema } from "@/app/lib/schemas";
 import { getAllCategoriesWithProjectCount } from "@/app/lib/fetchData";
+import { revalidateTag } from "next/cache";
 
 export async function GET() {
     try {
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
                 name: newCategoryName,
             },
         });
+        revalidateTag("categories");
         return successResponse(newCategory, 201);
     } catch (error) {
         console.error(error);
@@ -57,6 +59,8 @@ export async function PUT(request: NextRequest) {
                 name: newCategoryName,
             },
         });
+
+        revalidateTag("categories");
         return successResponse(updated, 200);
     } catch (error) {
         console.error(error);
@@ -112,6 +116,7 @@ export async function DELETE(request: NextRequest) {
             });
         });
 
+        revalidateTag("categories");
         return successResponse("Category deleted", 200);
     } catch (error) {
         console.error(error);

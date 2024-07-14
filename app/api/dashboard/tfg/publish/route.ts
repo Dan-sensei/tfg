@@ -1,8 +1,6 @@
-import { authOptions } from "@/app/lib/authOptions";
-import { Role, TFGStatus } from "@/app/lib/enums";
+import { TFGStatus } from "@/app/lib/enums";
 import { iPublishCheck } from "@/app/types/interfaces";
 import { badResponse, successResponse } from "@/app/utils/util";
-import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
 import { checkAuthorization, REQUIRED_ROLES } from "@/app/lib/auth";
@@ -78,8 +76,9 @@ export async function POST(request: NextRequest) {
             tags: savedTFG.tags,
             documentLink: savedTFG.documentLink,
         };
-        if (comparePublishChecks(TFGData, mappedSavedTFG)) {
-            return badResponse("TFG has been modified, reload the page", 400);
+        console.log(TFGData, mappedSavedTFG);
+        if (!comparePublishChecks(TFGData, mappedSavedTFG)) {
+            return badResponse("El proyecto se ha modificado mientras lo veías recarga la página", 400);
         }
 
         await prisma.tfg.update({

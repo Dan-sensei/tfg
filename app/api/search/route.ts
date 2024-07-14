@@ -3,6 +3,7 @@ import prisma from "@/app/lib/db";
 import { badResponse, successResponse } from "@/app/utils/util";
 import { Prisma } from "@prisma/client";
 import {QueryParams, iTFG} from "@/app/types/interfaces"
+import { TFGStatus } from "@/app/lib/enums";
 
 type FilterFunction = (params: QueryParams) => Prisma.Sql;
 
@@ -105,6 +106,7 @@ export async function GET(request: Request) {
         WITH filtered_tfg AS (
             SELECT * FROM "tfg"
             WHERE ${Prisma.join(queryParts, " AND ")}
+            AND status = ${TFGStatus.PUBLISHED}
         )
         SELECT id, title, thumbnail, description, views, score, pages, "createdAt",
                COUNT(*) OVER() AS "totalCount"

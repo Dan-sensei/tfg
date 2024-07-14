@@ -1,14 +1,15 @@
 import { increaseTFGViews } from "@/app/lib/actions/tfg";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { iDetailsTFG } from "@/app/types/interfaces";
 import prisma from "@/app/lib/db";
 import TFG_Details from "@/app/components/TFG/TFG_Details";
-import { BLOCKTYPE, TFG_BLockElement } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
+import { TFGStatus } from "@/app/lib/enums";
 
 const getTFGData = async (id: number) => {
     const tfgRaw = await prisma.tfg.findUnique({
         where: {
             id: id,
+            status: TFGStatus.PUBLISHED,
         },
         select: {
             id: true,
@@ -90,47 +91,15 @@ const getTFGData = async (id: number) => {
     return tfg;
 };
 
-const content: TFG_BLockElement[] = [
-    {
-        type: BLOCKTYPE.SINGLE_TEXT,
-        data: "[]",
-    },
-    {
-        type: BLOCKTYPE.MEDIA_TEXT,
-        data: "[]",
-    },
-    {
-        type: BLOCKTYPE.TEXT_MEDIA,
-        data: "[]",
-    },
-    {
-        type: BLOCKTYPE.SINGLE_MEDIA,
-        data: "[]",
-    },
-    {
-        type: BLOCKTYPE.DOUBLE_MEDIA,
-        data: "[]",
-    },
-
-    {
-        type: BLOCKTYPE.TRIPLE_TEXT,
-        data: "[]",
-    },
-    {
-        type: BLOCKTYPE.TRIPLE_MEDIA,
-        data: "[]",
-    },
-];
-
 export default async function Page({ params }: { params: { id: string } }) {
     const id = Number(params.id[0]);
     if (isNaN(id)) {
-        redirect("/");
+        return notFound();
     }
 
     const TFG = await getTFGData(id);
     if (!TFG) {
-        redirect("/");
+        return notFound();
     }
 
     await increaseTFGViews(parseFloat(params.id));
