@@ -125,9 +125,9 @@ export default async function Page({ params }: { params: { id: string } }) {
     return (
         <div className="pt-[73px] flex flex-col flex-1">
             <TFG_Details TFG={TFG} />
-            <div className="px-10 flex-1 flex flex-col justify-end pb-7 relative">
+            <div className="px-3 lg:px-10 flex-1 flex flex-col justify-end pb-7 pt-16 relative">
                 <div className="absolute h-72 left-0 bottom-0 right-0 bg-dark/50 mask-top-50 pt-10"></div>
-                <div className="pl-1 z-10 text-xl text-nova-gray pb-2">Proyectos relacionados</div>
+                <div className="pl-1 z-10 text-xl text-white pb-2">Proyectos relacionados</div>
                 <CarouselRow tfgArray={related} />
             </div>
         </div>
