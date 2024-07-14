@@ -4,7 +4,7 @@ import { badResponse, successResponse } from "@/app/utils/util";
 import { PAGINATION_SIZE } from "@/app/types/defaultData";
 import { TFGStatus } from "@/app/lib/enums";
 import * as v from "valibot";
-import { PaginationSchema } from "@/app/lib/schemas";
+import { PaginationSchema, PaginationSchemaAllProjects } from "@/app/lib/schemas";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export const getPaginatedDataFor = async (
+export const getPaginatedProjectsFilteredByFor = async (
     columnId: string,
     idParam: string | null,
     totalElementsParam: string | null,
@@ -62,6 +62,44 @@ export const getPaginatedDataFor = async (
 
         const tfgs = await prisma.tfg.findMany({
             where: { [columnId]: id, status: TFGStatus.PUBLISHED },
+            select: tfgFields,
+            take: PAGINATION_SIZE,
+            skip: (pageAdjusted - 1) * PAGINATION_SIZE,
+            orderBy: { [orderBy]: orderDirection },
+        });
+
+        return successResponse({
+            tfgs,
+            currentPage: pageAdjusted,
+            totalPages,
+        });
+    } catch (e) {
+        console.log(e)
+        return badResponse("Error al cargar la categoria", 500);
+    }
+};
+
+export const getAllPaginatedProjects = async (
+    totalElementsParam: string | null,
+    currentPageParam: string | null,
+    orderByParam: string | null = "views",
+    orderDirectionParam: string | null = "desc"
+) => {
+    const validateResult = v.safeParse(PaginationSchemaAllProjects, {
+        currentPage: currentPageParam,
+        totalElements: totalElementsParam,
+        orderBy: orderByParam,
+        orderDirection: orderDirectionParam,
+    });
+    if (!validateResult.success) return badResponse("Invalid id", 400);
+
+    const { currentPage, totalElements, orderBy, orderDirection } = validateResult.output;
+    try {
+        const totalPages = Math.ceil(totalElements / PAGINATION_SIZE);
+        const pageAdjusted = Math.min(currentPage, totalPages) || 1;
+
+        const tfgs = await prisma.tfg.findMany({
+            where: { status: TFGStatus.PUBLISHED },
             select: tfgFields,
             take: PAGINATION_SIZE,
             skip: (pageAdjusted - 1) * PAGINATION_SIZE,

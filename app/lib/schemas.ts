@@ -34,6 +34,13 @@ export const PaginationSchema = v.object({
     orderDirection: v.fallback(v.picklist(["asc", "desc"]), "desc"),
 });
 
+export const PaginationSchemaAllProjects = v.object({
+    currentPage: v.fallback(v.pipe(v.unknown(), v.transform(Number), v.number(), v.toMinValue(1)), 1),
+    totalElements: v.pipe(v.unknown(), v.transform(Number), v.number()),
+    orderBy: v.fallback(v.picklist(["title", "views", "pages", "score", "createdAt"]), "views"),
+    orderDirection: v.fallback(v.picklist(["asc", "desc"]), "desc"),
+});
+
 export const UserProfileSchema = v.object({
     showImage: v.boolean(),
     socials: SocialsSchema,

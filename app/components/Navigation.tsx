@@ -20,7 +20,7 @@ import {
     IconSchool,
     IconTopologyRing2,
 } from "@tabler/icons-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
@@ -96,12 +96,12 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                             </Button>
                         </div>
                         <div className="flex-1">
-                            <Button href="#" className="w-full h-full font-bold text-nova-link bg-blue-700" color="primary" variant="flat">
+                            <Button as={Link} href="/most-valued" className="w-full h-full font-bold text-nova-link bg-blue-700" color="primary" variant="flat">
                                 Mejor valorados
                             </Button>
                         </div>
                         <div className="flex-1">
-                            <Button href="#" className="w-full h-full font-bold text-nova-link bg-blue-700" color="primary" variant="flat">
+                            <Button as={Link} href="/populars" className="w-full h-full font-bold text-nova-link bg-blue-700" color="primary" variant="flat">
                                 Más vistos
                             </Button>
                         </div>
@@ -126,13 +126,13 @@ const mobile_links: MobileLinkProps[] = [
     { name: "Categorias", href: "/categoria", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
     {
         name: "Titulaciones",
-        href: "/categoria",
+        href: "/titulations",
         isCategories: true,
         icon: <IconSchool size={DEF_ICON_SIZE} />,
         isSubcategory: true,
     },
-    { name: "Mejor valorados", href: "/categoria", isCategories: true, icon: <IconStarFilled size={15} />, isSubcategory: true },
-    { name: "Más vistos", href: "/categoria", isCategories: true, icon: <IconEyeUp size={15} />, isSubcategory: true },
+    { name: "Mejor valorados", href: "/most-valued", isCategories: true, icon: <IconStarFilled size={15} />, isSubcategory: true },
+    { name: "Más vistos", href: "/populars", isCategories: true, icon: <IconEyeUp size={15} />, isSubcategory: true },
     { name: "Próximas defensas", href: "/defensas", icon: <IconCalendarUser size={DEF_ICON_SIZE} /> },
     { name: "Favoritos", href: "/favoritos", icon: <IconHeartFilled size={DEF_ICON_SIZE} /> },
 ];

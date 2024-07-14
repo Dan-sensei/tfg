@@ -4,6 +4,7 @@ import * as v from "valibot";
 import { IdSchema } from "@/app/lib/schemas";
 import prisma from "@/app/lib/db";
 import { TFGStatus } from "@/app/lib/enums";
+import { Suspense } from "react";
 
 export default async function Categoria({ params }: { params: { id: string } }) {
     const validateIdResult = v.safeParse(IdSchema, params.id[0]);
@@ -24,11 +25,20 @@ export default async function Categoria({ params }: { params: { id: string } }) 
             },
         },
     });
-    
 
     if (!categoryWithProjectCount) {
         redirect("/categorias", RedirectType.replace);
     }
 
-    return <ProjectGrid id={validateIdResult.output} name={categoryWithProjectCount.name} totalElementsCount={categoryWithProjectCount._count.tfgs} apiRoute="category" />;
+    return (
+        <Suspense>
+            <ProjectGrid
+                id={validateIdResult.output}
+                name={categoryWithProjectCount.name}
+                totalElementsCount={categoryWithProjectCount._count.tfgs}
+                apiRoute="category"
+            />
+            ;
+        </Suspense>
+    );
 }

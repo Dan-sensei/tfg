@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
-import { getPaginatedDataFor } from "@/app/lib/apiPaginationHelper";
+import { getPaginatedProjectsFilteredByFor } from "@/app/lib/apiPaginationHelper";
 
 export async function GET(request: NextRequest) {
-    return await getPaginatedDataFor(
+    return await getPaginatedProjectsFilteredByFor(
         "categoryId",
         request.nextUrl.searchParams.get("id"),
         request.nextUrl.searchParams.get("totalelements"),

@@ -9,33 +9,36 @@ import { useEffect, useState } from "react";
 import { useToast } from "../contexts/ToasterContext";
 import { IconX } from "@tabler/icons-react";
 import SortFilter from "../(with-layout)/(with-padding)/search/sortFilter";
-import * as v from "valibot";
-import { PaginationSchema } from "../lib/schemas";
-import { produce } from "immer";
 
 type Props = {
-    id: number;
+    id?: number;
     name: string;
     totalElementsCount: number;
     apiRoute: string;
+    defSortBy?: string;
+    defOrder?: string;
+    showOrderControls?: boolean;
 };
 
-export default function ProjectGrid({ id, name, totalElementsCount, apiRoute }: Props) {
+export default function ProjectGrid({ id, name, totalElementsCount, apiRoute, defSortBy, defOrder, showOrderControls = true }: Props) {
     const [pageData, setPageData] = useState<TFGPagination | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
     const [pagination, setPagination] = useState({
         currentpage: 1,
-        orderby: "views",
-        order: "desc",
+        orderby: defSortBy ?? "views",
+        order: defOrder ?? "desc",
     });
+
     const [isFetching, setIsFetching] = useState(true);
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { toast } = useToast();
 
     const updateURL = (params: URLSearchParams) => {
-        const path = getBasePathNameUntilId(pathname, id.toString());
+        const path = id ? getBasePathNameUntilId(pathname, id.toString()) : pathname;
         const appendParams = params.size > 0 ? `?${params.toString()}` : "";
-        window.history.replaceState(null, "", `${path}/${sanitizeString(name)}${appendParams}`);
+        const newUrl = id ? `${path}/${sanitizeString(name)}${appendParams}` : `${path}${appendParams}`;
+        window.history.replaceState(null, "", newUrl);
     };
 
     useEffect(() => {
@@ -43,6 +46,7 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute }: 
     }, [pathname, name]);
 
     useEffect(() => {
+        if (!isMounted) return;
         setPagination({
             currentpage: parseInt(searchParams.get("currentpage") || "1"),
             orderby: searchParams.get("sortby") || "views",
@@ -51,8 +55,9 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute }: 
     }, [searchParams]);
 
     useEffect(() => {
+        setIsMounted(true);
         const queryParams = new URLSearchParams({
-            id: id.toString(),
+            id: id ? id.toString() : "",
             totalelements: totalElementsCount.toString(),
             currentpage: pagination.currentpage.toString(),
             orderby: pagination.orderby,
@@ -100,19 +105,21 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute }: 
                     <div className="w-full flex-1 flex flex-col">
                         <h1 className="text-2xl font-bold mb-3 flex justify-between">
                             <span className="flex-1">{name}</span>
-                            <div className="max-w-full w-72">
-                                <SortFilter
-                                    filters={{ sortorder: pagination.order, sortby: pagination.orderby }}
-                                    isDisabled={isFetching}
-                                    updateFilters={(filters) => {
-                                        const { sortorder, sortby } = filters;
-                                        const params = new URLSearchParams(searchParams);
-                                        if (sortorder) params.set("sortorder", sortorder ?? "");
-                                        if (sortby) params.set("sortby", sortby ?? "");
-                                        updateURL(params);
-                                    }}
-                                />
-                            </div>
+                            {showOrderControls && (
+                                <div className="max-w-full w-72">
+                                    <SortFilter
+                                        filters={{ sortorder: pagination.order, sortby: pagination.orderby }}
+                                        isDisabled={isFetching}
+                                        updateFilters={(filters) => {
+                                            const { sortorder, sortby } = filters;
+                                            const params = new URLSearchParams(searchParams);
+                                            if (sortorder) params.set("sortorder", sortorder ?? "");
+                                            if (sortby) params.set("sortby", sortby ?? "");
+                                            updateURL(params);
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </h1>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 w-full">
                             {pageData.tfgs.map((tfg, i) => {

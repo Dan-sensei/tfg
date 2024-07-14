@@ -163,5 +163,6 @@ export const getAllPublishedProjectsCount = async (): Promise<number> => {
     const publishedProjectsCount = await prisma.tfg.count({
         where: { status: TFGStatus.PUBLISHED },
     });
+    console.log(publishedProjectsCount);
     return publishedProjectsCount;
 }

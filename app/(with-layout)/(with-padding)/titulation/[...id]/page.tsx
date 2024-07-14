@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { IdSchema } from "@/app/lib/schemas";
 import ProjectGrid from "@/app/components/ProjectGrid";
 import { getProjectsInTitulationWithProjectCount } from "@/app/lib/fetchData";
+import { Suspense } from "react";
 
 export default async function Titulation({ params }: { params: { id: string } }) {
     const validateIdResult = v.safeParse(IdSchema, params.id[0]);
@@ -17,11 +18,13 @@ export default async function Titulation({ params }: { params: { id: string } })
     }
 
     return (
-        <ProjectGrid
-            id={validateIdResult.output}
-            name={projectsInTitulation.name}
-            totalElementsCount={projectsInTitulation.totalProjects}
-            apiRoute="titulation"
-        />
+        <Suspense>
+            <ProjectGrid
+                id={validateIdResult.output}
+                name={projectsInTitulation.name}
+                totalElementsCount={projectsInTitulation.totalProjects}
+                apiRoute="titulation"
+            />
+        </Suspense>
     );
 }
