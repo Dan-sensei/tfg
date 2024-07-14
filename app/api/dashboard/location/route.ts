@@ -1,11 +1,18 @@
 import { badResponse, isNullOrEmpty, successResponse } from "@/app/utils/util";
 import { NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
-import { checkAuthorization, checkCanModifyInCollege, checkCanModifyInCollegeWithCount, CheckType, getAuthorizedCollegeId, REQUIRED_ROLES } from "@/app/lib/auth";
-import { Role } from "@/app/lib/enums";
+import {
+    checkAuthorization,
+    checkCanModifyInCollege,
+    checkCanModifyInCollegeWithCount,
+    CheckType,
+    getAuthorizedCollegeId,
+    REQUIRED_ROLES,
+} from "@/app/lib/auth";
 import * as v from "valibot";
 import { DeleteSchema, LocationSchema } from "@/app/lib/schemas";
 import { Location } from "@/app/types/interfaces";
+import { getAllLocationsWithDefenseCount } from "@/app/lib/fetchData";
 
 const createOrUpdateLocation = async (locationData: v.InferInput<typeof LocationSchema>, collegeId: number) => {
     const newData = {
@@ -31,20 +38,7 @@ export async function GET(request: NextRequest) {
 
         const collegeId = getAuthorizedCollegeId(session, request.nextUrl.searchParams.get("collegeId"));
 
-        const locations = (await prisma.location.findMany({
-            where: {
-                collegeId: collegeId,
-            },
-            select: {
-                id: true,
-                name: true,
-                mapLink: true,
-            },
-            orderBy: {
-                name: "asc",
-            },
-        })) as Location[];
-
+        const locations = await getAllLocationsWithDefenseCount(collegeId);
         return successResponse(locations);
     } catch (error) {
         console.error(error);
@@ -63,9 +57,9 @@ export async function POST(request: NextRequest) {
         const result = v.safeParse(LocationSchema, locationData);
         if (!result.success) return badResponse("Datos incorrectos", 400);
 
-        const newLocation = await createOrUpdateLocation(result.output, session.user.collegeId);
+        const collegeId = getAuthorizedCollegeId(session, body.collegeId);
+        const newLocation = await createOrUpdateLocation(result.output, collegeId);
 
-        console.log(newLocation);
         return successResponse(newLocation, 201);
     } catch (error) {
         console.error(error);

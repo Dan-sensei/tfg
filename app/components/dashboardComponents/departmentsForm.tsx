@@ -11,7 +11,6 @@ import toast, { Toaster } from "react-hot-toast";
 import { Spinner } from "@nextui-org/spinner";
 import { IconMicroscope } from "@tabler/icons-react";
 import { isNullOrEmpty } from "../../utils/util";
-import { useSession } from "next-auth/react";
 import { useDashboard } from "../../contexts/DashboardContext";
 
 type Props = {
@@ -25,7 +24,6 @@ const compareNullableStrings = (str1: string | null | undefined, str2: string | 
 };
 
 export default function DepartmentsForm({ className }: Props) {
-    const { data: session } = useSession();
     const [departmentsList, setDepartmentsList] = useState<DepartmentWithTFGCount[]>([]);
     const [selectedDepartment, setSelectedDepartment] = useState<DepartmentWithTFGCount | null>(null);
     const [fallbackDepartment, setFallbackDepartment] = useState<DepartmentWithTFGCount | null>(null);
@@ -37,10 +35,11 @@ export default function DepartmentsForm({ className }: Props) {
         saving: false,
         deleting: false,
     });
-    const { collegeId } = useDashboard();
+    const { collegeId, isInitialized } = useDashboard();
     const [isFetching, setIsFetching] = useState(false);
 
     useEffect(() => {
+        if(!isInitialized) return;
         setIsFetching(true);
         fetch(`/api/dashboard/department?collegeId=${collegeId}`, {
             method: "GET",
@@ -54,6 +53,7 @@ export default function DepartmentsForm({ className }: Props) {
                 if (data.success) {
                     setDepartmentsList(data.response);
                     setSelectedDepartment(data.response[0] ?? null);
+                    setNewDepartmentData({ name: data.response[0]?.name ?? "", link: data.response[0]?.link ?? "" });
                 } else toast.error(data.response);
             })
             .catch((err) => toast.error(err.message))
@@ -77,7 +77,7 @@ export default function DepartmentsForm({ className }: Props) {
         }
     };
     const closeDeleteDialog = () => setIsOpen(false);
-
+    
     const saveDepartment = () => {
         if (!canSave) return;
 
@@ -157,9 +157,10 @@ export default function DepartmentsForm({ className }: Props) {
                             draft.splice(index, 1);
                         }
                     });
+                    console.log(newList)
                     setDepartmentsList(newList);
-                    setSelectedDepartment(newList[0]);
-                    setNewDepartmentData({ name: newList[0].name, link: newList[0].link ?? "" });
+                    setSelectedDepartment(newList[0] ?? null);
+                    setNewDepartmentData({ name: newList[0]?.name ?? "", link: newList[0]?.link ?? "" });
                     toast.success("Departamento eliminado");
                 } else {
                     toast.error(data.response);

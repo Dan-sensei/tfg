@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         const { newDepartmentName, newLink } = body;
 
         if (isNullOrEmpty(newDepartmentName)) return badResponse("Invalid department name", 400);
+        
         const collegeId = getAuthorizedCollegeId(session, body.collegeId);
         const newDepartment = await prisma.department.create({
             data: {

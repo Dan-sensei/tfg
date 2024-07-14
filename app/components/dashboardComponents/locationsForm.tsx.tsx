@@ -35,10 +35,12 @@ export default function LocationsForm({ className }: Props) {
         saving: false,
         deleting: false,
     });
-    const { collegeId } = useDashboard();
+    const { collegeId, isInitialized } = useDashboard();
     const [isFetching, setIsFetching] = useState(false);
 
     useEffect(() => {
+        if(!isInitialized) return;
+
         setIsFetching(true);
         fetch(`/api/dashboard/location?collegeId=${collegeId}`, {
             method: "GET",
@@ -52,6 +54,7 @@ export default function LocationsForm({ className }: Props) {
                 if (data.success) {
                     setLocationsList(data.response) 
                     setSelectedLocation(data.response[0] ?? null);
+                    setNewLocationData({ name: data.response[0]?.name ?? "", link: data.response[0]?.link ?? "" });
                 }
                 else toast.error(data.response);
             })
@@ -164,8 +167,8 @@ export default function LocationsForm({ className }: Props) {
                         }
                     });
                     setLocationsList(newList);
-                    setSelectedLocation(newList[0]);
-                    setNewLocationData({ name: newList[0].name, link: newList[0].mapLink ?? "" });
+                    setSelectedLocation(newList[0] ?? null);
+                    setNewLocationData({ name: newList[0]?.name ?? "", link: newList[0]?.mapLink ?? "" });
                     toast.success("Localización eliminado");
                 } else {
                     toast.error(data.response);

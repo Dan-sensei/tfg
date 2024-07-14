@@ -26,10 +26,11 @@ export default function TitulationsForm({ className }: Props) {
         saving: false,
         deleting: false,
     });
-    const { collegeId } = useDashboard();
-    const [isFetching, setIsFetching] = useState(true);
+    const { collegeId, isInitialized } = useDashboard();
+    const [isFetching, setIsFetching] = useState(false);
 
     useEffect(() => {
+        if (!isInitialized) return;
         setIsFetching(true);
         fetch(`/api/dashboard/titulation?collegeId=${collegeId}`, {
             method: "GET",
@@ -43,8 +44,8 @@ export default function TitulationsForm({ className }: Props) {
                 if (data.success) {
                     setTitulationsList(data.response);
                     setSelectedTitulation(data.response[0] ?? null);
-                }
-                else toast.error(data.response);
+                    setNewTitulationName(data.response[0]?.name ?? "");
+                } else toast.error(data.response);
             })
             .catch((err) => toast.error(err.message))
             .finally(() => setIsFetching(false));
@@ -105,7 +106,7 @@ export default function TitulationsForm({ className }: Props) {
     };
 
     const deleteTitulation = () => {
-        if (!selectedTitulation || !fallbackTitulation) return;
+        if (!selectedTitulation) return;
         setIsUpdating((prev) => ({ ...prev, deleting: true }));
 
         fetch("/api/dashboard/titulation", {
@@ -118,19 +119,20 @@ export default function TitulationsForm({ className }: Props) {
                 collegeId,
                 deleteData: {
                     targetId: selectedTitulation.id,
-                    fallbackId: fallbackTitulation.id,
+                    fallbackId: fallbackTitulation ? fallbackTitulation.id : null,
                 },
             }),
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data);
                 if (data.success) {
                     const newList = produce(titulationsList, (draft) => {
-                        const _deletedTitulation = draft.find((c) => c.id === selectedTitulation.id);
-                        const _fallbackTitulation = draft.find((c) => c.id === fallbackTitulation.id);
-                        if (_deletedTitulation && _fallbackTitulation) {
-                            _fallbackTitulation.totalProjects += _deletedTitulation.totalProjects;
+                        if (fallbackTitulation) {
+                            const _deletedTitulation = draft.find((c) => c.id === selectedTitulation.id);
+                            const _fallbackTitulation = draft.find((c) => c.id === fallbackTitulation.id);
+                            if (_deletedTitulation && _fallbackTitulation) {
+                                _fallbackTitulation.totalProjects += _deletedTitulation.totalProjects;
+                            }
                         }
                         const index = draft.findIndex((titulation) => titulation.id === selectedTitulation.id);
                         if (index !== -1) {
@@ -138,8 +140,8 @@ export default function TitulationsForm({ className }: Props) {
                         }
                     });
                     setTitulationsList(newList);
-                    setSelectedTitulation(newList[0]);
-                    setNewTitulationName(newList[0].name);
+                    setSelectedTitulation(newList[0] ?? null);
+                    setNewTitulationName(newList[0]?.name ?? "");
                     toast.success("Titulación eliminada");
                 } else {
                     toast.error(data.response);
@@ -200,14 +202,7 @@ export default function TitulationsForm({ className }: Props) {
                     </Field>
                     <div className="flex justify-end gap-1 mt-3">
                         {selectedTitulation && (
-                            <NextUIButon
-                                className={clsx(
-                                    BasicButton,
-                                    DangerButton,
-                                    "rounded-md"
-                                )}
-                                variant="flat"
-                                onClick={openDeleteDialog}>
+                            <NextUIButon className={clsx(BasicButton, DangerButton, "rounded-md")} variant="flat" onClick={openDeleteDialog}>
                                 {isUpdating.deleting ? <Spinner size="sm" color="white" /> : "Borrar"}
                             </NextUIButon>
                         )}

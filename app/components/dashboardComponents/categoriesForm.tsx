@@ -104,7 +104,7 @@ export default function CategoriesForm({ className }: Props) {
     };
 
     const deleteCategory = () => {
-        if (!selectedCategory || !fallbackCategory || categoriesList.length <= 1) return;
+        if (!selectedCategory) return;
         setIsUpdating((prev) => ({ ...prev, deleting: true }));
 
         fetch("/api/dashboard/category", {
@@ -116,7 +116,7 @@ export default function CategoriesForm({ className }: Props) {
             body: JSON.stringify({
                 deleteData: {
                     targetId: selectedCategory.id,
-                    fallbackId: fallbackCategory.id,
+                    fallbackId: fallbackCategory ? fallbackCategory.id : null,
                 },
             }),
         })
@@ -124,10 +124,12 @@ export default function CategoriesForm({ className }: Props) {
             .then((data) => {
                 if (data.success) {
                     const newList = produce(categoriesList, (draft) => {
-                        const _deletedCategory = draft.find((c) => c.id === selectedCategory.id);
-                        const _fallbackCategory = draft.find((c) => c.id === fallbackCategory.id);
-                        if (_deletedCategory && _fallbackCategory) {
-                            _fallbackCategory.totalProjects += _deletedCategory.totalProjects;
+                        if (fallbackCategory) {
+                            const _deletedCategory = draft.find((c) => c.id === selectedCategory.id);
+                            const _fallbackCategory = draft.find((c) => c.id === fallbackCategory.id);
+                            if (_deletedCategory && _fallbackCategory) {
+                                _fallbackCategory.totalProjects += _deletedCategory.totalProjects;
+                            }
                         }
                         const index = draft.findIndex((category) => category.id === selectedCategory.id);
                         if (index !== -1) {
@@ -135,8 +137,8 @@ export default function CategoriesForm({ className }: Props) {
                         }
                     });
                     setCategoriesList(newList);
-                    setSelectedCategory(newList[0]);
-                    setNewCategoryName(newList[0].name);
+                    setSelectedCategory(newList[0] ?? null);
+                    setNewCategoryName(newList[0]?.name ?? "");
                     toast.success("Categoría eliminada");
                 } else {
                     toast.error(data.response);

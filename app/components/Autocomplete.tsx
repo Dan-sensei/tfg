@@ -69,6 +69,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
                             "w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-white",
                             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
                         )}
+                        spellCheck={false}
                         placeholder={placeholder}
                         displayValue={(item: T) => displayValue(item)}
                         onChange={(event) => setQuery(event.target.value)}
