@@ -74,6 +74,7 @@ const config: Config = {
                 "borders-y-10": "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
                 left: "linear-gradient(to right, transparent, black 100%)",
                 right: "linear-gradient(to right, black, transparent 100%)",
+                "top-50": "linear-gradient(to top, transparent, black 50%, transparent)",
                 "bottom-10": "linear-gradient(to bottom, black 80%, transparent 100%)",
                 "top-10": "linear-gradient(to top, black 80%, transparent 100%)",
             },
