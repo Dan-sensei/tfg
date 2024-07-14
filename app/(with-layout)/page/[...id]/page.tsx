@@ -110,6 +110,9 @@ export default async function Page({ params }: { params: { id: string } }) {
             tags: {
                 hasSome: TFG.tags,
             },
+            id: {
+                not: TFG.id,
+            },
         },
         orderBy: {
             createdAt: "desc",
