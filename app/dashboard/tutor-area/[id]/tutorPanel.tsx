@@ -14,9 +14,9 @@ import clsx from "clsx";
 import { ChangeEvent, KeyboardEventHandler, useEffect, useState } from "react";
 import SimpleBar from "simplebar-react";
 import { Spinner } from "@nextui-org/spinner";
-import Chatbox from "@/app/components/Chatbox";
 import { Modal, ModalBody, ModalContent, useDisclosure } from "@nextui-org/modal";
 import toast, { Toaster } from "react-hot-toast";
+import Chatbox from "@/app/components/dashboardComponents/Chatbox";
 
 interface ReadonlyExtraInfo {
     readonly status: TFGStatus;

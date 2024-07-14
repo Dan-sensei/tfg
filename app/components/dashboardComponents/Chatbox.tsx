@@ -1,23 +1,23 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
-import { ReviewMessageType } from "../types/interfaces";
+import {useEffect, useRef, useState } from "react";
 import SimpleBar from "simplebar-react";
-import ReviewMessageBox from "./dashboardComponents/ReviewMessageBox";
 import TextareaAutosize from "react-textarea-autosize";
 import { IconCheck, IconSend2, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
-import { HeadlessBasic } from "../lib/headlessUIStyle";
 import { produce } from "immer";
-import { isNullOrEmpty, toFirstLetterUppercase } from "../utils/util";
 import { Button } from "@headlessui/react";
-import { CHATBOX_REFRESH_INTERVAL } from "../types/defaultData";
 import { Spinner } from "@nextui-org/spinner";
 import "simplebar-react/dist/simplebar.min.css";
 import { useDebouncedCallback } from "use-debounce";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import React from "react";
+import { ReviewMessageType } from "@/app/types/interfaces";
+import { CHATBOX_REFRESH_INTERVAL } from "@/app/types/defaultData";
+import { isNullOrEmpty, toFirstLetterUppercase } from "@/app/utils/util";
+import ReviewMessageBox from "./ReviewMessageBox";
+import { HeadlessBasic } from "@/app/lib/headlessUIStyle";
 
 type EditMessage = {
     id: number;
