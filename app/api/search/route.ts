@@ -91,7 +91,7 @@ export async function GET(request: Request) {
     const orderByClause = Prisma.sql`"${Prisma.raw(sortBy)}" ${Prisma.raw(sortOrder)}`;
     // Extract and validate pagination parameters
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const pageSize = parseInt(searchParams.get("pagesize") || "30", 10);
+    const pageSize = parseInt(searchParams.get("pagesize") || "50", 10);
 
     if (isNaN(page) || page < 1) {
         return badResponse("Invalid page number");
