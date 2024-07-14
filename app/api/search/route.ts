@@ -82,10 +82,10 @@ export async function GET(request: Request) {
     if(!validSortValues.includes(sortBy)){
         sortBy = "title";
     }
-    let sortOrder = searchParams.get("sortorder") || "ASC";
-    const validSortOrders = ["ASC", "DESC"];
+    let sortOrder = searchParams.get("sortorder") || "asc";
+    const validSortOrders = ["asc", "desc"];
     if (!validSortOrders.includes(sortOrder)) {
-        sortOrder = "ASC";
+        sortOrder = "asc";
     }
 
     const orderByClause = Prisma.sql`"${Prisma.raw(sortBy)}" ${Prisma.raw(sortOrder)}`;

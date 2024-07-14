@@ -158,3 +158,10 @@ export const getAllColleges = async () => {
     })) as FullCollege[];
     return colleges;
 };
+
+export const getAllPublishedProjectsCount = async (): Promise<number> => {
+    const publishedProjectsCount = await prisma.tfg.count({
+        where: { status: TFGStatus.PUBLISHED },
+    });
+    return publishedProjectsCount;
+}

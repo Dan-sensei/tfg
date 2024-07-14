@@ -38,16 +38,24 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export const getPaginatedDataFor = async (currentPageParam: string | null, totalElementsParam: string | null, idParam: string | null, columnId: string) => {
+export const getPaginatedDataFor = async (
+    columnId: string,
+    idParam: string | null,
+    totalElementsParam: string | null,
+    currentPageParam: string | null,
+    orderByParam: string | null = "views",
+    orderDirectionParam: string | null = "desc"
+) => {
     const validateResult = v.safeParse(PaginationSchema, {
         currentPage: currentPageParam,
         totalElements: totalElementsParam,
         id: idParam,
+        orderBy: orderByParam,
+        orderDirection: orderDirectionParam,
     });
     if (!validateResult.success) return badResponse("Invalid id", 400);
-    
-    const { currentPage, id, totalElements } = validateResult.output;
 
+    const { currentPage, id, totalElements, orderBy, orderDirection } = validateResult.output;
     try {
         const totalPages = Math.ceil(totalElements / PAGINATION_SIZE);
         const pageAdjusted = Math.min(currentPage, totalPages) || 1;
@@ -57,6 +65,7 @@ export const getPaginatedDataFor = async (currentPageParam: string | null, total
             select: tfgFields,
             take: PAGINATION_SIZE,
             skip: (pageAdjusted - 1) * PAGINATION_SIZE,
+            orderBy: { [orderBy]: orderDirection },
         });
 
         return successResponse({
@@ -65,6 +74,7 @@ export const getPaginatedDataFor = async (currentPageParam: string | null, total
             totalPages,
         });
     } catch (e) {
+        console.log(e)
         return badResponse("Error al cargar la categoria", 500);
     }
 };

@@ -1,8 +1,6 @@
 import { redirect, RedirectType } from "next/navigation";
 import * as v from "valibot";
 import { IdSchema } from "@/app/lib/schemas";
-import prisma from "@/app/lib/db";
-import { TFGStatus } from "@/app/lib/enums";
 import ProjectGrid from "@/app/components/ProjectGrid";
 import { getProjectsInTitulationWithProjectCount } from "@/app/lib/fetchData";
 

@@ -29,7 +29,9 @@ export const IdSchema = v.pipe(v.unknown(), v.transform(Number), v.number("Id in
 export const PaginationSchema = v.object({
     currentPage: v.fallback(v.pipe(v.unknown(), v.transform(Number), v.number(), v.toMinValue(1)), 1),
     totalElements: v.pipe(v.unknown(), v.transform(Number), v.number()),
-    id: IdSchema
+    id: IdSchema,
+    orderBy: v.fallback(v.picklist(["title", "views", "pages", "score", "createdAt"]), "views"),
+    orderDirection: v.fallback(v.picklist(["asc", "desc"]), "desc"),
 });
 
 export const UserProfileSchema = v.object({

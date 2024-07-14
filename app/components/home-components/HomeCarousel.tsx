@@ -61,8 +61,7 @@ export default function HomeCarousel({ topTfgs, className }: CarouselProps) {
                         {topTfgs.map((item: any) => (
                             <div
                                 key={item.id}
-                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c max-h-[800px] w-full"
-                            >
+                                className="min-h-[300px] aspect-video md:aspect-21-9 2xl:aspect-wide lg:px-12 flex-1c max-h-[800px] w-full">
                                 <div className="w-full h-full flex justify-start items-end relative lg:rounded-2xl shadow-light-dark">
                                     <img
                                         src={item?.banner}
@@ -81,14 +80,9 @@ export default function HomeCarousel({ topTfgs, className }: CarouselProps) {
                                         <div className="flex mt-3">
                                             <Button
                                                 draggable="false"
-                                                href={`/page/${
-                                                    item.id
-                                                }/${sanitizeString(
-                                                    item.title
-                                                )}`}
+                                                href={`/page/${item.id}/${sanitizeString(item.title)}`}
                                                 as={Link}
-                                                className="bg-nova-button embla_nodrag"
-                                            >
+                                                className="bg-nova-button embla_nodrag">
                                                 Ver
                                             </Button>
                                         </div>
@@ -101,18 +95,12 @@ export default function HomeCarousel({ topTfgs, className }: CarouselProps) {
 
                 <div className="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center px-1">
                     <button className="embla__prev rounded-lg group h-full w-full" onClick={scrollPrev}>
-                        <IconChevronLeft
-                            size={30}
-                            className="transition-all duration-300 group-hover:scale-125 mx-auto"
-                        />
+                        <IconChevronLeft size={30} className="transition-all duration-300 group-hover:scale-125 mx-auto" />
                     </button>
                 </div>
                 <div className="absolute right-0 top-0 bottom-0 w-12 flex items-center justify-center pl-1">
                     <button className="embla__next rounded-lg group h-full w-full" onClick={scrollNext}>
-                        <IconChevronRight
-                            size={30}
-                            className="transition-all duration-300 group-hover:scale-125 mx-auto"
-                        />
+                        <IconChevronRight size={30} className="transition-all duration-300 group-hover:scale-125 mx-auto" />
                     </button>
                 </div>
             </div>
@@ -122,15 +110,11 @@ export default function HomeCarousel({ topTfgs, className }: CarouselProps) {
                         key={index}
                         title={`Slide ${index + 1}`}
                         className={`rounded-full group w-[18px] h-[18px] p-[4px]`}
-                        onClick={() => scrollTo(index)}
-                    >
+                        onClick={() => scrollTo(index)}>
                         <div
                             className={`h-full rounded-full transition-all group-hover:scale-125 ${
-                                selectedIndex == index
-                                    ? "bg-slate-50"
-                                    : "bg-slate-500 group-hover:bg-slate-200"
-                            } `}
-                        ></div>
+                                selectedIndex == index ? "bg-slate-50" : "bg-slate-500 group-hover:bg-slate-200"
+                            } `}></div>
                     </button>
                 ))}
             </div>

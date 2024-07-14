@@ -1,7 +1,6 @@
 import { QueryParams } from "@/app/types/interfaces";
 import { Select, SelectItem } from "@nextui-org/select";
 import { useEffect, useState } from "react";
-import { Selection } from "@react-types/shared";
 import { IconArrowUp } from "@tabler/icons-react";
 
 interface PopularTagsProps {
@@ -15,7 +14,7 @@ export default function SortFilter({
     isDisabled,
 }: PopularTagsProps) {
     const [selected, setSelected] = useState<string>("title");
-    const [sortOrder, setSortOrder] = useState<string>("ASC");
+    const [sortOrder, setSortOrder] = useState<string>("asc");
 
     const handleSelectionChange = (value: string) => {
         if (!value.trim()) {
@@ -26,7 +25,7 @@ export default function SortFilter({
         });
     };
     const toggleSortOrder = () => {
-        const newSortOrder = sortOrder === "ASC" ? "DESC" : "ASC";
+        const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
         setSortOrder(newSortOrder);
         updateFilters({
             sortorder: newSortOrder,
@@ -83,7 +82,7 @@ export default function SortFilter({
                 <IconArrowUp
                     size={17}
                     className={`transition-transform  ${
-                        sortOrder === "ASC" ? "rotate-0" : "rotate-180"
+                        sortOrder === "asc" ? "rotate-0" : "rotate-180"
                     }`}
                 />
             </button>

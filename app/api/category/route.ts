@@ -3,9 +3,11 @@ import { getPaginatedDataFor } from "@/app/lib/apiPaginationHelper";
 
 export async function GET(request: NextRequest) {
     return await getPaginatedDataFor(
-        request.nextUrl.searchParams.get("currentPage"),
-        request.nextUrl.searchParams.get("totalElements"),
+        "categoryId",
         request.nextUrl.searchParams.get("id"),
-        "categoryId"
+        request.nextUrl.searchParams.get("totalelements"),
+        request.nextUrl.searchParams.get("currentpage"),
+        request.nextUrl.searchParams.get("orderby"),
+        request.nextUrl.searchParams.get("order"),
     );
 }

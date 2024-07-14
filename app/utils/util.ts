@@ -186,3 +186,12 @@ export const normalizeText = (text: string) => {
 };
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export const getBasePathNameUntilId = (path: string, id: string) => {
+    const parts = path.split("/");
+    const index = parts.indexOf(id);
+    if (index === -1) {
+        return path;
+    }
+    return parts.slice(0, index + 1).join("/");
+};

@@ -1,13 +1,17 @@
 "use client";
 import Card from "@/app/components/home-components/Card";
 import { TFGPagination } from "@/app/types/interfaces";
-import { getApiRouteUrl } from "@/app/utils/util";
+import { getApiRouteUrl, getBasePathNameUntilId, sanitizeString } from "@/app/utils/util";
 import { Pagination } from "@nextui-org/pagination";
 import { Spinner } from "@nextui-org/spinner";
-import { useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useToast } from "../contexts/ToasterContext";
 import { IconX } from "@tabler/icons-react";
+import SortFilter from "../(with-layout)/(with-padding)/search/sortFilter";
+import * as v from "valibot";
+import { PaginationSchema } from "../lib/schemas";
+import { produce } from "immer";
 
 type Props = {
     id: number;
@@ -17,40 +21,62 @@ type Props = {
 };
 
 export default function ProjectGrid({ id, name, totalElementsCount, apiRoute }: Props) {
-    const [currentPage, setCurrentPage] = useState(1);
     const [pageData, setPageData] = useState<TFGPagination | null>(null);
+    const [pagination, setPagination] = useState({
+        currentpage: 1,
+        orderby: "views",
+        order: "desc",
+    });
     const [isFetching, setIsFetching] = useState(true);
-    const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
     const { toast } = useToast();
-    useEffect(() => {
-        const fetchData = (page: number) => {
-            const queryParams = new URLSearchParams({
-                id: id.toString(),
-                totalElements: totalElementsCount.toString(),
-                currentPage: page.toString(),
-            });
-            const urlWithParams = getApiRouteUrl(apiRoute, queryParams);
 
-            fetch(urlWithParams, {
-                next: { tags: [`${apiRoute}-${id}`] },
+    const updateURL = (params: URLSearchParams) => {
+        const path = getBasePathNameUntilId(pathname, id.toString());
+        const appendParams = params.size > 0 ? `?${params.toString()}` : "";
+        window.history.replaceState(null, "", `${path}/${sanitizeString(name)}${appendParams}`);
+    };
+
+    useEffect(() => {
+        updateURL(searchParams);
+    }, [pathname, name]);
+
+    useEffect(() => {
+        setPagination({
+            currentpage: parseInt(searchParams.get("currentpage") || "1"),
+            orderby: searchParams.get("sortby") || "views",
+            order: searchParams.get("sortorder") || "desc",
+        });
+    }, [searchParams]);
+
+    useEffect(() => {
+        const queryParams = new URLSearchParams({
+            id: id.toString(),
+            totalelements: totalElementsCount.toString(),
+            currentpage: pagination.currentpage.toString(),
+            orderby: pagination.orderby,
+            order: pagination.order,
+        });
+        const urlWithParams = getApiRouteUrl(apiRoute, queryParams);
+        fetch(urlWithParams)
+            .then((response) => response.json())
+            .then((result) => {
+                if (result.success) setPageData(result.response);
             })
-                .then((response) => response.json())
-                .then((result) => {
-                    if (result.success) setPageData(result.response);
-                })
-                .catch(() => {
-                    setPageData(null);
-                    toast.error("Se ha producido un error al cargar los datos");
-                })
-                .finally(() => {
-                    setIsFetching(false);
-                });
-        };
-        fetchData(currentPage);
-    }, [currentPage, router, id]);
+            .catch(() => {
+                setPageData(null);
+                toast.error("Se ha producido un error al cargar los datos");
+            })
+            .finally(() => {
+                setIsFetching(false);
+            });
+    }, [id, pagination]);
 
     const handlePageChange = (newPage: number) => {
-        setCurrentPage(newPage);
+        const params = new URLSearchParams(searchParams);
+        params.set("currentpage", newPage.toString());
+        updateURL(params);
     };
     return (
         <div className="flex flex-wrap h-full flex-col flex-1 py-5 lg:pt-0 pb-10">
@@ -67,12 +93,27 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute }: 
                 </div>
             ) : totalElementsCount === 0 ? (
                 <div className="w-full flex flex-1 items-center justify-center bg-black/50 rounded-lg  border-1 border-white/5">
-                    <h1 className="text-lg  mb-3">No hay trabajos que mostrar</h1>
+                    <h1 className="text-lg mb-3">No hay trabajos que mostrar</h1>
                 </div>
             ) : (
                 <>
                     <div className="w-full flex-1 flex flex-col">
-                        <h1 className="text-2xl font-bold mb-3">{name}</h1>
+                        <h1 className="text-2xl font-bold mb-3 flex justify-between">
+                            <span className="flex-1">{name}</span>
+                            <div className="max-w-full w-72">
+                                <SortFilter
+                                    filters={{ sortorder: pagination.order, sortby: pagination.orderby }}
+                                    isDisabled={isFetching}
+                                    updateFilters={(filters) => {
+                                        const { sortorder, sortby } = filters;
+                                        const params = new URLSearchParams(searchParams);
+                                        if (sortorder) params.set("sortorder", sortorder ?? "");
+                                        if (sortby) params.set("sortby", sortby ?? "");
+                                        updateURL(params);
+                                    }}
+                                />
+                            </div>
+                        </h1>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 w-full">
                             {pageData.tfgs.map((tfg, i) => {
                                 return (
@@ -98,7 +139,7 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute }: 
                             showControls
                             total={pageData.totalPages}
                             initialPage={1}
-                            page={currentPage}
+                            page={pagination.currentpage}
                             onChange={handlePageChange}
                         />
                     )}
