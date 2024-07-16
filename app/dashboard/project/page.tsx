@@ -18,7 +18,7 @@ export default async function Project() {
         select: {
             name: true,
             image: true,
-            titulation: {
+            titulations: {
                 select: {
                     id: true,
                     name: true,
@@ -132,7 +132,7 @@ export default async function Project() {
         return null;
     }
     const tutors: FullUser[] = college.user;
-    const titulations: Titulation[] = college.titulation;
+    const titulations: Titulation[] = college.titulations;
     const departments: FullDepartment[] = college.departments;
 
     const popularTags = await getTopTags(10);

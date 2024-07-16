@@ -25,6 +25,7 @@ import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import Link from "next/link";
 import ScoreFilter from "./scoreFilter";
+import { Pagination } from "@nextui-org/pagination";
 
 const createDefinedFilters = (filters: Record<string, any>): URLSearchParams => {
     const params = new URLSearchParams();
@@ -55,11 +56,12 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     const pathname = usePathname();
     const { replace } = useRouter();
     const searchParams = useSearchParams();
+    const [totalPages, setTotalPages] = useState(1);
 
     const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
         setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
     }, []);
-    
+
     useEffect(() => {
         const paramKeys: Array<keyof QueryParams> = [
             "q",
@@ -74,9 +76,9 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
             "maxviews",
             "minscore",
             "maxscore",
-            "sortby",
-            "sortorder",
-            "page",
+            "orderby",
+            "orderdirection",
+            "currentpage",
         ];
         const params: QueryParams = Object.fromEntries(paramKeys.map((key) => [key, searchParams.get(key) || undefined]));
         updateFilters(params);
@@ -88,7 +90,8 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
             .then((response) => response.json())
             .then((result) => {
                 if (result.success) {
-                    const TFGS: iTFG[] = result.response.data;
+                    const TFGS: iTFG[] = result.response.tfgs;
+                    setTotalPages(result.response.totalPages);
                     setResults(TFGS);
                 } else {
                     console.error(result.response);
@@ -146,6 +149,10 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     const showNoResults = !isLoading && results?.length === 0 && hasParams(filters);
     const showResults = !isLoading && results?.length > 0 && hasParams(filters);
 
+    function handlePageChange(page: number): void {
+        updateFilters({ currentpage: page.toString() });
+    }
+
     return (
         <>
             <div className="lg:container 2xl:max-w-[1800px] mx-auto flex h-full pb-10 pt-5 lg:pt-0  min-h-[300px]">
@@ -176,7 +183,6 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
                                         <TagsSearch filters={filters} updateFilters={updateFilters} />
                                     </section>
                                     <Divider className="my-4" />
-
                                     <section>
                                         <h2 className={`${montserrat.className} font-semibold pb-1`}>Categoria</h2>
                                         <CategoryFilter categories={categories} filters={filters} updateFilters={updateFilters} />
@@ -234,42 +240,55 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
                     <div className="h-10 pt-1 ml-auto flex items-center w-64 bg-black/50 rounded-t-lg px-3">
                         <SortFilter isDisabled={!showResults} filters={filters} updateFilters={updateFilters} />
                     </div>
-                    <div className="w-full p-3 flex-1 bg-black/50 rounded-lg rounded-tr-none min-h-[300px] relative">
-                        {ready && (
-                            <div className="h-full w-full flex items-center justify-center">
-                                <IconSearch size={120} className=" opacity-50" />
-                            </div>
-                        )}
-                        {isLoading && (
-                            <div className="h-full w-full flex items-center justify-center">
-                                <Loading />
-                            </div>
-                        )}
-                        {showNoResults && (
-                            <div className="h-full w-full flex items-center justify-center">
-                                <div className="text-gray-300 text-sm md:text-xl lg:text-sm xl:text-lg text-center">
-                                    <IconX size={70} className="mx-auto stroke-1" />
-                                    No hay resultados
+                    <div className="w-full p-3 flex-1 flex-col flex bg-black/50 rounded-lg rounded-tr-none min-h-[300px] relative">
+                        <div className="flex flex-1 relative">
+                            {ready && (
+                                <div className="h-full w-full flex items-center justify-center">
+                                    <IconSearch size={120} className=" opacity-50" />
                                 </div>
-                            </div>
-                        )}
-                        {showResults && (
-                            <>
-                                <div className="absolute top-0 left-0 right-0 bottom-0 py-2 px-1">
-                                    <SimpleBar autoHide={false} className="h-full pl-3 pt-2 pr-4">
-                                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-1 w-full">
-                                            {results.map((tfg, index) => (
-                                                <Link
-                                                    key={index}
-                                                    href={`/page/${tfg.id}/${sanitizeString(tfg.title)}`}
-                                                    className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md">
-                                                    <SearchResultRow tfg={tfg} />
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </SimpleBar>
+                            )}
+                            {isLoading && (
+                                <div className="h-full w-full flex items-center justify-center">
+                                    <Loading />
                                 </div>
-                            </>
+                            )}
+                            {showNoResults && (
+                                <div className="h-full w-full flex items-center justify-center">
+                                    <div className="text-gray-300 text-sm md:text-xl lg:text-sm xl:text-lg text-center">
+                                        <IconX size={70} className="mx-auto stroke-1" />
+                                        No hay resultados
+                                    </div>
+                                </div>
+                            )}
+                            {showResults && (
+                                <>
+                                    <div className="absolute top-0 left-0 right-0 bottom-0 py-2 px-1">
+                                        <SimpleBar autoHide={false} className="h-full pl-3 pt-2 pr-4">
+                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-1 w-full">
+                                                {results.map((tfg, index) => (
+                                                    <Link
+                                                        key={index}
+                                                        href={`/page/${tfg.id}/${sanitizeString(tfg.title)}`}
+                                                        className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md">
+                                                        <SearchResultRow tfg={tfg} />
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </SimpleBar>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        {totalPages > 1 && (
+                            <Pagination
+                                color="primary"
+                                className="mx-auto pt-4"
+                                showControls
+                                total={totalPages}
+                                initialPage={1}
+                                page={parseInt(filters.currentpage || "") ?? 1}
+                                onChange={handlePageChange}
+                            />
                         )}
                     </div>
                 </div>

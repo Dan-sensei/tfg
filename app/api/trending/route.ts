@@ -1,17 +1,15 @@
 import prisma from "@/app/lib/db";
 import { iTFG } from "@/app/types/interfaces";
 import iRedis from "@/app/lib/iRedis";
-import { badResponse, successResponse } from "@/app/utils/util";
+import { successResponse } from "@/app/utils/util";
+import { PAGINATION_SIZE } from "@/app/types/defaultData";
 export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
-    const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
-    const pageSize = Math.max(
-        parseInt(searchParams.get("pageSize") || "10", 10),
-        10
-    );
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize - 1;
+    const page = Math.max(parseInt(searchParams.get("currentpage") || "1", 10), 1);
+
+    const startIndex = (page - 1) * PAGINATION_SIZE;
+    const endIndex = startIndex + PAGINATION_SIZE - 1;
     try {
         const tfgIdsWithScores = await iRedis.zRange(
             "trending_tfgs",
@@ -45,14 +43,12 @@ export async function GET(request: Request) {
             .filter((tfg) => tfg);
 
         const totalElements = await iRedis.zCard("trending_tfgs");
-        const totalPages = Math.ceil(totalElements / pageSize);
+        const totalPages = Math.ceil(totalElements / PAGINATION_SIZE);
         const pageAdjusted = Math.min(page, totalPages) || 1;
 
         return successResponse({
             tfgs: orderedTfgs,
-            page: pageAdjusted,
-            pageSize: pageSize,
-            totalElements: totalElements,
+            currentPage: pageAdjusted,
             totalPages,
         });
     } catch (e: unknown) {

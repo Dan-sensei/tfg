@@ -33,7 +33,10 @@ const exists = async (key: string) => {
 };
 
 const rename = async (key: string, newKey: string) => {
-    await kv.rename(key, newKey);
+    
+    const a = await kv.rename(key, newKey);
+    console.log(a)
+    console.log(key, newKey);
 };
 
 // HASH

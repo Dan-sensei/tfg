@@ -1,14 +1,12 @@
 "use client";
 
 import Card from "../../../components/home-components/Card";
-import { PAGE_SIZE } from "../../../lib/config";
 import { Pagination } from "@nextui-org/pagination";
 import { useEffect, useState } from "react";
 import { TFGPagination } from "../../../types/interfaces";
 import { Spinner } from "@nextui-org/spinner";
 import { getApiRouteUrl } from "../../../utils/util";
 import { unstable_noStore as noStore } from 'next/cache';
-import { DAY } from "@/app/types/defaultData";
 export default function Trending() {
     noStore();
     const [data, setData] = useState<TFGPagination | null>(null);
@@ -17,18 +15,12 @@ export default function Trending() {
     useEffect(() => {
         const fetchData = (page: number) => {
             const queryParams = new URLSearchParams({
-                page: page.toString(),
-                pageSize: PAGE_SIZE.toString(),
+                currentpage: page.toString()
             });
             const urlWithParams = getApiRouteUrl("trending", queryParams);
 
-            fetch(urlWithParams, { next: { revalidate: DAY }})
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Error");
-                    }
-                    return response.json();
-                })
+            fetch(urlWithParams)
+                .then((response) => response.json())
                 .then((result) => {
                     if (result.success) {
                         setData(result.response);

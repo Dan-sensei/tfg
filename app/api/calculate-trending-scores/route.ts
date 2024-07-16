@@ -115,9 +115,7 @@ async function calculateDailyViews() {
 async function cleanUpInvalidRedisEntries() {
     try {
         const redisEntries = await iRedis.zRange("trending_tfgs", 0, -1);
-        console.log(redisEntries)
         const tfgIdsFromRedis = redisEntries.map(entry => Number(entry));
-        redisEntries.forEach(e => console.log(e))
         const existingTfgIds = await prisma.tfg.findMany({
             select: { id: true }
         }).then(tfgs => tfgs.map(tfg => tfg.id));
@@ -171,8 +169,7 @@ async function updateTrendingScores() {
     }
 }
 
-export async function GET() {
-    noStore()
+export async function POST() {
     try{
         await calculateDailyViews();
         await updateTrendingScores();

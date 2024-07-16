@@ -143,11 +143,8 @@ export interface TFGRowData {
 
 export type TFGPagination = {
     tfgs: iTFG[];
-    page: number;
     pageSize: number;
-    totalElements: number;
     totalPages: number;
-    title: string;
 };
 export type Category = {
     id: number;
@@ -197,9 +194,9 @@ export type QueryParams = {
     maxviews?: string;
     minscore?: string;
     maxscore?: string;
-    sortby?: string;
-    sortorder?: string;
-    page?: string;
+    orderby?: string;
+    orderdirection?: string;
+    currentpage?: string;
 };
 
 export interface LinkProps {

@@ -32,13 +32,13 @@ export default function SortFilter({
         });
     };
     useEffect(() => {
-        if (filters.sortby) {
-            setSelected(filters.sortby);
+        if (filters.orderby) {
+            setSelected(filters.orderby);
         }
-        if (filters.sortorder) {
-            setSortOrder(filters.sortorder);
+        if (filters.orderdirection) {
+            setSortOrder(filters.orderdirection);
         }
-    }, [filters.sortby, filters.sortorder]);
+    }, [filters.orderby, filters.orderdirection]);
     return (
         <div className="flex items-stretch gap-1 w-full">
             <Select

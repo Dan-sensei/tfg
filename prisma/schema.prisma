@@ -63,11 +63,12 @@ model MessageRead {
   messageId   Int
   readAt      DateTime @default(now())
 
-  user       user?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user       user?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   message     ReviewMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@unique([userId, messageId])
 }
+
 model department {
   id   Int     @id @default(autoincrement())
   name String
@@ -97,23 +98,23 @@ model user {
 }
 
 model titulation {
-  id        Int     @id(map: "GradeMaster_pkey") @default(autoincrement())
+  id        Int     @id() @default(autoincrement())
   name      String
   collegeId Int
   tfgs      tfg[]
-  college   college @relation(fields: [collegeId], references: [id], map: "GradeMaster_collegeId_fkey", onDelete: Cascade)
+  college   college @relation(fields: [collegeId], references: [id], onDelete: Cascade)
   @@unique([name, collegeId])
 }
 
 model college {
   id               Int          @id(map: "College_pkey") @default(autoincrement())
-  name             String
+  name             String       @unique
   createdAt        DateTime     @default(now())
   image            String?
   defenses         defense[]
   defenseLocations location[]
   tfgs             tfg[]
-  titulation      titulation[]
+  titulations      titulation[]
   user user[]
   departments department[]
 }
@@ -139,6 +140,7 @@ model votelog {
   id        Int      @id(map: "VoteLog_pkey") @default(autoincrement())
   tfgId     Int
   ip        String
+  score     Int
   createdAt DateTime @default(now())
   tfg       tfg      @relation(fields: [tfgId], references: [id], map: "VoteLog_tfgId_fkey")
 }
@@ -158,7 +160,7 @@ model defense {
 
 model location {
   id        Int       @id(map: "Location_pkey") @default(autoincrement())
-  name      String
+  name      String  
   mapLink   String?
   collegeId Int
   defenses  defense[]

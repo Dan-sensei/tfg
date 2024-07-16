@@ -4,6 +4,7 @@ import { badResponse, successResponse } from "@/app/utils/util";
 import { Prisma } from "@prisma/client";
 import {QueryParams, iTFG} from "@/app/types/interfaces"
 import { TFGStatus } from "@/app/lib/enums";
+import { PAGINATION_SIZE } from "@/app/types/defaultData";
 
 type FilterFunction = (params: QueryParams) => Prisma.Sql;
 
@@ -90,17 +91,13 @@ export async function GET(request: Request) {
 
     const orderByClause = Prisma.sql`"${Prisma.raw(sortBy)}" ${Prisma.raw(sortOrder)}`;
     // Extract and validate pagination parameters
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const pageSize = parseInt(searchParams.get("pagesize") || "50", 10);
+    const page = parseInt(searchParams.get("currentpage") || "1", 10);
 
     if (isNaN(page) || page < 1) {
         return badResponse("Invalid page number");
     }
-    if (isNaN(pageSize) || pageSize < 1) {
-        return badResponse("Invalid page size");
-    }
 
-    const offset = (page - 1) * pageSize;
+    const offset = (page - 1) * PAGINATION_SIZE;
 
     query = Prisma.sql`
         WITH filtered_tfg AS (
@@ -112,7 +109,8 @@ export async function GET(request: Request) {
                COUNT(*) OVER() AS "totalCount"
         FROM filtered_tfg
         ORDER BY ${orderByClause}
-        LIMIT ${pageSize} OFFSET ${offset}`;
+        LIMIT ${PAGINATION_SIZE} OFFSET ${offset}`;
+
     let result = await prisma.$queryRaw`${query}` as any[];
 
     if (result.length === 0) {
@@ -121,7 +119,6 @@ export async function GET(request: Request) {
             meta: {
                 totalCount: 0,
                 page,
-                pageSize,
                 totalPages: 0,
             },
         });
@@ -133,13 +130,10 @@ export async function GET(request: Request) {
         totalCount: Number(row.totalCount)
     }));
     return successResponse({
-        data,
-        meta: {
-            totalCount,
-            page,
-            pageSize,
-            totalPages: Math.ceil(totalCount / pageSize),
-        },
+        tfgs: data,
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / PAGINATION_SIZE),
     });
 }
 

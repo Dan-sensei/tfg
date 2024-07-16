@@ -67,6 +67,7 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute, de
         fetch(urlWithParams)
             .then((response) => response.json())
             .then((result) => {
+                console.log(result);
                 if (result.success) setPageData(result.response);
             })
             .catch(() => {
@@ -108,7 +109,7 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute, de
                             {showOrderControls && (
                                 <div className="max-w-full w-72">
                                     <SortFilter
-                                        filters={{ sortorder: pagination.order, sortby: pagination.orderby }}
+                                        filters={{ orderdirection: pagination.order, orderby: pagination.orderby }}
                                         isDisabled={isFetching}
                                         updateFilters={(filters) => {
                                             const { sortorder, sortby } = filters;

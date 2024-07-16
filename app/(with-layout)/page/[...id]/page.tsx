@@ -119,6 +119,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         },
         take: 20,
     })) as iDetailsTFG[];
+    
 
     await increaseTFGViews(parseFloat(params.id));
 

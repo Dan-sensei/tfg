@@ -86,14 +86,14 @@ export const getProjectsInTitulationWithProjectCount = async (
 };
 export const getAllTitulationsByCollege = async () => {
     const titulations = await prisma.college.findMany({
-        select: { id: true, name: true, titulation: { select: { id: true, name: true }, orderBy: { name: "asc" } } },
+        select: { id: true, name: true, titulations: { select: { id: true, name: true }, orderBy: { name: "asc" } } },
         orderBy: { name: "asc" },
     });
 
     return titulations.map((college) => ({
         collegeId: college.id,
         collegeName: college.name,
-        titulations: college.titulation,
+        titulations: college.titulations,
     })) as TitulationByCollege[];
 };
 
