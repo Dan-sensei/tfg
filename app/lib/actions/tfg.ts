@@ -118,7 +118,7 @@ export async function castScore(tfgId: number, givenScore: number) {
 
     const newScoredTimes = !voteLog ? scoredTimes + 1 : scoredTimes;
     const newTotalScore = currentScore * scoredTimes - oldScore + givenScore;
-    const newScore = newTotalScore / newScoredTimes;
+    const newScore = parseFloat((newTotalScore / newScoredTimes).toFixed(2));
 
     await prisma.$transaction(async (prismaTransaction) => {
         await prismaTransaction.votelog.upsert({
