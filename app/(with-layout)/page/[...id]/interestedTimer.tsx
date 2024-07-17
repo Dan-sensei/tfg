@@ -7,14 +7,15 @@ import { useEffect } from "react";
 
 export default function InterestedTimer({ tags }: { tags: string[] }) {
     const { consent, isMounted } = useCookieConsent();
-
     useEffect(() => {
         if (!isMounted || !consent) {
             return;
         }
-
         let interestedTimeout = setTimeout(() => {
-            setInterestedCookie(tags);
+            fetch("/api/tfg/set-interested-cookie", {
+                method: "POST",
+                body: JSON.stringify({ tags }),
+            }).catch((e) => console.error(e));
         }, INTERESTED_TIMEOUT);
 
         return () => {

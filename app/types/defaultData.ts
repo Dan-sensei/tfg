@@ -16,7 +16,7 @@ export const ROW_RECOMMENDED_RANDOM_MULT = 100;
 export const TAG_RECOMMENDED_POINTS = 1000;
 export const MAX_TAGS_IN_COOKIE = 20;
 
-export const INTERESTED_TIMEOUT = 10 * 1000;
+export const INTERESTED_TIMEOUT = 3 * 1000;
 
 export const ROLE_NAMES = {
     [Role.STUDENT]: "Estudiante",

@@ -75,3 +75,5 @@ export const DeleteSchema = v.object({
     targetId: v.number("Id inválido"),
     fallbackId: v.nullable(v.number()),
 });
+
+export const StringArraySchema = v.array(v.string());

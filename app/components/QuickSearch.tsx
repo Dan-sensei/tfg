@@ -8,7 +8,6 @@ import { Input } from "@nextui-org/input";
 import { useDebouncedCallback } from "use-debounce";
 import { SEARCH_INPUT_DELAY } from "../lib/config";
 import { iTFG } from "../types/interfaces";
-import Link from "next/link";
 import { Loading, NoResults, ResultList } from "./SearchComponents";
 import { getApiRouteUrl } from "../utils/util";
 
@@ -48,7 +47,7 @@ export default function QuickSearch() {
                 .then((response) => response.json())
                 .then((result) => {
                     if (result.success) {
-                        const TFGS: iTFG[] = result.response.data;
+                        const TFGS: iTFG[] = result.response.tfgs;
                         setResults(TFGS);
                     } else {
                         setResults([]);

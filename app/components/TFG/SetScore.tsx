@@ -70,7 +70,7 @@ export default function SetScore({ myScore, tfgId }: Props) {
     };
 
     return (
-        <div className="text-center justify-center flex flex-col items-center">
+        <div className="text-center justify-center flex flex-col items-center pt-5">
             <h2 className="text-gray-2200">¿Qué te ha parecido?</h2>
             <div className={clsx("flex", !rating && "opacity-50")}>{renderStars()}</div>
             <div className="h-5 pt-3">{isUpdating && <Spinner size="sm" color="white" />}</div>
