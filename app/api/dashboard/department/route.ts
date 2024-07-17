@@ -9,7 +9,6 @@ import {
     getAuthorizedCollegeId,
     REQUIRED_ROLES,
 } from "@/app/lib/auth";
-import { Role } from "@/app/lib/enums";
 import * as v from "valibot";
 import { DeleteSchema } from "@/app/lib/schemas";
 import { getAllDepartmentsWithProjectCount } from "@/app/lib/fetchData";
@@ -122,7 +121,7 @@ export async function DELETE(request: NextRequest) {
             });
         });
 
-        return successResponse("Department deleted", 200);
+        return successResponse(true, 200);
     } catch (error) {
         console.error(error);
         return badResponse("Error deleting department", 500);

@@ -120,7 +120,7 @@ export async function DELETE(request: NextRequest) {
         });
 
         revalidateTag("all-titulations");
-        return successResponse("Titulation deleted", 200);
+        return successResponse(true, 200);
     } catch (error) {
         console.error(error);
         return badResponse("Error deleting titulation", 500);

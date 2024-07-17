@@ -126,7 +126,7 @@ export async function DELETE(request: NextRequest) {
             });
         });
 
-        return successResponse("Location deleted", 200);
+        return successResponse(true, 200);
     } catch (error) {
         console.error(error);
         return badResponse("Error deleting location", 500);

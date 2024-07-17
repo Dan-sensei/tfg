@@ -3,15 +3,18 @@ import { Role } from "../lib/enums";
 
 
 export const DAY = 86400;
+export const HALF_DAY = 43200;
 
 export const DEF_ICON_SIZE = 18;
 
 export const PAGINATION_SIZE = 30;
 
+export const ROW_SIZE = 30;
 
-
-
-
+export const ROW_RECOMMENDED_MAX_VIEWS = 100000;
+export const ROW_RECOMMENDED_SCORE_MULT = 0.4;
+export const ROW_RECOMMENDED_VIEWS_MULT = 0.4;
+export const ROW_RECOMMENDED_RANDOM_MULT = 100;
 
 
 

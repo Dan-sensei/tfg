@@ -41,7 +41,13 @@ export async function GET(request: NextRequest) {
             select: {
                 id: true,
                 message: true,
-                user: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    }
+                },
                 createdAt: true,
                 edited: true,
                 reads: {
@@ -132,7 +138,7 @@ export async function PUT(request: NextRequest) {
                 edited: true,
             },
         });
-        return successResponse("Message updated");
+        return successResponse(true);
     } catch (err) {
         return badResponse("Error updating message", 500);
     }
@@ -153,7 +159,7 @@ export async function DELETE(request: NextRequest) {
                 userId: userId,
             },
         });
-        return successResponse("Message deleted");
+        return successResponse(true);
     } catch (err) {
         console.log(err);
         return badResponse("Error deleting message", 500);

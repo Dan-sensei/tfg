@@ -117,7 +117,7 @@ export async function DELETE(request: NextRequest) {
         });
 
         revalidateTag("categories");
-        return successResponse("Category deleted", 200);
+        return successResponse(true, 200);
     } catch (error) {
         console.error(error);
         return badResponse("Error deleting category", 500);

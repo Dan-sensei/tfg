@@ -13,7 +13,7 @@ export default function Favoritos() {
     const [isMounted, setIsMounted] = useState(false);
     const [favorites, setFavorites] = useState<iTFG[]>([]);
     const { getAllLikes, isInitialized, toggleFav } = useFavorites();
-
+    const [count, setCount] = useState<number>(0);
     useEffect(() => {
         if (!isInitialized) return;
         const favoritesIds = getAllLikes();

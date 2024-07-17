@@ -8,7 +8,7 @@ import { IconChevronLeft } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { emblaNoDragLogic } from "../../utils/util";
 
-interface CarouselRowProps {
+interface RowCarouselProps {
     tfgArray: iTFG[];
 }
 
@@ -70,7 +70,7 @@ const getCardClassname = (index: number,
 
 }
 
-export default function CarouselRow({ tfgArray }: CarouselRowProps) {
+export default function RowCarousel({ tfgArray }: RowCarouselProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: false,
         slidesToScroll: 2,
@@ -186,14 +186,3 @@ export default function CarouselRow({ tfgArray }: CarouselRowProps) {
         </>
     );
 }
-
-/*
-<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 mt-5 gap-5">
-            {
-            tfgs.map((tfg) => (
-                <Card key={tfg.id} id={tfg.id} thumbnail={tfg.thumbnail} title={tfg.title} description={tfg.description} pages={tfg.pages} createdAt={tfg.createdAt.toString()} />
-            ))
-            }
-        </div>
-
-        */

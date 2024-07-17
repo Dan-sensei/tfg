@@ -1,11 +1,22 @@
-import CarouselRow from "../../components/home-components/CarouselRow";
+import RowCarousel from "../../components/home-components/RowCarousel";
 import HomeCarousel from "../../components/home-components/HomeCarousel";
 import prisma from "@/app/lib/db";
-import { DBProperty, TFGRowData, PopularFields } from "@/app/types/interfaces";
+import { DBProperty, TFGRowData, PopularFields, iTFG } from "@/app/types/interfaces";
 import { tfgFields, tfgTopFields } from "@/app/types/prismaFieldDefs";
 import Link from "next/link";
 import { IconChevronRight } from "@tabler/icons-react";
 import { TFGStatus } from "@/app/lib/enums";
+import { s_cache } from "@/app/lib/cache";
+import {
+    DAY,
+    HALF_DAY,
+    ROW_RECOMMENDED_MAX_VIEWS,
+    ROW_RECOMMENDED_RANDOM_MULT,
+    ROW_RECOMMENDED_SCORE_MULT,
+    ROW_RECOMMENDED_VIEWS_MULT,
+    ROW_SIZE,
+} from "@/app/types/defaultData";
+import { Prisma } from "@prisma/client";
 
 async function getRecents() {
     const recents = await prisma.tfg.findMany({
@@ -16,7 +27,7 @@ async function getRecents() {
         orderBy: {
             createdAt: "desc",
         },
-        take: 20,
+        take: ROW_SIZE,
     });
     return recents;
 }
@@ -33,136 +44,121 @@ async function getTopWorks() {
     return TopWorks;
 }
 
-async function findMostPopular(): Promise<PopularFields> {
-    async function getPopular(type: DBProperty, groupByField: "titulationId" | "categoryId") {
-        return (
-            await prisma.tfg.groupBy({
-                where: {
-                    status: TFGStatus.PUBLISHED,
-                },
-                by: [groupByField],
-                _sum: {
-                    views: true,
-                },
-                orderBy: {
-                    _sum: {
-                        views: "desc",
-                    },
-                },
-                take: 3,
-            })
-        ).map((item) => ({
-            type: type,
-            id: item[groupByField],
-            views: item._sum.views ?? 0,
-        }));
-    }
+async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId") {
+    const column = Prisma.sql([by]);
+    const tableName = by === "categoryId" ? "category" : "titulation";
 
-    const [mostPopularGradeMasters, mostPopularCategories] = await Promise.all([
-        getPopular(DBProperty.Titulation, "titulationId"),
-        getPopular(DBProperty.Category, "categoryId"),
-    ]);
-
-    const gradeIds = mostPopularGradeMasters.sort((a, b) => b.views - a.views || a.id - b.id).map((p) => p.id);
-    const categoriesIds = mostPopularCategories.sort((a, b) => b.views - a.views || a.id - b.id).map((p) => p.id);
-    const popularGroups = [...mostPopularGradeMasters, ...mostPopularCategories];
-    popularGroups.sort((a, b) => b.views - a.views || a.id - b.id);
-    return { grade: gradeIds, category: categoriesIds, order: popularGroups };
+    const query = Prisma.sql`
+        WITH TFG_Scores AS (
+            SELECT 
+                t.id,
+                t.title,
+                t.thumbnail,
+                t.description,
+                t.views,
+                t.score,
+                t.pages,
+                t."createdAt",
+                t."${column}" AS groupId,
+                (t.score * ${ROW_RECOMMENDED_SCORE_MULT} + LEAST(t.views, ${ROW_RECOMMENDED_MAX_VIEWS}) * ${ROW_RECOMMENDED_VIEWS_MULT} + random() * ${ROW_RECOMMENDED_RANDOM_MULT}) AS recommendedScore
+            FROM tfg t
+            WHERE t.status = ${TFGStatus.PUBLISHED}
+        ),
+        Ranked_TFGs AS (
+            SELECT 
+                ts.*,
+                ROW_NUMBER() OVER (PARTITION BY ts.groupId ORDER BY ts.recommendedScore DESC) AS rn
+            FROM TFG_Scores ts
+        ),
+        Filtered_TFGs AS (
+            SELECT 
+                rt.*
+            FROM Ranked_TFGs rt
+            WHERE rt.rn <= ${ROW_SIZE}
+        ),
+        CategoryScores AS (
+            SELECT 
+                ft.groupId AS id,
+                SUM(ft.recommendedScore) AS totalRecommendedScore
+            FROM Filtered_TFGs ft
+            GROUP BY ft.groupId
+        )
+        SELECT 
+            cs.id AS id,
+            cat.name,
+            cs.totalRecommendedScore,
+            json_agg(
+                json_build_object(
+                    'id', ft.id,
+                    'title', ft.title,
+                    'thumbnail', ft.thumbnail,
+                    'description', ft.description,
+                    'views', ft.views,
+                    'score', ft.score,
+                    'pages', ft.pages,
+                    'createdAt', ft."createdAt",
+                    'recommendedScore', ft.recommendedScore
+                )
+            ) AS tfgs
+        FROM CategoryScores cs
+        JOIN ${Prisma.sql([tableName])} cat ON cs.id = cat.id
+        JOIN Filtered_TFGs ft ON cs.id = ft.groupId
+        GROUP BY cs.id, cat.name, cs.totalRecommendedScore
+        ORDER BY cs.totalRecommendedScore DESC;
+    `;
+    const data = (await prisma.$queryRaw(query)) as RowDataQuery[];
+    return data.map((data) => ({ ...data, link: tableName + "/" + data.id })) as RowDataWithLink[];
 }
 
-function sortCombinedArray(
-    order: { type: number; id: number; views: number }[],
-    categoriesArray: TFGRowData[],
-    gradesArray: TFGRowData[]
-): TFGRowData[] {
-    const sortedArray: TFGRowData[] = [];
-    for (const item of order) {
-        if (item.type === DBProperty.Category) {
-            const element = categoriesArray.find((c) => c.id == item.id);
-            if (element) sortedArray.push(element);
-        } else if (item.type === DBProperty.Titulation) {
-            const element = gradesArray.find((c) => c.id == item.id);
-            if (element) sortedArray.push(element);
-        }
-    }
-    return sortedArray;
-}
-
-const getRowsData = async () => {
-    const popularFields = await findMostPopular();
-    function getQuery(ids: number[]) {
-        return {
-            where: {
-                id: {
-                    in: ids,
-                },
-            },
-            select: {
-                id: true,
-                name: true,
-                tfgs: {
-                    select: {
-                        title: true,
-                        id: true,
-                        thumbnail: true,
-                        description: true,
-                        views: true,
-                        score: true,
-                        pages: true,
-                        createdAt: true,
-                    },
-                    take: 20,
-                    orderBy: {
-                        views: "desc" as const,
-                    },
-                },
-            },
-        };
-    }
-    const categoriesWithTopTFGs = await prisma.category.findMany(getQuery(popularFields.category));
-    const categoriesArray: TFGRowData[] = categoriesWithTopTFGs.map((category) => ({
-        id: category.id,
-        name: "Trabajos de " + category.name,
-        type: "categoria",
-        tfgs: category.tfgs,
-    }));
-    const gradesWithTopTFGs = await prisma.titulation.findMany(getQuery(popularFields.grade));
-    const gradesArray: TFGRowData[] = gradesWithTopTFGs.map((grade) => ({
-        id: grade.id,
-        name: "Trabajos de " + grade.name,
-        type: "titulation",
-        tfgs: grade.tfgs,
-    }));
-
-    return sortCombinedArray(popularFields.order, categoriesArray, gradesArray);
-};
-
-const dataFetchers = [
-    //{ key: 'Para ti', promise: foryou() },
-    { key: "Trabajos recientes", promise: getRecents() },
-];
-
-async function getData() {
+async function getHomeRows() {
     const result: TFGRowData[] = [];
-    for (const dataFetcher of dataFetchers) {
-        const data = await dataFetcher.promise;
-        result.push({
-            id: -1,
-            name: dataFetcher.key,
-            type: "",
-            tfgs: data,
-        });
-    }
-    const RowData = await getRowsData();
+    result.push({
+        name: "Trabajos recientes",
+        link: "",
+        tfgs: await getRecents(),
+    });
+    const categoryData = await getGroupedTFGsWithScoreBy("categoryId");
+    const titulationData = await getGroupedTFGsWithScoreBy("titulationId");
 
-    return result.concat(RowData);
+    const combinedData = [...categoryData, ...titulationData];
+    combinedData.sort((a, b) => b.totalRecommendedScore - a.totalRecommendedScore);
+
+    return result.concat(combinedData.map((element) => ({ name: "Trabajos de " + element.name, link: element.link, tfgs: element.tfgs })));
+}
+
+const getCachedTopWorks = s_cache(
+    async () => {
+        return await getTopWorks();
+    },
+    ["home-top-works"],
+    {
+        revalidate: DAY,
+    }
+);
+
+const getCachedHomeRows = s_cache(
+    async () => {
+        return await getHomeRows();
+    },
+    ["home-data"],
+    {
+        revalidate: HALF_DAY,
+    }
+);
+interface RowDataQuery {
+    id: number;
+    totalRecommendedScore: number;
+    name: string;
+    tfgs: iTFG[];
+}
+
+interface RowDataWithLink extends RowDataQuery {
+    link: string;
 }
 
 export default async function Home() {
-    const topWorks = await getTopWorks();
-
-    const RowData = await getData();
-
+    const topWorks = await getCachedTopWorks();
+    const RowData = await getCachedHomeRows();
     return (
         <div className="overflow-hidden pt-[66px] lg:pt-[87px] ">
             <HomeCarousel topTfgs={topWorks} />
@@ -177,16 +173,16 @@ export default async function Home() {
                                 </div>
                                 {rowData.name}
                             </div>
-                            {rowData.type && (
+                            {rowData.link && (
                                 <Link
                                     className=" xs:pl-3 text-sm lg:text-medium transition-colors inline-flex items-center text-gray-400 hover:text-nova-link group"
-                                    href={`/${rowData.type}/${rowData.id}`}>
+                                    href={`/${rowData.link}`}>
                                     Ver más{" "}
                                     <IconChevronRight className="inline text-blue-500 stroke-3 duration-400 group-hover:translate-x-1" size={20} />{" "}
                                 </Link>
                             )}
                         </div>
-                        <CarouselRow tfgArray={rowData.tfgs} />
+                        <RowCarousel tfgArray={rowData.tfgs} />
                     </div>
                 ))}
             </div>

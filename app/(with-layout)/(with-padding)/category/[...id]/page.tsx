@@ -9,7 +9,7 @@ import { Suspense } from "react";
 export default async function Categoria({ params }: { params: { id: string } }) {
     const validateIdResult = v.safeParse(IdSchema, params.id[0]);
     if (!validateIdResult.success) {
-        redirect("/categorias", RedirectType.replace);
+        redirect("/categories", RedirectType.replace);
     }
 
     const categoryWithProjectCount = await prisma.category.findUnique({
@@ -27,7 +27,7 @@ export default async function Categoria({ params }: { params: { id: string } }) 
     });
 
     if (!categoryWithProjectCount) {
-        redirect("/categorias", RedirectType.replace);
+        redirect("/categories", RedirectType.replace);
     }
 
     return (

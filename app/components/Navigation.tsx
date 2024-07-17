@@ -65,7 +65,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                                 {firstColumn.map((category, index) => (
                                     <Link
                                         key={index}
-                                        href={`/categoria/${category.id}`}
+                                        href={`/category/${category.id}`}
                                         className="hover:text-nova-link transition-colors block pt-1">
                                         <div>{category.name}</div>
                                     </Link>
@@ -75,7 +75,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                                 {secondColumn.map((category, index) => (
                                     <Link
                                         key={index}
-                                        href={`/categoria/${category.id}`}
+                                        href={`/category/${category.id}`}
                                         className="hover:text-nova-link transition-colors block pt-1">
                                         <div>{category.name}</div>
                                     </Link>
@@ -83,7 +83,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
                             </div>
                         </div>
                         <div className="pl-3 text-gray-400">
-                            <Link href={"/categorias"} className="hover:text-nova-link transition-colors block pt-1">
+                            <Link href={"/categories"} className="hover:text-nova-link transition-colors block pt-1">
                                 Ver todos <IconChevronRight className="inline text-nova-link" size={20} />
                             </Link>
                         </div>
@@ -115,7 +115,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
 const links: LinkProps[] = [
     { name: "Inicio", href: "/home" },
     { name: "Trending", href: "/trending" },
-    { name: "Categorias", href: "/categoria", isCategories: true },
+    { name: "Categorias", href: "/category", isCategories: true },
     { name: "Próximas defensas", href: "/defensas" },
     { name: "Favoritos", href: "/favoritos" },
 ];
@@ -123,7 +123,7 @@ const links: LinkProps[] = [
 const mobile_links: MobileLinkProps[] = [
     { name: "Inicio", href: "/home", icon: <IconHomeFilled size={DEF_ICON_SIZE} /> },
     { name: "Trending", href: "/trending", icon: <IconTrendingUp size={DEF_ICON_SIZE} /> },
-    { name: "Categorias", href: "/categoria", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
+    { name: "Categorias", href: "/category", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
     {
         name: "Titulaciones",
         href: "/titulations",

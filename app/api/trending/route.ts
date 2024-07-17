@@ -3,6 +3,7 @@ import { iTFG } from "@/app/types/interfaces";
 import iRedis from "@/app/lib/iRedis";
 import { successResponse } from "@/app/utils/util";
 import { PAGINATION_SIZE } from "@/app/types/defaultData";
+import { TFGStatus } from "@/app/lib/enums";
 export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
                 id: {
                     in: tfgIds,
                 },
+                status: TFGStatus.PUBLISHED,
             },
             select: {
                 id: true,

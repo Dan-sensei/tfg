@@ -25,7 +25,7 @@ export default async function Categorias() {
                     return (
                         <Link
                             key={i}
-                            href={`/categoria/${c.id}`}
+                            href={`/category/${c.id}`}
                             className="rounded-xl  bg-[#07090c] font-semibold flex items-center justify-center text-center transition-all py-10 border-1 border-white/5 hover:bg-white/10">
                             <div>{c.name}</div>
                         </Link>

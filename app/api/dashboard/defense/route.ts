@@ -33,7 +33,7 @@ const createOrUpdateDefenseAndOrLocation = async (defenseData: v.InferInput<type
             });
             locationId = newLocation.id;
         }
-        // TODO: admin can change any college
+
         const insertDate = {
             title: defenseData.title,
             startTime: defenseData.startTime,
