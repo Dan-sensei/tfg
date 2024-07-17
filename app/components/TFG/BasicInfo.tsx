@@ -130,13 +130,12 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
             </section>
             <section className="pt-5 flex flex-wrap gap-2 md:max-w-96">
                 {TFG.tags.map((tag, index) => (
-                    <button
+                    <span
                         key={index}
-                        type="button"
-                        className={`text-xs inline-block transition-colors bg-black/60 hover:bg-slate-400/50 px-4 py-2 lg:px-2 lg:py-1 rounded-full`}>
+                        className={`text-xs inline-block transition-colors bg-black/60 px-4 py-2 lg:px-2 lg:py-1 rounded-full`}>
                         <span className="inline-block pr-[2px] text-blue-500">#</span>
                         <span className="font-medium">{tag}</span>
-                    </button>
+                    </span>
                 ))}
             </section>
         </>
