@@ -34,7 +34,7 @@ async function getRecents() {
     return recents;
 }
 
-export function getInterestedTags() {
+function getInterestedTags() {
     const get = cookies().get("interested-tags");
     if (!get) {
         return [];
