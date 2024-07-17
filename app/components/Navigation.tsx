@@ -116,7 +116,7 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
 const links: LinkProps[] = [
     { name: "Inicio", href: "/home", icon: <IconHomeFilled size={DEF_ICON_SIZE} /> },
     { name: "Trending", href: "/trending", icon: <IconTrendingUp size={DEF_ICON_SIZE} /> },
-    { name: "Categorias", href: "/category", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
+    { name: "Categorias", href: "/categories", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
     {
         name: "Titulaciones",
         href: "/titulations",
