@@ -139,6 +139,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
     const [showSelectArrow, setShowSelectArrow] = useState(false);
     const { data: session } = useSession();
 
+   
     useEffect(() => {
         if (!findSelectedLink()) {
             setShowSelectArrow(false);
@@ -157,7 +158,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
         return pathName.toLowerCase().startsWith(link.toLowerCase());
     };
     const findSelectedLink = () => {
-        const activeLinkIndex = links.findIndex((link) => isCurrentPath(link.href));
+        const activeLinkIndex = links.filter(link => !link.isSubcategory).findIndex((link) => isCurrentPath(link.href));
         const activeLinkElement = linkRefs.current[activeLinkIndex]?.parentElement;
         if (activeLinkElement) {
             setSelectionDisplay(activeLinkElement);
