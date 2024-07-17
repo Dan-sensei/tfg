@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import Footer from "@/app/components/Footer";
 import { CategoryLink } from "@/app/types/interfaces";
 import prisma from "@/app/lib/db";
-import { unstable_cache as cache } from "next/cache";
 import { DAY } from "../types/defaultData";
 import Navigation from "../components/Navigation";
+import { s_cache } from "../lib/cache";
+import CookieConsent from "../components/CookieConsentComponent";
 
 export const metadata: Metadata = {
     title: "Nova",
     description: "Nova es una plataforma para compartir trabajos finales de grado y másteres",
 };
 
-const getPopularCategories = cache(
+const getPopularCategories = s_cache(
     async () => {
         const topCategories = (await prisma.$queryRaw`
 		SELECT id, name FROM (
@@ -46,6 +47,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <section className="bg-grid flex-1 flex">
                 <div className="w-full">{children}</div>
             </section>
+            <CookieConsent />
+
             <Footer />
         </main>
     );

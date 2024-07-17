@@ -202,8 +202,6 @@ export interface LinkProps {
     name: string;
     href: string;
     isCategories?: boolean;
-}
-export interface MobileLinkProps extends LinkProps {
     icon?: JSX.Element;
     isSubcategory?: boolean;
 }

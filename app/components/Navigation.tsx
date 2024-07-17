@@ -24,7 +24,7 @@ import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
-import { CategoryLink, LinkProps, MobileLinkProps } from "@/app/types/interfaces";
+import { CategoryLink, LinkProps } from "@/app/types/interfaces";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/dropdown";
 import Search from "./QuickSearch";
 import { useSession } from "next-auth/react";
@@ -112,15 +112,8 @@ const TooltipLink = ({ href, name, categoriesElements }: TooltipLinkProps) => {
     );
 };
 
-const links: LinkProps[] = [
-    { name: "Inicio", href: "/home" },
-    { name: "Trending", href: "/trending" },
-    { name: "Categorias", href: "/category", isCategories: true },
-    { name: "Próximas defensas", href: "/defensas" },
-    { name: "Favoritos", href: "/favoritos" },
-];
 
-const mobile_links: MobileLinkProps[] = [
+const links: LinkProps[] = [
     { name: "Inicio", href: "/home", icon: <IconHomeFilled size={DEF_ICON_SIZE} /> },
     { name: "Trending", href: "/trending", icon: <IconTrendingUp size={DEF_ICON_SIZE} /> },
     { name: "Categorias", href: "/category", isCategories: true, icon: <IconCategoryFilled size={DEF_ICON_SIZE} /> },
@@ -236,7 +229,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                                 <IconTopologyRing2 className="stroke-[#258fe6]" size={50} />
                             </Link>
                         </NavbarBrand>
-                        {links.map((link, index) => (
+                        {links.filter(link => !link.isSubcategory).map((link, index) => (
                             <NavbarItem key={`${index}`} className={`h-full relative`} data-active={pathName === link.href ? "true" : undefined}>
                                 <div
                                     ref={(link) => {
@@ -307,7 +300,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
                             exit: { opacity: 0, transform: "translateY(-50px)" },
                             transition: { type: "easeInOut", duration: 0.2 },
                         }}>
-                        {mobile_links.map((link, index) => (
+                        {links.map((link, index) => (
                             <NavbarMenuItem key={`${index}`}>
                                 <Link
                                     className={`rounded-lg w-full transition-colors ease-in-out flex items-center gap-2  ${

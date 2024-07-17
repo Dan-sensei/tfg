@@ -15,8 +15,10 @@ import {
     ROW_RECOMMENDED_SCORE_MULT,
     ROW_RECOMMENDED_VIEWS_MULT,
     ROW_SIZE,
+    TAG_RECOMMENDED_POINTS,
 } from "@/app/types/defaultData";
 import { Prisma } from "@prisma/client";
+import { cookies } from "next/headers";
 
 async function getRecents() {
     const recents = await prisma.tfg.findMany({
@@ -30,6 +32,20 @@ async function getRecents() {
         take: ROW_SIZE,
     });
     return recents;
+}
+
+export function getInterestedTags() {
+    const get = cookies().get("interested-tags");
+    if (!get) {
+        return [];
+    }
+
+    const currentTags = get.value.split(",").map((tag) => {
+        const [name] = tag.split(":");
+        return name;
+    });
+    
+    return currentTags;
 }
 
 async function getTopWorks() {
@@ -47,7 +63,8 @@ async function getTopWorks() {
 async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId") {
     const column = Prisma.sql([by]);
     const tableName = by === "categoryId" ? "category" : "titulation";
-
+    const tags = getInterestedTags();
+    const formattedTags = tags && tags.length > 0 ? Prisma.sql`${Prisma.join(tags.map(tag => Prisma.sql`${tag}`))}` : Prisma.sql``;
     const query = Prisma.sql`
         WITH TFG_Scores AS (
             SELECT 
@@ -60,7 +77,15 @@ async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId") {
                 t.pages,
                 t."createdAt",
                 t."${column}" AS groupId,
-                (t.score * ${ROW_RECOMMENDED_SCORE_MULT} + LEAST(t.views, ${ROW_RECOMMENDED_MAX_VIEWS}) * ${ROW_RECOMMENDED_VIEWS_MULT} + random() * ${ROW_RECOMMENDED_RANDOM_MULT}) AS recommendedScore
+                (t.score * ${ROW_RECOMMENDED_SCORE_MULT} + 
+                LEAST(t.views, ${ROW_RECOMMENDED_MAX_VIEWS}) * ${ROW_RECOMMENDED_VIEWS_MULT} + 
+                random() * ${ROW_RECOMMENDED_RANDOM_MULT} +
+                CASE 
+                    WHEN t.tags && ARRAY[${formattedTags}]::text[]
+                    THEN ${TAG_RECOMMENDED_POINTS}
+                    ELSE 0 
+                END
+            ) AS recommendedScore
             FROM tfg t
             WHERE t.status = ${TFGStatus.PUBLISHED}
         ),
@@ -106,6 +131,7 @@ async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId") {
         GROUP BY cs.id, cat.name, cs.totalRecommendedScore
         ORDER BY cs.totalRecommendedScore DESC;
     `;
+
     const data = (await prisma.$queryRaw(query)) as RowDataQuery[];
     return data.map((data) => ({ ...data, link: tableName + "/" + data.id })) as RowDataWithLink[];
 }
@@ -158,7 +184,7 @@ interface RowDataWithLink extends RowDataQuery {
 
 export default async function Home() {
     const topWorks = await getCachedTopWorks();
-    const RowData = await getCachedHomeRows();
+    const RowData = await getHomeRows();
     return (
         <div className="overflow-hidden pt-[66px] lg:pt-[87px] ">
             <HomeCarousel topTfgs={topWorks} />

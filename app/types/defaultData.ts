@@ -1,7 +1,5 @@
 import { Role } from "../lib/enums";
 
-
-
 export const DAY = 86400;
 export const HALF_DAY = 43200;
 
@@ -15,8 +13,10 @@ export const ROW_RECOMMENDED_MAX_VIEWS = 100000;
 export const ROW_RECOMMENDED_SCORE_MULT = 0.4;
 export const ROW_RECOMMENDED_VIEWS_MULT = 0.4;
 export const ROW_RECOMMENDED_RANDOM_MULT = 100;
+export const TAG_RECOMMENDED_POINTS = 1000;
+export const MAX_TAGS_IN_COOKIE = 20;
 
-
+export const INTERESTED_TIMEOUT = 10 * 1000;
 
 export const ROLE_NAMES = {
     [Role.STUDENT]: "Estudiante",
@@ -24,7 +24,6 @@ export const ROLE_NAMES = {
     [Role.MANAGER]: "Manager",
     [Role.ADMIN]: "Admin",
 };
-
 
 // Dashboard
 export const MAX_LINK_LENGTH = 350;

@@ -2,7 +2,7 @@
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenu, NavbarMenuItem, NavbarMenuToggle } from "@nextui-org/navbar";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { FullCollege, MobileLinkProps } from "@/app/types/interfaces";
+import { FullCollege, LinkProps } from "@/app/types/interfaces";
 import {
     IconArrowLeft,
     IconBox,
@@ -41,18 +41,18 @@ interface Props {
 
 const iconStyles = "stroke-2 w-5 h-5 mx-0";
 
-const CommonLinks: MobileLinkProps[] = [
+const CommonLinks: LinkProps[] = [
     { name: "Home", href: "/dashboard", icon: <IconHome className={iconStyles} /> },
     { name: "Perfil", href: "/dashboard/profile", icon: <IconUserScan className={iconStyles} /> },
     { name: "Proyecto", href: "/dashboard/project", icon: <IconBox className={iconStyles} /> },
 ];
 
-const TutorLinks: MobileLinkProps[] = [
+const TutorLinks: LinkProps[] = [
     ...CommonLinks,
     { name: "Área tutor", href: "/dashboard/tutor-area", icon: <IconSchool className={iconStyles} /> },
 ];
 
-const ManagerLinks: MobileLinkProps[] = [
+const ManagerLinks: LinkProps[] = [
     ...TutorLinks,
     { name: "Área gestión", href: "/dashboard/manager-area", icon: <IconSitemap className={iconStyles} /> },
     { name: "Defensas", href: "/dashboard/defense-area", icon: <IconCalendarClock className={iconStyles} /> },
