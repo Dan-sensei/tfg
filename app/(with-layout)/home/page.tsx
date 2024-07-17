@@ -184,7 +184,7 @@ interface RowDataWithLink extends RowDataQuery {
 
 export default async function Home() {
     const topWorks = await getCachedTopWorks();
-    const RowData = await getHomeRows();
+    const RowData = await getCachedHomeRows();
     return (
         <div className="overflow-hidden pt-[66px] lg:pt-[87px] ">
             <HomeCarousel topTfgs={topWorks} />
