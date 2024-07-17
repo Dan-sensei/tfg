@@ -67,7 +67,6 @@ export default function ProjectGrid({ id, name, totalElementsCount, apiRoute, de
         fetch(urlWithParams)
             .then((response) => response.json())
             .then((result) => {
-                console.log(result);
                 if (result.success) setPageData(result.response);
             })
             .catch(() => {

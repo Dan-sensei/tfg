@@ -24,33 +24,133 @@ export async function increaseTFGViews(tfgId: number) {
     }
 }
 
-export async function castScore(
-    tfgId: number,
-    givenScore: number,
-    currentScore: number,
-    scoredTimes: number
-) {
+export async function getMyScore(tfgId: number) {
+    try {
+        const ip = headers().get("x-forwarded-for")?.split(",")[0].trim();
+
+        if (!ip) {
+            return 0;
+        }
+
+        const vote = await prisma.votelog.findUnique({
+            where: {
+                tfgId_ip: {
+                    tfgId,
+                    ip,
+                },
+            },
+        });
+
+        return vote ? vote.score : 0;
+    } catch (e) {
+        return 0;
+    }
+}
+
+export async function castScore(tfgId: number, givenScore: number) {
     const ip = headers().get("x-forwarded-for")?.split(",")[0].trim();
 
     if (!ip) {
-        return;
+        return { success: false, response: "No podemos registrar tu voto" };
     }
 
-    const voteKey = `votes:${tfgId}`;
-    const hasVoted = await iRedis.sIsMember(voteKey, ip);
+    const voteLog = await prisma.votelog.findUnique({
+        where: {
+            tfgId_ip: {
+                tfgId,
+                ip,
+            },
+        },
+        select: {
+            score: true,
+            dailyVoteCount: true,
+            lastUpdated: true,
+            tfg: {
+                select: {
+                    score: true,
+                    scoredTimes: true,
+                },
+            },
+        },
+    });
 
-    if (!hasVoted) {
-        await iRedis.sAdd(voteKey, ip);
-        await prisma.tfg.update({
+    const now = new Date();
+    let dailyVoteCount = 1;
+    let oldScore = 0;
+    if (voteLog) {
+        const lastUpdated = new Date(voteLog.lastUpdated);
+        const isSameDay =
+            lastUpdated.getDate() === now.getDate() && lastUpdated.getMonth() === now.getMonth() && lastUpdated.getFullYear() === now.getFullYear();
+
+        if (isSameDay) {
+            dailyVoteCount = voteLog.dailyVoteCount + 1;
+        }
+
+        if (isSameDay && voteLog.dailyVoteCount >= 3) {
+            return { succes: false, response: "Ya has editado tu voto suficiente por hoy" };
+        }
+        oldScore = voteLog.score;
+    }
+
+    let currentScore = 0;
+    let scoredTimes = 0;
+    if (voteLog) {
+        currentScore = voteLog.tfg.score;
+        scoredTimes = voteLog.tfg.scoredTimes;
+    } else {
+        const tfgWithScore = await prisma.tfg.findUnique({
+            where: {
+                id: tfgId,
+            },
+            select: {
+                score: true,
+                scoredTimes: true,
+            },
+        });
+
+        if (!tfgWithScore) {
+            return { success: false, response: "No se ha podido encontrar el TFG" };
+        }
+
+        currentScore = tfgWithScore.score;
+        scoredTimes = tfgWithScore.scoredTimes;
+    }
+
+    const newScoredTimes = !voteLog ? scoredTimes + 1 : scoredTimes;
+    const newTotalScore = currentScore * scoredTimes - oldScore + givenScore;
+    const newScore = newTotalScore / newScoredTimes;
+
+    await prisma.$transaction(async (prismaTransaction) => {
+        await prismaTransaction.votelog.upsert({
+            where: {
+                tfgId_ip: {
+                    tfgId,
+                    ip,
+                },
+            },
+            create: {
+                tfgId,
+                ip,
+                score: givenScore,
+                lastUpdated: now,
+                dailyVoteCount: 1,
+            },
+            update: {
+                score: givenScore,
+                lastUpdated: now,
+                dailyVoteCount: dailyVoteCount,
+            },
+        });
+        await prismaTransaction.tfg.update({
             where: {
                 id: tfgId,
             },
             data: {
-                score: (givenScore + currentScore) / (scoredTimes + 1),
-                scoredTimes: {
-                    increment: 1,
-                },
+                score: newScore,
+                scoredTimes: newScoredTimes,
             },
         });
-    }
+    });
+
+    return { success: true, response: "¡Gracias por tu voto!" };
 }

@@ -142,7 +142,10 @@ model votelog {
   ip        String
   score     Int
   createdAt DateTime @default(now())
+  lastUpdated DateTime @default(now())
   tfg       tfg      @relation(fields: [tfgId], references: [id], map: "VoteLog_tfgId_fkey")
+  dailyVoteCount Int @default(0)
+  @@unique([tfgId, ip])
 }
 
 model defense {

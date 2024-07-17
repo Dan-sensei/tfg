@@ -1,4 +1,4 @@
-import { increaseTFGViews } from "@/app/lib/actions/tfg";
+import { getMyScore, increaseTFGViews } from "@/app/lib/actions/tfg";
 import { notFound, redirect } from "next/navigation";
 import { iDetailsTFG } from "@/app/types/interfaces";
 import prisma from "@/app/lib/db";
@@ -7,6 +7,7 @@ import { TFGStatus } from "@/app/lib/enums";
 import { tfgFields } from "@/app/types/prismaFieldDefs";
 import RowCarousel from "@/app/components/home-components/RowCarousel";
 import InterestedTimer from "./interestedTimer";
+import SetScore from "@/app/components/TFG/SetScore";
 
 const getTFGData = async (id: number) => {
     const tfgRaw = await prisma.tfg.findUnique({
@@ -54,6 +55,7 @@ const getTFGData = async (id: number) => {
             tags: true,
             views: true,
             score: true,
+            scoredTimes: true,
             createdAt: true,
             college: {
                 select: {
@@ -120,14 +122,16 @@ export default async function Page({ params }: { params: { id: string } }) {
         },
         take: 20,
     })) as iDetailsTFG[];
-    
 
     await increaseTFGViews(parseFloat(params.id));
 
+    const score = await getMyScore(TFG.id);
+    
     return (
         <div className="pt-[73px] flex flex-col flex-1">
             <TFG_Details TFG={TFG} />
             <InterestedTimer tags={TFG.tags} />
+            <SetScore myScore={score} tfgId={TFG.id} />
             <div className="px-3 lg:px-10 flex-1 flex flex-col justify-end pb-7 pt-16 relative">
                 <div className="absolute h-72 left-0 bottom-0 right-0 bg-dark/50 mask-top-50 pt-10"></div>
                 <div className="pl-1 z-10 text-xl text-white pb-2">Proyectos relacionados</div>
