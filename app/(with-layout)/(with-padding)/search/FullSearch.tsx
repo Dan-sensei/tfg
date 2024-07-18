@@ -59,6 +59,7 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     const [totalPages, setTotalPages] = useState(1);
 
     const updateFilters = useCallback((newFilters: Partial<QueryParams>) => {
+        console.log(newFilters);
         setFilters((prevFilters) => ({ ...prevFilters, ...newFilters }));
     }, []);
 
@@ -89,6 +90,7 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
         fetch(getApiRouteUrl("search", params))
             .then((response) => response.json())
             .then((result) => {
+                console.log(result)
                 if (result.success) {
                     const TFGS: iTFG[] = result.response.tfgs;
                     setTotalPages(result.response.totalPages);
@@ -116,6 +118,7 @@ export default function FullSearch({ categories, popular_tags, titulations }: Se
     const debouncedFetchResults = useDebouncedCallback(fetchResults, SEARCH_INPUT_DELAY);
 
     useEffect(() => {
+        console.log(results)
         if (!hasParams(filters)) {
             if (results.length > 0) setResults([]);
             return;
