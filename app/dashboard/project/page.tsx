@@ -118,7 +118,7 @@ export default async function Project() {
         },
     });
 
-    const categories = (await prisma.category.findMany({
+    const categories: Category[] = await prisma.category.findMany({
         select: {
             id: true,
             name: true,
@@ -126,7 +126,7 @@ export default async function Project() {
         orderBy: {
             name: "asc",
         },
-    })) as Category[];
+    });
 
     if (!college) {
         return null;

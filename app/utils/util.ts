@@ -179,8 +179,6 @@ export const normalizeText = (text: string) => {
     text = text.replace(/[\u0300-\u036f]/g, "");
     text = text.toLowerCase();
     text = text.replace(/[^a-z0-9ñ']/g, " ");
-    // Multiple spaces -> single space
-    text = text.replace(/\s+/g, " ").trim();
     return text;
 };
 

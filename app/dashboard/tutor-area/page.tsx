@@ -1,13 +1,6 @@
 import { authOptions } from "@/app/lib/authOptions";
 import { Role, TFGStatus } from "@/app/lib/enums";
-import {
-    IconBox,
-    IconCactus,
-    IconCircleDashedCheck,
-    IconMailbox,
-    IconMessageFilled,
-    IconWriting,
-} from "@tabler/icons-react";
+import { IconBox, IconCactus, IconCircleDashedCheck, IconEye, IconMailbox, IconMessageFilled, IconWriting } from "@tabler/icons-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import prisma from "@/app/lib/db";
@@ -181,9 +174,7 @@ export default async function TutorArea() {
                                     {projectsWithNewMessages.map((project) => {
                                         const lastMessages = project.reviewMessages.slice(-3);
                                         return (
-                                            <li
-                                                key={project.id}
-                                                className="relative rounded-md text-sm/6  border-1 border-white/5 bg-white/5">
+                                            <li key={project.id} className="relative rounded-md text-sm/6  border-1 border-white/5 bg-white/5">
                                                 <div className="p-3">
                                                     <section className="flex gap-2">
                                                         <div className="h-20 text-center">
@@ -214,7 +205,9 @@ export default async function TutorArea() {
                                                                     ? { src: message.user.image }
                                                                     : { name: message.user?.name?.slice(0, 2) ?? "-" };
                                                                 return (
-                                                                    <div key={message.id} className={clsx("w-full flex gap-1", showAvatarAndName && "mt-1")}>
+                                                                    <div
+                                                                        key={message.id}
+                                                                        className={clsx("w-full flex gap-1", showAvatarAndName && "mt-1")}>
                                                                         <div className="w-8 flex flex-col justify-end">
                                                                             {!own && showAvatarAndName && <Avatar {...avatarProp} size="sm" />}
                                                                         </div>
@@ -268,7 +261,17 @@ export default async function TutorArea() {
                                 <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2 pr-[6px]">
                                     {publishedProjects.map((project) => (
                                         <li key={project.id} className="relative rounded-md text-sm/6 border-1 border-white/5 bg-white/5">
-                                            <DashboardProjectCard project={project} />
+                                            <DashboardProjectCard
+                                                extraOptions={[
+                                                    {
+                                                        icon: <IconEye />,
+                                                        bgColor: "bg-teal-500",
+                                                        tooltip: "Ver",
+                                                        href: `/page/${project.id}`,
+                                                    },
+                                                ]}
+                                                project={project}
+                                            />
                                         </li>
                                     ))}
                                 </ul>

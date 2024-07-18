@@ -17,7 +17,7 @@ const validateDefense = (defenseData: any) => {
 };
 
 const createOrUpdateDefenseAndOrLocation = async (defenseData: v.InferInput<typeof DefenseDataSchema>, collegeId: number) => {
-    let newCategory: DefenseData | null = null;
+    let newDefense: DefenseData | null = null;
     await prisma.$transaction(async (tx) => {
         let locationId: number = defenseData.location.id;
         if (defenseData.location.id < 0) {
@@ -41,7 +41,7 @@ const createOrUpdateDefenseAndOrLocation = async (defenseData: v.InferInput<type
             locationId: locationId,
             collegeId: collegeId,
         };
-        newCategory = await tx.defense.upsert({
+        newDefense = await tx.defense.upsert({
             where: {
                 id: defenseData.id,
             },
@@ -64,7 +64,7 @@ const createOrUpdateDefenseAndOrLocation = async (defenseData: v.InferInput<type
         });
     });
 
-    return newCategory;
+    return newDefense;
 };
 
 export async function GET(request: NextRequest) {
@@ -126,8 +126,8 @@ export async function POST(request: NextRequest) {
         const validateResult = validateDefense(defenseData);
         if (!validateResult.success) return badResponse(validateResult.issues[0].message, 400);
 
-        const newCategory = await createOrUpdateDefenseAndOrLocation(validateResult.output, session.user.collegeId);
-        return successResponse(newCategory, 201);
+        const newDefense = await createOrUpdateDefenseAndOrLocation(validateResult.output, session.user.collegeId);
+        return successResponse(newDefense, 201);
     } catch (error) {
         console.error(error);
         return badResponse("Error creating defense", 500);
@@ -147,9 +147,9 @@ export async function PUT(request: NextRequest) {
         if (!(await checkCanModifyInCollege(session, CheckType.DEFENSE, defenseData.id, body.collegeId )))
             return badResponse("You are not authorized to update this titulation or it does not exist", 403);
 
-        const newCategory = await createOrUpdateDefenseAndOrLocation(validateResult.output, session.user.collegeId);
+        const newDefense = await createOrUpdateDefenseAndOrLocation(validateResult.output, session.user.collegeId);
 
-        return successResponse(newCategory, 201);
+        return successResponse(newDefense, 201);
     } catch (error) {
         console.error(error);
         return badResponse("Error updating defense", 500);
@@ -178,6 +178,6 @@ export async function DELETE(request: NextRequest) {
         return successResponse(true, 201);
     } catch (error) {
         console.error(error);
-        return badResponse("Error creating category", 500);
+        return badResponse("Error creating defense", 500);
     }
 }

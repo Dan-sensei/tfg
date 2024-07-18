@@ -429,12 +429,11 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                 files: [],
             };
         });
-
         localStorage.setItem(
             `tfg-data-${tfg?.id}`,
             JSON.stringify({
                 ...data,
-                banner: data.banner && data.banner !== DEF_BANNER && !data.banner.startsWith("data:") ? data.banner : localStorageBlob,
+                banner: data.banner && !data.banner.startsWith("data:") ? data.banner : localStorageBlob,
                 thumbnail: data.thumbnail && !data.thumbnail.startsWith("data:") ? data.thumbnail : localStorageBlob,
                 contentBlocks: saveBlocksData,
             })
@@ -511,6 +510,8 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                                                                     Object.assign(draft, newData);
                                                                 })
                                                             );
+                                                            setBannerFile(null);
+                                                            setThumbnailFile(null);
                                                             localStorage.removeItem(`tfg-data-${tfg?.id}`);
                                                             deleteNonExistentImagesFromIndexedDB([]);
                                                         }}>
@@ -597,7 +598,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                                                             updateErrorMessage({ documentLink: validateResult.issues?.[0].message ?? "" });
                                                             updateForm({ documentLink: e.target.value });
                                                         }}
-                                                        className={clsx(HeadlessComplete)}
+                                                        className={clsx(HeadlessComplete, "rounded-lg")}
                                                         placeholder="https://..."
                                                     />
                                                     <div className="error-message">{errorMessages.documentLink}</div>
@@ -624,7 +625,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                                                                 if (isNaN(pages)) pages = 0;
                                                                 updateForm({ pages: pages });
                                                             }}
-                                                            className={clsx(HeadlessComplete, "h-7")}
+                                                            className={clsx(HeadlessComplete, "h-7 rounded-lg")}
                                                         />
                                                         <div className="error-message">{errorMessages.pages}</div>
                                                     </Field>

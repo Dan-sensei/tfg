@@ -244,7 +244,7 @@ export default function TitulationsForm({ className }: Props) {
                                         </p>
 
                                         <p className="pt-1">Por favor, selecciona otra titulación para reasignarlos.</p>
-                                        <div className=" flex justify-center w-full">
+                                        <div className=" flex flex-col items-center justify-center w-full">
                                             <Autocomplete
                                                 required
                                                 className="max-w-full w-96"
@@ -264,6 +264,9 @@ export default function TitulationsForm({ className }: Props) {
                                                 defaultValue={<div className="text-sm/6 text-default-600">(Nueva titulación)</div>}
                                                 label="Titulación"
                                             />
+                                            {titulationsList.filter((titulation) => titulation.id !== selectedTitulation?.id).length === 0 && (
+                                                <div className="error-message font-bold">Lista vacía</div>
+                                            )}
                                         </div>
                                     </>
                                 )}

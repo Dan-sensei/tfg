@@ -178,14 +178,14 @@ export const MediaFormPart = <T,>({
                 onChange={(e) => {
                     updateData({ [updateProperties.maxHeight]: e } as Partial<T>);
                 }}
-                label="Altura máxima de la imagen"
+                label="Altura máxima"
                 step={5}
                 maxValue={MAX_IMAGE_BLOCK_HEIGHT}
                 minValue={100}
                 defaultValue={maxHeight}
                 className="w-full mt-3"
             />
-            <div className="mt-3">Alineación de la imagen</div>
+            <div className="mt-3">Alineación</div>
             <RadioGroup
                 defaultValue={defaultImagePosition.value}
                 onChange={(e) => {

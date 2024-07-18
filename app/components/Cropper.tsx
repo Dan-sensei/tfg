@@ -269,6 +269,7 @@ export default function CropperComponent({ imageSrc, onCrop, onClose, type, maxD
             </div>
             <Button
                 className="absolute bottom-5 z-10 mx-auto"
+                color="primary"
                 onClick={() => {
                     handleCrop();
                     onClose();
