@@ -47,10 +47,7 @@ const CommonLinks: LinkProps[] = [
     { name: "Proyecto", href: "/dashboard/project", icon: <IconBox className={iconStyles} /> },
 ];
 
-const TutorLinks: LinkProps[] = [
-    ...CommonLinks,
-    { name: "Área tutor", href: "/dashboard/tutor-area", icon: <IconSchool className={iconStyles} /> },
-];
+const TutorLinks: LinkProps[] = [...CommonLinks, { name: "Área tutor", href: "/dashboard/tutor-area", icon: <IconSchool className={iconStyles} /> }];
 
 const ManagerLinks: LinkProps[] = [
     ...TutorLinks,
@@ -168,7 +165,7 @@ export default function DashboardNavigation({ className }: Props) {
                         {session?.user.role === Role.ADMIN && (
                             <Autocomplete
                                 required
-                                className="max-w-full w-56"
+                                className="max-w-full w-56 mt-0 "
                                 data={allColleges}
                                 value={allColleges.find((c) => c.id === collegeId) ?? allColleges[0]}
                                 placeholder="Buscar..."
@@ -216,6 +213,9 @@ export default function DashboardNavigation({ className }: Props) {
                             </Link>
                         </NavbarMenuItem>
                     ))}
+                    <NavbarMenuItem>
+                        <SignOutButton />
+                    </NavbarMenuItem>
                 </NavbarMenu>
             </Navbar>
         </>

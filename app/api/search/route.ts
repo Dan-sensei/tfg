@@ -57,7 +57,7 @@ export async function GET(request: Request) {
             },
         };
         const queryParts: Prisma.Sql[] = [];
-        
+
         for (const value of Object.values(filterFunctions)) {
             const hasRequiredParams = value.requiredParams.every((param) => searchParams.get(param) != undefined);
             const hasOptionalParams = value.optionalParams ? value.optionalParams.some((param) => searchParams.get(param) != undefined) : true;
@@ -96,16 +96,12 @@ export async function GET(request: Request) {
         }
 
         const offset = (page - 1) * PAGINATION_SIZE;
-        console.log("wtf")
         query = Prisma.sql`
-        WITH filtered_tfg AS (
-            SELECT * FROM "tfg"
-            WHERE ${Prisma.join(queryParts, " AND ")}
-            AND status = ${TFGStatus.PUBLISHED}
-        )
         SELECT id, title, thumbnail, description, views, score, pages, "createdAt",
-               COUNT(*) OVER() AS "totalCount"
-        FROM filtered_tfg
+        COUNT(*) OVER() AS "totalCount"
+        FROM tfg
+        WHERE ${Prisma.join(queryParts, " AND ")}
+        AND status = ${TFGStatus.PUBLISHED}
         ORDER BY ${orderByClause}
         LIMIT ${PAGINATION_SIZE} OFFSET ${offset}`;
 
@@ -120,7 +116,7 @@ export async function GET(request: Request) {
         }
 
         const totalCount = Number(result[0].totalCount);
-        console.log(result)
+
         const data = result.map((row) => ({
             ...row,
             totalCount: Number(row.totalCount),

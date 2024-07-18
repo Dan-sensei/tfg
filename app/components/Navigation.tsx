@@ -194,7 +194,7 @@ export default function Navigation({ categoriesList }: { categoriesList: Categor
             key: "logout",
             content: "Cerrar sesión",
             color: "danger",
-            onClick: () => signOut({ callbackUrl: "/calentario" }),
+            onClick: () => signOut({ callbackUrl: "/home" }),
         },
     ];
 

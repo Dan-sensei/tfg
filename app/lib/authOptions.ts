@@ -61,9 +61,6 @@ export const authOptions: AuthOptions = {
                 session.user.collegeId = token.collegeId;
             }
             return session;
-        },
-        redirect: async ({ baseUrl }) => {
-            return baseUrl + "/dashboard";
-        },
+        }
     },
 };
