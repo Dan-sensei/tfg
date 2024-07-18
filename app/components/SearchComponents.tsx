@@ -16,16 +16,13 @@ type ResultListProps = {
 export function ResultList({ results, close }: ResultListProps) {
     return (
         <>
-            {results.map(result => (
+            {results.map((result) => (
                 <React.Fragment key={result.id}>
                     <Divider />
                     <Link
                         onClick={() => close()}
-                        href={`/page/${result.id}/${sanitizeString(
-                            result.title
-                        )}`}
-                        className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md"
-                    >
+                        href={`/page/${result.id}/${sanitizeString(result.title)}`}
+                        className="min-h-16 w-full flex p-2 transition-colors hover:bg-white/10 rounded-md">
                         <SearchResultRow tfg={result} />
                     </Link>
                 </React.Fragment>
@@ -38,33 +35,21 @@ export function SearchResultRow({ tfg }: { tfg: iTFG }) {
     return (
         <>
             <div className="relative h-16 aspect-video rounded-lg overflow-hidden">
-                <Image
-                    fill
-                    className="object-cover"
-                    alt={tfg.title}
-                    src={tfg.thumbnail}
-                ></Image>
+                <Image fill className="object-cover" alt={tfg.title} src={tfg.thumbnail}></Image>
             </div>
             <div className="flex flex-1 pl-2">
                 <div className="w-full">
-                    <div className="text-sm md:text-base line-clamp-2 md:line-clamp-1">
-                        {tfg.title}
-                    </div>
-                    <div className="text-xs hidden md:block line-clamp-2">
-                        {tfg.description}
+                    <div className="text-sm md:text-base line-clamp-2 md:line-clamp-1">{tfg.title}</div>
+                    <div className="text-xs hidden md:block ">
+                        <div className="max-w-full line-clamp-2">{tfg.description}</div>
                     </div>
                     <div className="flex items-center pt-[2px]">
-                        <Chip
-                            className="bg-nova-button text-xs h-5"
-                            variant="solid"
-                        >
+                        <Chip className="bg-nova-button text-xs h-5" variant="solid">
                             {tfg.pages} páginas
                         </Chip>
                         <div className="text-xs pl-2 font-medium flex items-center text-slate-300">
                             <IconEye size={24} className="inline" />
-                            <div className="pl-1">
-                                {`${formatViews(tfg.views)} `}
-                            </div>
+                            <div className="pl-1">{`${formatViews(tfg.views)} `}</div>
                         </div>
                     </div>
                 </div>
@@ -94,8 +79,7 @@ export function Loading() {
                     circle1: "w-10 h-10 border-5",
                     circle2: "w-10 h-10 border-4",
                 }}
-                color="primary"
-            ></Spinner>
+                color="primary"></Spinner>
         </div>
     );
 }
