@@ -41,7 +41,7 @@ export function SearchResultRow({ tfg }: { tfg: iTFG }) {
                 <div className="w-full">
                     <div className="text-sm md:text-base line-clamp-2 md:line-clamp-1">{tfg.title}</div>
                     <div className="text-xs hidden md:block ">
-                        <div className="max-w-full line-clamp-2">{tfg.description}</div>
+                        <div className="line-clamp-2">{tfg.description}</div>
                     </div>
                     <div className="flex items-center pt-[2px]">
                         <Chip className="bg-nova-button text-xs h-5" variant="solid">
