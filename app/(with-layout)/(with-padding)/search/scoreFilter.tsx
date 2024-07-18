@@ -61,7 +61,7 @@ export default function ScoreFilter({ filters, updateFilters }: PopularTagsProps
                 name="maxscore"
                 labelPlacement="outside"
                 value={maxScore}
-                placeholder="5.00"
+                placeholder="10.00"
                 step={"0.01"}
                 onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => preventNegativeNumbers(e)}

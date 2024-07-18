@@ -15,6 +15,7 @@ import { parseAbsoluteToLocal, DateFormatter } from "@internationalized/date";
 import React, { useEffect, useState } from "react";
 import { produce } from "immer";
 import { usePathname, useSearchParams } from "next/navigation";
+import SimpleBarAbs from "@/app/components/SimpleBarAbs";
 
 type SelectedDate = {
     year: string;
@@ -138,7 +139,7 @@ export default function Calendar({ defenses, year, month, selectedDate, userTime
                         </div>
                     ))}
                 </div>
-                <div className={`${bebas_Neue.className} gap-1 lg:gap-2 grid grid-cols-7 text-xl lg:text-2xl 2xl:text-4xl lg:flex-1 rounded-2xl`}>
+                <div className={`${bebas_Neue.className} gap-[2px] lg:gap-2 grid grid-cols-7 text-xl lg:text-2xl 2xl:text-4xl lg:flex-1 rounded-2xl`}>
                     {daysWithDefenses.map((day, index) => (
                         <DayButton
                             key={index}
@@ -170,11 +171,13 @@ export default function Calendar({ defenses, year, month, selectedDate, userTime
                         </div>
                     </div>
                     <section className="flex grow relative">
-                        <div className="absolute top-0 left-0 bottom-0 right-0 overflow-y-auto pt-5 ">
+                        <SimpleBarAbs className="pt-5">
+
+                        
                             {defenseData && defenseData.length > 0 ? (
                                 defenseData.map((defense, index) => (
                                     <React.Fragment key={defense.id}>
-                                        <div className="flex">
+                                        <div className="flex pr-4">
                                             <div className="pt-2 pr-2">
                                                 <GlimmerSpot classname="w-2 h-2" color="rgb(0 111 238)" />
                                             </div>
@@ -210,7 +213,7 @@ export default function Calendar({ defenses, year, month, selectedDate, userTime
                                     </div>
                                 </div>
                             )}
-                        </div>
+                            </SimpleBarAbs>
                     </section>
                 </div>
             </div>
