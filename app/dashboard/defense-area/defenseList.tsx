@@ -20,12 +20,10 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment, useEffect, useState } from "react";
-import { format, set } from "date-fns";
-import { es } from "date-fns/locale";
 import { TimeInput } from "@nextui-org/date-input";
 import { DatePicker } from "@nextui-org/date-picker";
-import { Time, parseZonedDateTime, parseAbsoluteToLocal, parseAbsolute, getLocalTimeZone, ZonedDateTime } from "@internationalized/date";
-import { original, produce } from "immer";
+import { Time, parseZonedDateTime, parseAbsoluteToLocal, parseAbsolute, getLocalTimeZone, ZonedDateTime, DateFormatter } from "@internationalized/date";
+import { produce } from "immer";
 import { IconCalendarMinus, IconCalendarPlus, IconCheck, IconChevronDown, IconClock, IconPlus } from "@tabler/icons-react";
 import Autocomplete from "@/app/components/Autocomplete";
 import { CharacterCounter, Required } from "@/app/components/BasicComponents";
@@ -65,6 +63,17 @@ const months: { [key: number]: string } = {
 };
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear + 3 - 2024 }, (v, i) => 2023 + i);
+const userTimeZone = Intl.DateTimeFormat().resolvedOptions().locale;
+const formatter_time = new DateFormatter(userTimeZone, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+});
+const formatter_date = new DateFormatter(userTimeZone, {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+});
 
 export default function DefenseList({ className, year, month }: Props) {
     const [defenseList, setDefenseList] = useState<DefenseData[]>([]);
@@ -249,6 +258,9 @@ export default function DefenseList({ className, year, month }: Props) {
         );
     };
 
+    if(defenseList[0])
+        console.log(parseAbsoluteToLocal(defenseList[0].startTime.toISOString()).toDate().toLocaleString());
+
     return (
         <>
             <div className="w-full h-full flex flex-col flex-1 md:grid md:grid-cols-2 pt-4">
@@ -353,6 +365,8 @@ export default function DefenseList({ className, year, month }: Props) {
                         ) : defenseList.length > 0 ? (
                             <SimpleBarAbs className="pr-3">
                                 <ul className="relative flex flex-col gap-2 pr-5">
+                                    <div>
+                                    </div>
                                     {defenseList.map((defense) => (
                                         <li key={defense.id}>
                                             <DefenseButton
@@ -366,9 +380,9 @@ export default function DefenseList({ className, year, month }: Props) {
                                                         })
                                                     );
                                                 }}
-                                                date={format(defense.startTime, "dd MMMM yyyy", { locale: es })}
-                                                startTime={format(defense.startTime, " HH:mm", { locale: es })}
-                                                endTime={format(defense.endTime, "HH:mm", { locale: es })}
+                                                date={formatter_date.format(defense.startTime)}
+                                                startTime={formatter_time.format(defense.startTime)}
+                                                endTime={formatter_time.format(defense.endTime)}
                                                 title={defense.title}
                                                 location={defense.location.name}
                                             />
@@ -431,8 +445,6 @@ export default function DefenseList({ className, year, month }: Props) {
                                     setDates(
                                         produce((draft) => {
                                             draft.start = draft.start.set({ day: e.day, month: e.month, year: e.year });
-                                            console.log(draft.start);
-                                            console.log(draft.start.toAbsoluteString());
                                             draft.end = draft.end.set({ day: e.day, month: e.month, year: e.year });
                                         })
                                     );
@@ -460,7 +472,6 @@ export default function DefenseList({ className, year, month }: Props) {
                                         setDates(
                                             produce((draft) => {
                                                 draft.start = draft.start.set({ hour: e.hour, minute: e.minute, second: 0, millisecond: 0 });
-                                                console.log("start", draft.start.toAbsoluteString());
                                             })
                                         );
                                     }}
@@ -482,7 +493,6 @@ export default function DefenseList({ className, year, month }: Props) {
                                         setDates(
                                             produce((draft) => {
                                                 draft.end = draft.end.set({ hour: e.hour, minute: e.minute, second: 0, millisecond: 0 });
-                                                console.log("end", draft.end.toAbsoluteString());
                                             })
                                         );
                                     }}
@@ -598,14 +608,8 @@ export default function DefenseList({ className, year, month }: Props) {
                                     Estás a punto de eliminar la defensa &quot;
                                     <span className="text-yellow-500 font-semibold">{selectedDefense.title}</span>&quot; del día
                                     <p>
-                                        <span className="text-yellow-500">{format(selectedDefense.startTime, "dd MMMM yyyy", { locale: es })}</span>{" "}
-                                        {`(${format(selectedDefense.startTime, "HH:mm", { locale: es })} : ${format(
-                                            selectedDefense.endTime,
-                                            "HH:mm",
-                                            {
-                                                locale: es,
-                                            }
-                                        )})`}
+                                        <span className="text-yellow-500">{formatter_date.format(selectedDefense.startTime)}</span>{" "}
+                                        {`(${formatter_time.format(selectedDefense.startTime)} : ${formatter_time.format(selectedDefense.startTime)})`}
                                     </p>
                                 </div>
                                 <p className="text-center">¿Estás seguro?</p>

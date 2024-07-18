@@ -18,7 +18,7 @@ import {
     TAG_RECOMMENDED_POINTS,
 } from "@/app/types/defaultData";
 import { Prisma } from "@prisma/client";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 async function getRecents() {
     const recents = await prisma.tfg.findMany({
@@ -44,7 +44,7 @@ function getInterestedTags() {
         const [name] = tag.split(":");
         return name;
     });
-    
+
     return currentTags;
 }
 
@@ -60,11 +60,11 @@ async function getTopWorks() {
     return TopWorks;
 }
 
-async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId") {
+async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId", tags: string[]) {
     const column = Prisma.sql([by]);
     const tableName = by === "categoryId" ? "category" : "titulation";
-    const tags = getInterestedTags();
-    const formattedTags = tags && tags.length > 0 ? Prisma.sql`${Prisma.join(tags.map(tag => Prisma.sql`${tag}`))}` : Prisma.sql``;
+
+    const formattedTags = tags && tags.length > 0 ? Prisma.sql`${Prisma.join(tags.map((tag) => Prisma.sql`${tag}`))}` : Prisma.sql``;
     const query = Prisma.sql`
         WITH TFG_Scores AS (
             SELECT 
@@ -78,14 +78,14 @@ async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId") {
                 t."createdAt",
                 t."${column}" AS groupId,
                 (t.score * ${ROW_RECOMMENDED_SCORE_MULT} + 
-                LEAST(t.views, ${ROW_RECOMMENDED_MAX_VIEWS}) * ${ROW_RECOMMENDED_VIEWS_MULT} + 
-                random() * ${ROW_RECOMMENDED_RANDOM_MULT} +
-                CASE 
-                    WHEN t.tags && ARRAY[${formattedTags}]::text[]
-                    THEN ${TAG_RECOMMENDED_POINTS}
-                    ELSE 0 
-                END
-            ) AS recommendedScore
+                    LEAST(t.views, ${ROW_RECOMMENDED_MAX_VIEWS}) * ${ROW_RECOMMENDED_VIEWS_MULT} + 
+                    random() * ${ROW_RECOMMENDED_RANDOM_MULT} +
+                    CASE 
+                        WHEN t.tags && ARRAY[${formattedTags}]::text[]
+                        THEN ${TAG_RECOMMENDED_POINTS}
+                        ELSE 0 
+                    END
+                ) AS recommendedScore
             FROM tfg t
             WHERE t.status = ${TFGStatus.PUBLISHED}
         ),
@@ -136,15 +136,15 @@ async function getGroupedTFGsWithScoreBy(by: "categoryId" | "titulationId") {
     return data.map((data) => ({ ...data, link: tableName + "/" + data.id })) as RowDataWithLink[];
 }
 
-async function getHomeRows() {
+async function getHomeRows(interestedTags: string[]) {
     const result: TFGRowData[] = [];
     result.push({
         name: "Trabajos recientes",
         link: "",
         tfgs: await getRecents(),
     });
-    const categoryData = await getGroupedTFGsWithScoreBy("categoryId");
-    const titulationData = await getGroupedTFGsWithScoreBy("titulationId");
+    const categoryData = await getGroupedTFGsWithScoreBy("categoryId", interestedTags);
+    const titulationData = await getGroupedTFGsWithScoreBy("titulationId", interestedTags);
 
     const combinedData = [...categoryData, ...titulationData];
     combinedData.sort((a, b) => b.totalRecommendedScore - a.totalRecommendedScore);
@@ -162,15 +162,17 @@ const getCachedTopWorks = s_cache(
     }
 );
 
-const getCachedHomeRows = s_cache(
-    async () => {
-        return await getHomeRows();
-    },
-    ["home-data"],
-    {
-        revalidate: HALF_DAY,
-    }
-);
+const getCachedHomeRowsForUser = (userId: string, interestedTags: string[]) => {
+    return s_cache(
+        async () => {
+            return await getHomeRows(interestedTags);
+        },
+        ["home-data", userId],
+        {
+            revalidate: HALF_DAY,
+        }
+    );
+};
 interface RowDataQuery {
     id: number;
     totalRecommendedScore: number;
@@ -184,7 +186,11 @@ interface RowDataWithLink extends RowDataQuery {
 
 export default async function Home() {
     const topWorks = await getCachedTopWorks();
-    const RowData = await getCachedHomeRows();
+    const ip = headers().get("x-forwarded-for")?.split(",")[0].trim();
+    const userInterestedTags = getInterestedTags();
+    const fetcher = getCachedHomeRowsForUser(ip ?? "common", userInterestedTags);
+    const RowData = await fetcher();
+    
     return (
         <div className="overflow-hidden pt-[66px] lg:pt-[87px] ">
             <HomeCarousel topTfgs={topWorks} />

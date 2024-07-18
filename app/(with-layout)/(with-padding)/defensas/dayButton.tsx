@@ -31,18 +31,27 @@ export default function DayButton({
             return;
         }
         const params = new URLSearchParams(searchParams);
+        if(searchParams.get("year") !== year.toString() || searchParams.get("month") !== (month+1).toString()){
+            params.set("year", year.toString());
+            params.set("month", (month+1).toString());
+        }
         params.set("year", year.toString());
         params.set("month", (month+1).toString());
         params.set("selected", `${year}-${(month+1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
-        replace(`${pathname}?${params.toString()}`);
+        if(searchParams.get("year") !== year.toString() || searchParams.get("month") !== (month+1).toString()){
+            replace(`${pathname}?${params.toString()}`);
+        }
+        else{
+            window.history.replaceState(null, "", `${pathname}?${params.toString()}`);
+        }
     };
 
     let background = ""
     if(sameMonth){
-        background = selected? "text-nova-link  bg-blue-500" : "text-nova-link  hover:bg-nova-light2/50 border-1 lg:border-1 border-white/10";
+        background = selected? "text-nova-link  bg-blue-500" : "text-nova-link bg-[#07090c] hover:bg-nova-light2/50 border-1 lg:border-1 border-white/10";
     }
     else{
-        background = selected? "text-slate-600  bg-nova-light/20" : "text-slate-600  hover:bg-nova-light/20 border-1 lg:border-1 border-white/10";
+        background = selected? "text-slate-600  bg-nova-light/20" : "text-slate-600 bg-[#0c0f14]/70 hover:bg-nova-light/20 border-1 lg:border-1 border-white/10";
     }
 
     return (
@@ -50,7 +59,7 @@ export default function DayButton({
             role="button"
             type="button"
             onClick={updateRouter}
-            className={`${classname} bg-[#07090c] p-1 sm:p-3 rounded-lg aspect-square transition-colors ${background}`}
+            className={`${classname}  p-1 sm:p-3 rounded-lg aspect-square transition-colors ${background}`}
         >
             <div className="relative h-full w-full flex items-center justify-center ">
                 {hasDefenses && <GlimmerSpot classname="absolute top-0 w-2 sm:w-2 h-2 sms:h-2 right-0" color={`${selected ? "white" : "rgb(0 111 238)"}`}/>}

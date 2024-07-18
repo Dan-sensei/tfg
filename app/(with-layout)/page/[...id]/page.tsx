@@ -126,7 +126,6 @@ export default async function Page({ params }: { params: { id: string } }) {
     await increaseTFGViews(parseFloat(params.id));
 
     const score = await getMyScore(TFG.id);
-    console.log("rendering")
     return (
         <div className="pt-[73px] flex flex-col flex-1">
             <TFG_Details TFG={TFG} />

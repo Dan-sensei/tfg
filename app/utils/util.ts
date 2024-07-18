@@ -42,7 +42,7 @@ export const startOfWeekUTC = (date: Date) => {
 };
 
 export const startOfMonthUTC = (date: Date) => {
-    return new Date(Date.UTC(date.getFullYear(), date.getMonth()));
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth()));
 };
 
 export const endOfMonthUTC = (date: Date) => {
@@ -133,7 +133,6 @@ export const sameArrays = (a: any[], b: any[]) => {
     return true;
 };
 
-
 export const isNullOrEmpty = (str: string | null) => str == null || str.trim() === "";
 
 export const toFirstLetterUppercase = (str: string) => str.charAt(0).toUpperCase() + str.substring(1).toLowerCase();
@@ -195,3 +194,23 @@ export const getBasePathNameUntilId = (path: string, id: string) => {
     }
     return parts.slice(0, index + 1).join("/");
 };
+
+export const getPreferredLocale = (acceptLanguageHeader: string) => {
+    const languages = acceptLanguageHeader.split(",").map((lang) => {
+        const parts = lang.split(";q=");
+        return { lang: parts[0], quality: parts[1] ? parseFloat(parts[1]) : 1.0 };
+    });
+
+    // Sort languages by quality score in descending order
+    languages.sort((a, b) => b.quality - a.quality);
+
+    // Find the first language with a region
+    for (const language of languages) {
+        if (language.lang.includes("-")) {
+            return language.lang;
+        }
+    }
+
+    // Fallback to the first language if no region-specific language is found
+    return languages[0].lang;
+}
