@@ -19,7 +19,6 @@ export default function TitulationFilter({
     );
     
     const handleSelectionChange = (value: string) => {
-        console.log(value)
         if (!value.trim()) {
             return;
         }

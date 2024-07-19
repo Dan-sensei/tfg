@@ -145,7 +145,6 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
             } while (Object.values(draft).some((d) => d.id === newId));
             const defaultValues = BLOCKSCHEMA[BLOCKTYPE.MEDIA_TEXT].DEF_VALUES;
             draft.push({ id: newId, type: BLOCKTYPE.MEDIA_TEXT, data: defaultValues, files: [], errors: [] });
-            console.log("new block", JSON.parse(defaultValues));
         });
         updateForm({ contentBlocks: newBlocks });
     };

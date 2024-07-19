@@ -51,7 +51,6 @@ export default function DepartmentsForm({ className }: Props) {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data)
                 if (data.success) {
                     setDepartmentsList(data.response);
                     setSelectedDepartment(data.response[0] ?? null);
@@ -100,8 +99,6 @@ export default function DepartmentsForm({ className }: Props) {
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    console.log(data)
-
                     const department = { ...data.response, totalProjects: 0 };
                     setDepartmentsList(
                         produce((draft) => {
@@ -161,7 +158,6 @@ export default function DepartmentsForm({ className }: Props) {
                             draft.splice(index, 1);
                         }
                     });
-                    console.log(newList)
                     setDepartmentsList(newList);
                     setSelectedDepartment(newList[0] ?? null);
                     setNewDepartmentData({ name: newList[0]?.name ?? "", link: newList[0]?.link ?? "" });

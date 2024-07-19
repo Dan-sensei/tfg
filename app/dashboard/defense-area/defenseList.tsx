@@ -258,9 +258,6 @@ export default function DefenseList({ className, year, month }: Props) {
         );
     };
 
-    if(defenseList[0])
-        console.log(parseAbsoluteToLocal(defenseList[0].startTime.toISOString()).toDate().toLocaleString());
-
     return (
         <>
             <div className="w-full h-full flex flex-col flex-1 md:grid md:grid-cols-2 pt-4">

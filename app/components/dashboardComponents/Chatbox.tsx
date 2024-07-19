@@ -47,7 +47,6 @@ const areMessageIdArraysEqual = (arr1: ReviewMessageType[], arr2: ReviewMessageT
     }
     for (let i = 0; i < ids1.length; i++) {
         if (ids1[i] !== ids2[i]) {
-            console.log("not equal");
             return false;
         }
     }

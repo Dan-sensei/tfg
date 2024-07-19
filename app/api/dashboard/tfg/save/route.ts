@@ -36,7 +36,6 @@ const removeFilesExcept = (directoryPath: string, whitelist: string[]) => {
     const files = fs.readdirSync(directoryPath);
     for (const file of files) {
         if (!whitelist.includes(file)) {
-            console.log(file);
             fs.unlinkSync(path.join(directoryPath, file));
         }
     }

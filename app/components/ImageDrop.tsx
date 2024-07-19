@@ -182,7 +182,6 @@ export default function ImageDrop({
     const updateImages = (image: string, blob?: Blob) => {
         lastImage.current = image;
         if (!isNullOrEmpty(image)) {
-            console.log("updating image", image.slice(0, 30));
             onUpdate?.(image, blob ?? null);
             setDisplayImage(image);
         }

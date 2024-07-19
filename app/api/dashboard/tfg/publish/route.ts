@@ -76,7 +76,6 @@ export async function POST(request: NextRequest) {
             tags: savedTFG.tags,
             documentLink: savedTFG.documentLink,
         };
-        console.log(TFGData, mappedSavedTFG);
         if (!comparePublishChecks(TFGData, mappedSavedTFG)) {
             return badResponse("El proyecto se ha modificado mientras lo veías recarga la página", 400);
         }
