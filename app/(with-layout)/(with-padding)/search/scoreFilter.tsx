@@ -17,8 +17,8 @@ export default function ScoreFilter({ filters, updateFilters }: PopularTagsProps
         } else if (val < 0) {
             val = 0;
         }
-        else if(val > 5){
-            val = 5;
+        else if(val > 10){
+            val = 10;
         }
 
         if (e.target.name === "minscore") {

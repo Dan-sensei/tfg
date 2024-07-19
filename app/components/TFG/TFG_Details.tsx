@@ -6,6 +6,7 @@ import InfoBlocks from "./InfoBlocks";
 import { isNullOrEmpty } from "@/app/utils/util";
 import { DEF_BANNER } from "@/app/types/defaultData";
 import { TFG_BLockElement } from "../TFG_BlockDefinitions/BlockDefs";
+import FavButton from "../home-components/FavButton";
 
 type Props = {
     TFG: iDetailsTFG;
@@ -32,13 +33,16 @@ export default function TFG_Details({ TFG }: Props) {
                 </div>
                 <div className="h-full hidden md:block w-full bg-gradient-to-r from-nova-darker-2/80 to-80% z-20"></div>
                 <Image src={TFG.banner ? TFG.banner : DEF_BANNER} priority draggable="false" alt={TFG.title} fill className="object-cover z-10" />
+                <div className="z-20 absolute top-2 right-2">
+                    <FavButton id={TFG.id} />
+                </div>
             </div>
 
             <main className="p-5">
                 <div className="block md:hidden">
                     <TFG_BasicInfo TFG={TFG} />
                 </div>
-                <div className="text-center italic pt-10 md:pt-4 whitespace-pre-wrap">{TFG.description}</div>
+                <div className="text-center italic pt-10 whitespace-pre-wrap">{TFG.description}</div>
                 <InfoBlocks blocks={content} />
             </main>
         </>

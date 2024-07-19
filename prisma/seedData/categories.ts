@@ -3,9 +3,6 @@ export const categoriesSeed = [
         "name": "Dispositivos"
     },
     {
-        "name": "Arquitectura"
-    },
-    {
         "name": "Energías renovables"
     },
     {
@@ -34,9 +31,6 @@ export const categoriesSeed = [
     },
     {
         "name": "Diseño Gráfico"
-    },
-    {
-        "name": "Ciencia de Datos"
     },
     {
         "name": "Desarrollo de Software"

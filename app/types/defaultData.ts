@@ -35,8 +35,8 @@ export const CHATBOX_REFRESH_INTERVAL = 5000;
 
 export const MAX_BANNER_SIZE = 5 * 1024 * 1024;
 export const MAX_BANNER_DIMENSIONS = {
-    width: 1200,
-    height: 630,
+    width: 1900,
+    height: 1000,
 };
 
 export const MAX_THUMBNAIL_SIZE = 2 * 1024 * 1024;

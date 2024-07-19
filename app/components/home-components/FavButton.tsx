@@ -27,7 +27,7 @@ function FavButton({ id }: FavButtonProps) {
         <>
             <IconHeart
                 onClick={toggleFavorite}
-                className={`cursor-pointer ustify-self-end ml-3 mr-1 text-red-700 stroke-2 ${favorite ? "fill-red-700" : ""} hover:drop-shadow-fav`}
+                className={`cursor-pointer ustify-self-end ml-3 mr-1 text-red-700 stroke-2 ${favorite ? "fill-red-700" : "fill-red-700/20"} hover:drop-shadow-fav`}
             />
         </>
     );

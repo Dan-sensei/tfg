@@ -207,8 +207,8 @@ export default function Calendar({ defenses, year, month, selectedDate, userTime
                                 ))
                             ) : (
                                 <div className="h-full flex items-center justify-center">
-                                    <div className="text-gray-400 uppercase font-semibold text-sm md:text-xl lg:text-sm xl:text-lg text-center">
-                                        <IconCactus size={128} className="mx-auto stroke-1" />
+                                    <div className="text-gray-400 uppercase font-semibold text-sm text-center">
+                                        <IconCactus size={80} className="mx-auto stroke-1" />
                                         No hay defensas para este día
                                     </div>
                                 </div>

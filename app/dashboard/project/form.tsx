@@ -162,6 +162,9 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
     useEffect(() => {
         setIsMounted(true);
         if (!defaultData.current) return;
+        if(projectStatus === TFGStatus.PUBLISHED){
+            localStorage.removeItem(`tfg-data-${tfg?.id}`);
+        }
         const tfgSavedData = localStorage.getItem(`tfg-data-${tfg?.id}`);
         const existingImages: string[] = [];
         if (tfgSavedData) {
@@ -471,7 +474,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                                     </div>
                                     <div className={clsx("flex-1 relative", isSaving && "opacity-60 pointer-events-none")}>
                                         <div className="absolute top-0 bottom-0 left-0 right-0">
-                                            <SimpleBar autoHide={false} className="h-full pr-4">
+                                            <SimpleBar autoHide={false} className="h-full pr-4 pb-3">
                                                 <div className="flex justify-center pt-3">
                                                     <NextUIButton
                                                         color="warning"

@@ -9,7 +9,31 @@ import { TFGSSeed } from "./seedData/tfgs";
 import { Role, TFGStatus } from "@/app/lib/enums";
 import { getRandomDates } from "./seedData/getRandomDate";
 import { TFG_BLockElement } from "@/app/components/TFG_BlockDefinitions/BlockDefs";
-import { MAX_BLOCKS } from "@/app/types/defaultData";
+import { MAX_BANNER_DIMENSIONS, MAX_BLOCKS, MAX_THUMBNAIL_DIMENSIONS } from "@/app/types/defaultData";
+
+function getRandomSeed(length: number): string {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+function getRandomImage() {
+    const width = getRandomIntegerBetween(200, 500);
+    const height = getRandomIntegerBetween(200, 500);
+    return `https://picsum.photos/seed/${getRandomSeed(20)}/${width}/${height}`;
+}
+
+function getRandomThumbnailAndBanner(): { thumbnail: string; banner: string } {
+    const seed = getRandomSeed(35);
+    return {
+        thumbnail: `https://picsum.photos/seed/${seed}/${MAX_THUMBNAIL_DIMENSIONS.width}/${MAX_THUMBNAIL_DIMENSIONS.height}`,
+        banner: `https://picsum.photos/seed/${seed}/${MAX_BANNER_DIMENSIONS.width}/${MAX_BANNER_DIMENSIONS.height}`,
+    };
+}
+
 function getRandomImageURL(): { url: string; isFullHD: boolean } {
     const fullHDChance = Math.random() < 0.3;
 
@@ -18,20 +42,18 @@ function getRandomImageURL(): { url: string; isFullHD: boolean } {
 
     if (fullHDChance) {
         // 30% chance to generate a 1920x1080 image
-        url = `https://picsum.photos/seed/${Math.random().toString(36).substring(2, 15)}/1920/1080`;
+        url = `https://picsum.photos/seed/${getRandomSeed(15)}/1920/1080`;
         isFullHD = true;
     } else {
         // 70% chance to generate an image with random dimensions between 200 and 500
-        const width = getRandomIntegerBetween(200, 500);
-        const height = getRandomIntegerBetween(200, 500);
-        url = `https://picsum.photos/seed/${Math.random().toString(36).substring(2, 15)}/${width}/${height}`;
+        url = getRandomImage();
         isFullHD = false;
     }
 
     return { url, isFullHD };
 }
 
-function getRandomTFGTitle(): string {
+function getRandomParagraphTitle(): string {
     const chance = Math.random();
 
     if (chance < 0.2) {
@@ -140,6 +162,11 @@ function getRandomParagraph(): string {
 function getRandomIntegerBetween(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+function getRandomFloatBetween(min: number, max: number): number {
+    const randomFloat = Math.random() * (max - min) + min;
+    return parseFloat(randomFloat.toFixed(2));
+}
+
 const getRandomBlock = (): TFG_BLockElement => {
     const type = getRandomIntegerBetween(1, 8);
 
@@ -156,7 +183,7 @@ const getRandomBlock = (): TFG_BLockElement => {
                 mediaPopOver: randomImage.isFullHD,
                 mediaHasTransparency: false,
 
-                title: getRandomTFGTitle(),
+                title: getRandomParagraphTitle(),
                 text: getRandomParagraph(),
                 textAlign: type === 1 ? "lg:text-left" : "lg:text-right",
                 textVAlign: "lg:items-start",
@@ -230,7 +257,7 @@ const getRandomBlock = (): TFG_BLockElement => {
         return {
             type: type,
             data: JSON.stringify({
-                title: getRandomTFGTitle(),
+                title: getRandomParagraphTitle(),
                 text: getRandomParagraph(),
                 textAlign: "lg:text-center",
                 textVAlign: "lg:items-start",
@@ -241,11 +268,11 @@ const getRandomBlock = (): TFG_BLockElement => {
         return {
             type: type,
             data: JSON.stringify({
-                title1: getRandomTFGTitle(),
+                title1: getRandomParagraphTitle(),
                 text1: getRandomParagraph(),
                 textAlign1: "lg:text-center",
                 textVAlign1: "lg:items-start",
-                title2: getRandomTFGTitle(),
+                title2: getRandomParagraphTitle(),
                 text2: getRandomParagraph(),
                 textAlign2: "lg:text-center",
                 textVAlign2: "lg:items-start",
@@ -256,15 +283,15 @@ const getRandomBlock = (): TFG_BLockElement => {
         return {
             type: type,
             data: JSON.stringify({
-                title1: getRandomTFGTitle(),
+                title1: getRandomParagraphTitle(),
                 text1: getRandomParagraph(),
                 textAlign1: "lg:text-center",
                 textVAlign1: "lg:items-start",
-                title2: getRandomTFGTitle(),
+                title2: getRandomParagraphTitle(),
                 text2: getRandomParagraph(),
                 textAlign2: "lg:text-center",
                 textVAlign2: "lg:items-start",
-                title3: getRandomTFGTitle(),
+                title3: getRandomParagraphTitle(),
                 text3: getRandomParagraph(),
                 textAlign3: "lg:text-center",
                 textVAlign3: "lg:items-start",
@@ -276,7 +303,7 @@ const getRandomBlock = (): TFG_BLockElement => {
 
 const getRandomContentBlocks = (): string => {
     const blocks: TFG_BLockElement[] = [];
-    const maxBlocks = getRandomIntegerBetween(5, MAX_BLOCKS)
+    const maxBlocks = getRandomIntegerBetween(5, MAX_BLOCKS);
     for (let i = 0; i < maxBlocks; i++) {
         blocks.push(getRandomBlock());
     }
@@ -326,15 +353,26 @@ async function main() {
         throw new Error("Could not create locations");
     }
 
-    const tfgData = TFGSSeed.map((tfg) => ({
-        ...tfg,
-        status: TFGStatus.PUBLISHED,
-        contentBlocks: getRandomContentBlocks(),
-        categoryId: categories[Math.floor(Math.random() * categories.length)].id,
-        titulationId: titulations[Math.floor(Math.random() * titulations.length)].id,
-        departmentId: Math.random() < 0.2 ? null : departments[Math.floor(Math.random() * departments.length)].id,
-        collegeId: college.id,
-    }));
+    const tfgData = TFGSSeed.map((tfg) => {
+        const randomThumbnailAndBanner = getRandomThumbnailAndBanner();
+        return {
+            ...tfg,
+            status: TFGStatus.PUBLISHED,
+            views: getRandomIntegerBetween(10000, 400000),
+            thumbnail: randomThumbnailAndBanner.thumbnail,
+            banner: randomThumbnailAndBanner.banner,
+            pages: getRandomIntegerBetween(80, 200),
+            trendingScore: 0,
+            scoredTimes: getRandomIntegerBetween(500, 2000),
+            score: getRandomFloatBetween(1, 10),
+            documentLink: "https://drive.google.com/file/d/1YNkDOHv0OnTJEuO47xwCg_uKszxCZ1fy/view?usp=drive_link",
+            contentBlocks: getRandomContentBlocks(),
+            categoryId: categories[Math.floor(Math.random() * categories.length)].id,
+            titulationId: titulations[Math.floor(Math.random() * titulations.length)].id,
+            departmentId: Math.random() < 0.2 ? null : departments[Math.floor(Math.random() * departments.length)].id,
+            collegeId: college.id,
+        };
+    });
     await prisma.tfg.createMany({ data: tfgData });
     const tfgs = await prisma.tfg.findMany();
 
@@ -360,6 +398,7 @@ async function main() {
         personalPage: string | null;
     }[] = usersSeed.map((user, index) => ({
         ...user,
+        name: `User ${index + 1}`,
         email: `user${index + 1}@example.com`,
         socials: user.socials ?? null,
         personalPage: null,

@@ -119,7 +119,7 @@ export default async function TutorArea() {
                 <TabList className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                     <Tab className="data-[selected]:opacity-100 opacity-50 transition-opacity data-[selected]:border-none rounded-lg bg-gradient-to-r from-indigo-900 to-purple-500 p-5 flex gap-2 items-center">
                         <div className="flex-1 flex items-center">
-                            <h2 className="text-5xl font-semibold text-center w-16">{pendingProjects.length}</h2>
+                            <h2 className="text-5xl font-semibold text-center">{pendingProjects.length}</h2>
                             <div className="pl-3 leading-5 text-left">PROYECTOS PENDIENTES DE REVISIÓN</div>
                         </div>
                         <div>
@@ -128,7 +128,7 @@ export default async function TutorArea() {
                     </Tab>
                     <Tab className="data-[selected]:opacity-100 opacity-50 transition-opacity data-[selected]:border-none rounded-lg bg-gradient-to-r from-teal-700 to-teal-500 p-5 flex gap-2 items-center">
                         <div className="flex-1 flex items-center">
-                            <h2 className="text-5xl font-semibold text-center w-16">{totalUnreadMessages}</h2>
+                            <h2 className="text-5xl font-semibold text-center">{totalUnreadMessages}</h2>
                             <div className="pl-3 leading-5 text-left">MENSAJES SIN LEER</div>
                         </div>
                         <div>
@@ -137,8 +137,8 @@ export default async function TutorArea() {
                     </Tab>
                     <Tab className="data-[selected]:opacity-100 opacity-50 transition-opacity data-[selected]:border-none rounded-lg bg-gradient-to-r from-orange-500 to-yellow-500 p-5 flex gap-2 items-center">
                         <div className="flex-1 flex items-center">
-                            <h2 className="text-5xl font-semibold text-center w-16">{publishedProjects.length}</h2>
-                            <div className="pl-3 leading-5 text-left">PROYECTOS SUPERVISADOS</div>
+                            <h2 className="text-5xl font-semibold text-center">{publishedProjects.length}</h2>
+                            <div className="pl-3 leading-5 text-left flex-1">PROYECTOS SUPERVISADOS</div>
                         </div>
                         <div>
                             <IconBox size={60} />

@@ -112,7 +112,7 @@ export default function Profile() {
         author: [
             {
                 name: session?.user.name || "Usuario",
-                image: session?.user.image ?? "aa",
+                image: session?.user.image ?? "",
                 socials: JSON.stringify(socials),
                 personalPage: personalPage,
                 showImage: showImage,

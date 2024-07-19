@@ -55,7 +55,7 @@ async function getTopWorks() {
             status: TFGStatus.PUBLISHED,
         },
         orderBy: [{ views: "desc" }, { score: "desc" }, { createdAt: "desc" }],
-        take: 5,
+        take: 10,
     });
     return TopWorks;
 }
@@ -197,7 +197,7 @@ export default async function Home() {
 
             <div className="pb-[180px] px-4 lg:px-12 pt-7">
                 {RowData.map((rowData, index) => (
-                    <div key={index} className="pb-10">
+                    <div key={index} className="pb-[87px]">
                         <div className="font-bold pl-1 flex items-end mb-3 flex-wrap">
                             <div className="flex text-medium w-full xs:w-auto lg:text-xl">
                                 <div className="self-stretch pt-1 pb-1 mr-2 inline-block">

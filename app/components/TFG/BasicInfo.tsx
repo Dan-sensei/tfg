@@ -28,7 +28,7 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
                                 }
                                 const img =
                                     author.showImage && author.image && author.image.trim() !== "" ? (
-                                        <img className="size-4" src={author.image} alt={author.name} />
+                                        <img className="size-8 rounded-full" src={author.image} alt={author.name} />
                                     ) : null;
                                 return (
                                     <div key={index}>
@@ -46,7 +46,7 @@ export default function TFG_BasicInfo({ TFG }: { TFG: iDetailsTFG }) {
                                                 />
                                             </Link>
                                         ) : (
-                                            <div className="flex gap-2">
+                                            <div className="flex gap-2 items-center">
                                                 {img}
                                                 {author.name}
                                             </div>

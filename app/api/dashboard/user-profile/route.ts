@@ -6,7 +6,7 @@ import { authOptions } from "@/app/lib/authOptions";
 import { UserProfileSchema } from "@/app/lib/schemas";
 import * as v from "valibot";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const session = await getServerSession(authOptions);
     if (!session) return badResponse("Unauthorized", 401);
 

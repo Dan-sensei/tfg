@@ -46,16 +46,16 @@ export default async function Defensas({ searchParams }: Props) {
     const year = Number(searchParams?.year || now.getFullYear());
     const month = Number(searchParams?.month || now.getMonth() + 1);
     let selectedDate = {
-        year: now.getFullYear().toString(),
-        month: (now.getMonth() + 1).toString(),
-        day: now.getDate().toString(),
+        year: now.getFullYear().toString().padStart(2, "0"),
+        month: (now.getMonth() + 1).toString().padStart(2, "0"),
+        day: now.getDate().toString().padStart(2, "0"),
     };
     if (searchParams?.selected && searchParams?.selected.split("-").length === 3) {
         const date = searchParams?.selected.split("-");
         selectedDate = {
             year: date[0],
-            month: date[1],
-            day: date[2],
+            month: date[1].padStart(2, "0"),
+            day: date[2].padStart(2, "0"),
         };
     }
     const languageHeaders = headers().get('accept-language');

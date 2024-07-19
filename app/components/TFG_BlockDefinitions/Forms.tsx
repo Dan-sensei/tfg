@@ -284,8 +284,7 @@ export const SINGLE_TEXT_FORM = ({ id, stringifiedData, updateFormBlock, removeF
             updateProperties={{
                 text: "text",
                 textAlign: "textAlign",
-                title: "title",
-                textVAlign: "textVAlign",
+                title: "title"
             }}
             id={id}
             PositionText="derecha"
@@ -308,8 +307,7 @@ export const DOUBLE_TEXT_FORM = ({ id, stringifiedData, updateFormBlock, removeF
                 updateProperties={{
                     text: "text1",
                     textAlign: "textAlign1",
-                    title: "title1",
-                    textVAlign: "textVAlign1",
+                    title: "title1"
                 }}
                 id={id}
                 PositionText="derecha"
@@ -326,8 +324,7 @@ export const DOUBLE_TEXT_FORM = ({ id, stringifiedData, updateFormBlock, removeF
                 updateProperties={{
                     text: "text2",
                     textAlign: "textAlign2",
-                    title: "title2",
-                    textVAlign: "textVAlign2",
+                    title: "title2"
                 }}
                 id={id}
                 PositionText="derecha"
@@ -353,8 +350,7 @@ export const TRIPLE_TEXT_FORM = ({ id, stringifiedData, updateFormBlock, removeF
                 updateProperties={{
                     text: "text1",
                     textAlign: "textAlign1",
-                    title: "title1",
-                    textVAlign: "textVAlign1",
+                    title: "title1"
                 }}
                 id={id}
                 PositionText="derecha"
@@ -371,8 +367,7 @@ export const TRIPLE_TEXT_FORM = ({ id, stringifiedData, updateFormBlock, removeF
                 updateProperties={{
                     text: "text2",
                     textAlign: "textAlign2",
-                    title: "title2",
-                    textVAlign: "textVAlign2",
+                    title: "title2"
                 }}
                 id={id}
                 PositionText="derecha"
@@ -389,8 +384,7 @@ export const TRIPLE_TEXT_FORM = ({ id, stringifiedData, updateFormBlock, removeF
                 updateProperties={{
                     text: "text3",
                     textAlign: "textAlign3",
-                    title: "title3",
-                    textVAlign: "textVAlign3",
+                    title: "title3"
                 }}
                 id={id}
                 PositionText="derecha"
