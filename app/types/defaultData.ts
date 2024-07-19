@@ -1,7 +1,8 @@
 import { Role } from "../lib/enums";
 
 export const DAY = 86400;
-export const HALF_DAY = 43200;
+export const REVALIDATE_HOME_DATA_SECONDS = 1 * 60 * 60; //1h
+export const REVALIDATE_TOP_WORKS_SECONDS = 12 * 60 * 60; //12h
 
 export const DEF_ICON_SIZE = 18;
 

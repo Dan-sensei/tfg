@@ -8,8 +8,8 @@ import { IconChevronRight } from "@tabler/icons-react";
 import { TFGStatus } from "@/app/lib/enums";
 import { s_cache } from "@/app/lib/cache";
 import {
-    DAY,
-    HALF_DAY,
+    REVALIDATE_HOME_DATA_SECONDS,
+    REVALIDATE_TOP_WORKS_SECONDS,
     ROW_RECOMMENDED_MAX_VIEWS,
     ROW_RECOMMENDED_RANDOM_MULT,
     ROW_RECOMMENDED_SCORE_MULT,
@@ -158,7 +158,7 @@ const getCachedTopWorks = s_cache(
     },
     ["home-top-works"],
     {
-        revalidate: DAY,
+        revalidate: REVALIDATE_TOP_WORKS_SECONDS,
     }
 );
 
@@ -169,7 +169,7 @@ const getCachedHomeRowsForUser = (userId: string, interestedTags: string[]) => {
         },
         ["home-data", userId],
         {
-            revalidate: HALF_DAY,
+            revalidate: REVALIDATE_HOME_DATA_SECONDS,
         }
     );
 };
