@@ -292,7 +292,7 @@ export enum BLOCKTYPE {
     TRIPLE_MEDIA,
     SINGLE_TEXT,
     DOUBLE_TEXT,
-    TRIPLE_TEXT,
+    TRIPLE_TEXT
 }
 
 export const FormSchema = v.object({

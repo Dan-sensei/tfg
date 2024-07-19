@@ -30,6 +30,7 @@ import {
     TRIPLE_TEXT_FORM,
 } from "./TFG_BlockDefinitions/Forms";
 import { BLOCKSCHEMA, BLOCKTYPE, BlockInfo, iFile } from "./TFG_BlockDefinitions/BlockDefs";
+import { MAX_BLOCKS } from "../types/defaultData";
 
 
 type Props = {
@@ -280,7 +281,7 @@ export default function BlockBuilder({ className, blocks, updateForm, updateForm
                     </Disclosure>
                 );
             })}
-            {Object.keys(blocks).length < 5 && (
+            {Object.keys(blocks).length < MAX_BLOCKS && (
                 <Button onClick={addBlock} className="mt-4 h-32 border-1 rounded-lg justify-center flex bg-nova-darker border-blue-500  w-full">
                     <div className="rounded-full border-2 p-2 border-dashed border-blue-400 ">
                         <IconPlus size={40} />

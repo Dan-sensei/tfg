@@ -167,6 +167,8 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
         if (tfgSavedData) {
             try {
                 const data = JSON.parse(tfgSavedData) as ProjectFormData;
+                // Check if the saved department / titulation / category saved in the localStorage exist in the
+                // list we receive. If it doesn't it means a manager has removed the entity, so we load the default one.
                 const department =
                     departments.find((d) => d.id === data.department?.id) ?? departments.find((d) => d.id === defaultData.current?.department?.id);
                 const titulation =
@@ -191,6 +193,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                     tags: data.tags ?? [],
                 }));
 
+                // Check if we have saved images in the localStorage. If we don't, we delete them from the indexedDB.
                 if (data.banner) {
                     existingImages.push("banner");
                     existingImages.push("ubanner");
@@ -207,6 +210,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                 localStorage.removeItem(`tfg-data-${tfg?.id}`);
             }
         }
+        // Remove images that are not in the existingImages array.
         deleteNonExistentImagesFromIndexedDB(existingImages);
     }, []);
 
@@ -225,6 +229,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
             tags: form.tags,
             tutors: form.tutors.map((t) => t.id),
         });
+        // Read each error message from valibot and add it to the error message state
         result.issues?.forEach((issue) => {
             const path = issue.path?.[0] as any | undefined;
             if (path) {
@@ -235,9 +240,9 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
         const updatedBlocks = produce(form.contentBlocks, (draft) => {
             draft.forEach((block) => {
                 const schema = BLOCKSCHEMA[block.type];
-                const missingParamsInBlock = schema.VALIDATE(block.data);
-                if (missingParamsInBlock.issues) {
-                    block.errors = missingParamsInBlock.issues.map((issue) => issue.message);
+                const validateBlocksResult = schema.VALIDATE(block.data);
+                if (validateBlocksResult.issues) {
+                    block.errors = validateBlocksResult.issues.map((issue) => issue.message);
                     foundErrorsInBlocks = true;
                 } else {
                     block.errors = [];
@@ -258,7 +263,10 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
         if (data.banner instanceof Blob) formData.append("banner", data.banner);
         if (data.thumbnail instanceof Blob) formData.append("thumbnail", data.thumbnail);
 
+        // If we have images, we don't want the base64 string, we want the blob because
+        // it's faster to send
         const blocks: BlockInfo[] = data.contentBlocks.map((block) => {
+            // Replaces the image base64 with de text "data:"
             const cleanedContent = BLOCKSCHEMA[block.type].prepareForLocalStorage(block.data);
             return {
                 id: block.id,
@@ -269,6 +277,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
             };
         });
 
+        // Append the file to the formData with the id of the block and the id of the file
         blocks.forEach((block) => {
             block.files.forEach((blob) => {
                 formData.append(`block-${block.id}-${blob.id}`, blob.blob);
@@ -290,7 +299,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
             tutors: data.tutors,
             collegeId: college.id,
         };
-
+        // Finally, append the rest of the data (title, description...)
         formData.append("projectData", JSON.stringify(projectData));
 
         setIsSaving(true);
@@ -304,6 +313,9 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
                     toast.success("TFG guardado con éxito. Recargando...");
                     deleteNonExistentImagesFromIndexedDB([]);
                     localStorage.removeItem(`tfg-data-${tfg?.id}`);
+                    // We reload to make sure the image are refreshed
+                    // If we upload a new banner.jpg it may not refresh because the new file
+                    // will have the same name
                     location.reload();
                 } else {
                     toast.error(json.response);
@@ -314,6 +326,7 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
     };
 
     const updateForm = (data: Partial<ProjectFormData>) => {
+        // We use immer to update the form state with Object.assign
         setForm(
             produce((draft) => {
                 Object.assign(draft, data);

@@ -40,7 +40,7 @@ export const MAX_BANNER_DIMENSIONS = {
 
 export const MAX_THUMBNAIL_SIZE = 2 * 1024 * 1024;
 export const MAX_THUMBNAIL_DIMENSIONS = { width: 400, height: 225 };
-
+export const MAX_BLOCKS = 8;
 export const MAX_TITLE_LENGTH = 70;
 export const MAX_DESCRIPTION_LENGTH = 500;
 export const MAX_BLOCK_TITLE_LENGTH = 30;

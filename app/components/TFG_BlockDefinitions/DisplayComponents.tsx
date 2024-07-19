@@ -67,7 +67,7 @@ export const SINGLE_MEDIA_ELEMENT = ({ data }: BlockParams) => {
 
 export const DOUBLE_MEDIA_ELEMENT = ({ data }: BlockParams) => {
     const convertedData = data as DOUBLE_MEDIA_TYPE;
-
+    console.log("convertedData", convertedData)
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 xl:gap-8">
             <Media

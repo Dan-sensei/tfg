@@ -289,7 +289,7 @@ export default function LocationsForm({ className }: Props) {
                                 {selectedLocation && selectedLocation.totalDefenses > 0 && (
                                     <>
                                         <p className="py-1">
-                                            <span className="font-semibold text-nova-error text-xl">{selectedLocation?.totalDefenses} proyectos</span>
+                                            <span className="font-semibold text-nova-error text-xl">{selectedLocation?.totalDefenses} defensas</span>
                                         </p>
 
                                         <p className="pt-1">

@@ -144,7 +144,7 @@ export async function PUT(request: NextRequest) {
     });
     if (!user || user.personalProject === null) return badResponse("El proyecto no existe", 400);
     if(user.personalProject.status === TFGStatus.PUBLISHED){
-        return badResponse("El proyecto ya sido publicado", 400);
+        return badResponse("El proyecto ya sido publicado, actualiza la página", 400);
     }
 
     const data = await request.formData();
