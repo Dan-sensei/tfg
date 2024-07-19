@@ -6,10 +6,9 @@ import React from "react";
 
 interface FavButtonProps {
     id: number;
-    updateCallback?: () => void;
 }
 
-function FavButton({ id, updateCallback }: FavButtonProps) {
+function FavButton({ id }: FavButtonProps) {
     const [favorite, setFavorite] = useState(false);
     const { isFavorite, toggleFav, isInitialized } = useFavorites();
 
@@ -23,7 +22,6 @@ function FavButton({ id, updateCallback }: FavButtonProps) {
         const fav = !favorite;
         setFavorite(fav);
         toggleFav(id, fav);
-        updateCallback?.();
     };
     return (
         <>

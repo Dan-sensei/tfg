@@ -301,50 +301,10 @@ export default function ProjectForm({ college, authors, departments, tutors, tit
             .then((response) => response.json())
             .then((json) => {
                 if (json.success) {
-                    toast.success("TFG guardado con éxito");
-                    const newState = json.response as ProjectFormData;
-                    // We just receive the id of each property
-                    for (const emptyTutor of newState.tutors) {
-                        const t = tutors.find((tutor) => tutor.id === emptyTutor.id);
-                        if (!t) {
-                            location.reload();
-                            return;
-                        }
-                        emptyTutor.image = t.image;
-                        emptyTutor.name = t.name;
-                        emptyTutor.personalPage = t.personalPage;
-                        emptyTutor.socials = t.socials;
-                    }
-
-                    if (newState.department !== null) {
-                        const emptyDepartment = newState.department;
-                        const d = departments.find((department) => department.id === emptyDepartment.id);
-                        if (!d) {
-                            location.reload();
-                            return;
-                        }
-                        emptyDepartment.name = d.name;
-                        emptyDepartment.link = d.link;
-                    }
-
-                    const c = categories.find((category) => category.id === newState.category.id);
-                    if (!c) {
-                        location.reload();
-                        return;
-                    }
-                    newState.category.name = c.name;
-
-                    const ti = titulations.find((titulation) => titulation.id === newState.titulation.id);
-                    if (!ti) {
-                        location.reload();
-                        return;
-                    }
-                    newState.titulation.name = ti.name;
-
-                    defaultData.current = newState;
+                    toast.success("TFG guardado con éxito. Recargando...");
                     deleteNonExistentImagesFromIndexedDB([]);
-                    setForm(newState);
                     localStorage.removeItem(`tfg-data-${tfg?.id}`);
+                    location.reload();
                 } else {
                     toast.error(json.response);
                 }

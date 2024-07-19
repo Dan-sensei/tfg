@@ -130,7 +130,7 @@ export default function Calendar({ defenses, year, month, selectedDate, userTime
     const defenseData = defensesByDate[`${selected.year}-${selected.month}-${selected.day}`];
     return (
         <>
-            <div className="lg:col-span-2 flex flex-col lg:max-h-[1000px] w-full md:px-32 lg:px-0">
+            <div className="lg:col-span-2 flex flex-col w-full md:px-32 lg:px-0">
                 <CalendarControls year={year} month={month} />
                 <div className="flex text-2xl lg:pt-3">
                     {WEEK.map((day, index) => (

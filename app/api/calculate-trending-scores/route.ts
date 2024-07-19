@@ -1,12 +1,8 @@
 import { TRENDING_WEIGHTS } from "@/app/lib/config";
 import prisma from "@/app/lib/db";
 import iRedis from "@/app/lib/iRedis";
-import { RedisSet } from "@/app/types/interfaces";
 import { Prisma } from "@prisma/client";
-import { unstable_noStore as noStore } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-
-import pMap from "p-map";
 
 type ViewsData = {
     totalViews: number;

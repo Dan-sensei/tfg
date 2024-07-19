@@ -310,40 +310,7 @@ export async function PUT(request: NextRequest) {
         return badResponse("Error saving project", 500);
     }
 
-    const newTFG: ProjectFormData = {
-        id: user.personalProject.id,
-        thumbnail: projectData.thumbnail,
-        banner: projectData.banner,
-        title: projectData.title,
-        description: projectData.description,
-        tutors: projectData.tutors.map((tutor) => ({
-            id: tutor,
-            name: "",
-            socials: "",
-            personalPage: "",
-            image: "",
-        })),
-        department: projectData.departmentId
-            ? {
-                  id: projectData.departmentId,
-                  name: "",
-                  link: "",
-              }
-            : null,
-        category: {
-            id: projectData.categoryId,
-            name: "",
-        },
-        titulation: {
-            id: projectData.titulationId,
-            name: "",
-        },
-        pages: projectData.pages,
-        contentBlocks: projectData.contentBlocks,
-        documentLink: projectData.documentLink,
-        tags: projectData.tags,
-    };
-    return successResponse(newTFG, 200);
+    return successResponse(true, 200);
 }
 
 // New Project

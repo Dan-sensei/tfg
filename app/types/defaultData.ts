@@ -7,7 +7,7 @@ export const DEF_ICON_SIZE = 18;
 
 export const PAGINATION_SIZE = 30;
 
-export const ROW_SIZE = 30;
+export const ROW_SIZE = 20;
 
 export const ROW_RECOMMENDED_MAX_VIEWS = 100000;
 export const ROW_RECOMMENDED_SCORE_MULT = 0.4;

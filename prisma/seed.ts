@@ -83,17 +83,27 @@ async function main() {
         role: number;
         socials: string | null;
         personalPage: string | null;
-    }[] = usersSeed.map((user) => ({
+    }[] = usersSeed.map((user, index) => ({
         ...user,
+        email: `user${index + 1}@example.com`,
         socials: user.socials ?? null,
         personalPage: null,
         personalProjectId: getRandomTfgId(),
         collegeId: college.id,
     }));
-    // Last 3 users don't have TFG
-    usersData[usersData.length - 3].personalProjectId = null;
-    usersData[usersData.length - 2].personalProjectId = null;
-    usersData[usersData.length - 1].personalProjectId = null;
+
+    usersData[0].personalProjectId = null;
+    usersData[0].email = "e1";
+    usersData[1].personalProjectId = null;
+    usersData[1].email = "e2";
+    usersData[2].personalProjectId = null;
+    usersData[2].email = "tutor1";
+    usersData[3].personalProjectId = null;
+    usersData[3].email = "tutor2";
+    usersData[4].personalProjectId = null;
+    usersData[4].email = "manager";
+    usersData[5].personalProjectId = null;
+    usersData[5].email = "admin";
 
     await prisma.user.createMany({ data: usersData });
     const tutors = await prisma.user.findMany({

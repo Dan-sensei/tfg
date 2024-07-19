@@ -9,11 +9,10 @@ import { tulpen_one } from "../../lib/fonts";
 import Home from "@/app/(with-layout)/home/page";
 
 interface ExtendedTFG extends iTFG {
-    updateCallback?: () => void;
     className?: string;
 }
 
-export default function Card({ id, thumbnail, title, views, score, pages, description, createdAt, updateCallback, className }: ExtendedTFG) {
+export default function Card({ id, thumbnail, title, views, score, pages, description, createdAt, className }: ExtendedTFG) {
     let stars: JSX.Element[] = [];
 
     const score_floor = Math.floor(score);
@@ -53,7 +52,7 @@ export default function Card({ id, thumbnail, title, views, score, pages, descri
                         <div className="flex">
                             <h3 className="text-xs lg:text-sm font-bold mb-2 flex-1">{title}</h3>
                             <div className="flex-none">
-                                <FavButton id={id} updateCallback={updateCallback} />
+                                <FavButton id={id} />
                             </div>
                         </div>
                         <div className="flex w-full">
